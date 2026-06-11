@@ -10,11 +10,14 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll: () => request.cookies.getAll(),
-        setAll: (toSet) => {
-          toSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setAll: (toSet: any[]) => {
+          toSet.forEach(({ name, value }: { name: string; value: string }) =>
+            request.cookies.set(name, value)
+          );
           response = NextResponse.next({ request });
-          toSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+          toSet.forEach(({ name, value, options }: { name: string; value: string; options: unknown }) =>
+            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
           );
         },
       },
