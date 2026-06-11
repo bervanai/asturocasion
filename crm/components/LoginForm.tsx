@@ -20,7 +20,7 @@ export default function LoginForm() {
 
     setLoading(false);
     if (err) {
-      setError("Credenciales incorrectas. Verifica tu email y contraseña.");
+      setError(err.message);
     } else {
       router.push("/");
       router.refresh();
