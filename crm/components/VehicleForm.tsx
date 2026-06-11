@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import type { Vehicle } from "@/lib/supabase";
+import ImageUploader from "./ImageUploader";
 
 type Props = { vehicle?: Vehicle };
 
@@ -25,7 +26,7 @@ export default function VehicleForm({ vehicle }: Props) {
     description: vehicle?.description ?? "",
     status: vehicle?.status ?? "available",
     is_featured: vehicle?.is_featured ?? false,
-    images: vehicle?.images?.join("\n") ?? "",
+    images: vehicle?.images ?? [] as string[],
   });
 
   const [loading, setLoading] = useState(false);
@@ -52,7 +53,7 @@ export default function VehicleForm({ vehicle }: Props) {
       description: form.description || null,
       status: form.status,
       is_featured: form.is_featured,
-      images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
+      images: form.images,
     };
 
     const { error: err } = isEdit
@@ -123,15 +124,11 @@ export default function VehicleForm({ vehicle }: Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              URLs de imágenes <span className="text-gray-400">(una por línea)</span>
-            </label>
-            <textarea
-              rows={3}
-              value={form.images}
-              onChange={(e) => set("images", e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none font-mono"
-              placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+            <label className="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+            <ImageUploader
+              vehicleId={vehicle?.id}
+              images={form.images as string[]}
+              onChange={(urls) => setForm((f) => ({ ...f, images: urls }))}
             />
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
