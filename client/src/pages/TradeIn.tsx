@@ -3,8 +3,10 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TradeIn() {
   const [formData, setFormData] = useState({
@@ -20,6 +22,15 @@ export default function TradeIn() {
 
   const [submitted, setSubmitted] = useState(false);
 
+  const createLead = trpc.lead.create.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      setFormData({ brand: "", model: "", year: "", km: "", name: "", email: "", phone: "", message: "" });
+      setTimeout(() => setSubmitted(false), 4000);
+    },
+    onError: (err) => toast.error("Error al enviar: " + err.message),
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -27,21 +38,15 @@ export default function TradeIn() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        brand: "",
-        model: "",
-        year: "",
-        km: "",
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-      });
-    }, 3000);
+    const vehicleStr = [formData.brand, formData.model, formData.year, formData.km ? `${formData.km} km` : ""].filter(Boolean).join(" ");
+    createLead.mutate({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      type: "Tasación",
+      vehicle: vehicleStr || undefined,
+      message: formData.message || undefined,
+    });
   };
 
   const brands = ["Mercedes", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus"];
@@ -215,7 +220,7 @@ export default function TradeIn() {
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full">
+                  <Button type="submit" size="lg" className="w-full" disabled={createLead.isPending}>
                     Solicitar Tasación Gratuita
                   </Button>
                 </form>
