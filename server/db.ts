@@ -1,5 +1,6 @@
-import { and, desc, eq, ne, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import {
   InsertLead,
   InsertUser,
@@ -15,7 +16,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL, { ssl: "require" });
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -36,37 +38,30 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = { openId: user.openId };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
+    const now = new Date();
+    const values: InsertUser = {
+      openId: user.openId,
+      name: user.name ?? null,
+      email: user.email ?? null,
+      loginMethod: user.loginMethod ?? null,
+      role: user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user"),
+      lastSignedIn: user.lastSignedIn ?? now,
     };
-    textFields.forEach(assignNullable);
 
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = "admin";
-      updateSet.role = "admin";
-    }
-
-    if (!values.lastSignedIn) values.lastSignedIn = new Date();
-    if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+    await db
+      .insert(users)
+      .values(values)
+      .onConflictDoUpdate({
+        target: users.openId,
+        set: {
+          name: values.name,
+          email: values.email,
+          loginMethod: values.loginMethod,
+          role: values.role,
+          lastSignedIn: now,
+          updatedAt: now,
+        },
+      });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -106,14 +101,14 @@ export async function getVehicleById(id: number) {
 export async function createVehicle(data: Omit<InsertVehicle, "id">) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(vehicles).values(data);
-  return { id: (result as any).insertId as number };
+  const result = await db.insert(vehicles).values(data).returning({ id: vehicles.id });
+  return { id: result[0].id };
 }
 
 export async function updateVehicle(id: number, data: Partial<InsertVehicle>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(vehicles).set(data).where(eq(vehicles.id, id));
+  await db.update(vehicles).set({ ...data, updatedAt: new Date() }).where(eq(vehicles.id, id));
 }
 
 export async function deleteVehicle(id: number) {
@@ -167,14 +162,14 @@ export async function getLeadById(id: number) {
 export async function createLead(data: Omit<InsertLead, "id">) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(leads).values(data);
-  return { id: (result as any).insertId as number };
+  const result = await db.insert(leads).values(data).returning({ id: leads.id });
+  return { id: result[0].id };
 }
 
 export async function updateLead(id: number, data: Partial<InsertLead>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(leads).set(data).where(eq(leads.id, id));
+  await db.update(leads).set({ ...data, updatedAt: new Date() }).where(eq(leads.id, id));
 }
 
 export async function deleteLead(id: number) {
