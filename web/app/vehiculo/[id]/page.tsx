@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Fuel, Gauge, Calendar, Cog, Palette, DoorOpen, Zap, ArrowLeft, Phone } from "lucide-react";
 import ContactVehicleForm from "@/components/ContactVehicleForm";
+import ImageGallery from "@/components/ImageGallery";
 
 export const revalidate = 60;
 
@@ -10,11 +11,19 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(price);
 }
 
+const statusLabel: Record<string, { label: string; color: string }> = {
+  available: { label: "Disponible", color: "bg-green-100 text-green-700" },
+  reserved: { label: "Reservado", color: "bg-yellow-100 text-yellow-700" },
+  sold: { label: "Vendido", color: "bg-red-100 text-red-700" },
+};
+
 export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { data: vehicle } = await supabase.from("vehicles").select("*").eq("id", id).single();
 
   if (!vehicle) notFound();
+
+  const st = statusLabel[vehicle.status] ?? statusLabel.available;
 
   const specs = [
     { icon: Calendar, label: "Año", value: vehicle.year },
@@ -33,28 +42,20 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Imagen */}
+        {/* Galería */}
         <div>
-          {vehicle.images?.[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={vehicle.images[0]}
-              alt={`${vehicle.brand} ${vehicle.model}`}
-              className="w-full h-80 object-cover rounded-2xl"
-            />
-          ) : (
-            <div className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center text-gray-300 text-7xl">
-              🚗
-            </div>
-          )}
+          <ImageGallery images={vehicle.images ?? []} alt={`${vehicle.brand} ${vehicle.model}`} />
         </div>
 
         {/* Info */}
         <div>
-          <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-extrabold text-gray-900">
               {vehicle.brand} {vehicle.model}
             </h1>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${st.color}`}>
+              {st.label}
+            </span>
           </div>
 
           <p className="text-4xl font-extrabold text-accent mb-6">{formatPrice(vehicle.price)}</p>

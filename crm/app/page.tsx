@@ -1,6 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { createAdminClient } from "@/lib/supabase";
-import { Car, MessageSquare, TrendingUp, Clock } from "lucide-react";
 import Link from "next/link";
 
 export const revalidate = 30;
@@ -11,71 +10,176 @@ export default async function DashboardPage() {
   const [
     { count: totalVehicles },
     { count: availableVehicles },
+    { count: soldVehicles },
     { count: totalLeads },
     { count: newLeads },
     { data: recentLeads },
   ] = await Promise.all([
     admin.from("vehicles").select("*", { count: "exact", head: true }),
     admin.from("vehicles").select("*", { count: "exact", head: true }).eq("status", "available"),
+    admin.from("vehicles").select("*", { count: "exact", head: true }).eq("status", "sold"),
     admin.from("leads").select("*", { count: "exact", head: true }),
     admin.from("leads").select("*", { count: "exact", head: true }).eq("status", "new"),
     admin.from("leads").select("*, vehicles(brand, model)").order("created_at", { ascending: false }).limit(5),
   ]);
 
   const stats = [
-    { icon: Car, label: "Total vehículos", value: totalVehicles ?? 0, color: "bg-blue-50 text-blue-600" },
-    { icon: TrendingUp, label: "Disponibles", value: availableVehicles ?? 0, color: "bg-green-50 text-green-600" },
-    { icon: MessageSquare, label: "Total leads", value: totalLeads ?? 0, color: "bg-purple-50 text-purple-600" },
-    { icon: Clock, label: "Leads nuevos", value: newLeads ?? 0, color: "bg-orange-50 text-orange-600" },
+    {
+      icon: "directions_car",
+      label: "Total Inventario",
+      value: totalVehicles ?? 0,
+      sub: "vehículos registrados",
+      trend: null,
+      color: "text-tertiary",
+    },
+    {
+      icon: "check_circle",
+      label: "Disponibles",
+      value: availableVehicles ?? 0,
+      sub: "listos para vender",
+      trend: null,
+      color: "text-success-green",
+    },
+    {
+      icon: "person_search",
+      label: "Leads Totales",
+      value: totalLeads ?? 0,
+      sub: "consultas recibidas",
+      trend: null,
+      color: "text-secondary",
+    },
+    {
+      icon: "notifications_active",
+      label: "Leads Nuevos",
+      value: newLeads ?? 0,
+      sub: "pendientes de contactar",
+      trend: (newLeads ?? 0) > 0 ? "Prioridad" : null,
+      color: "text-error",
+    },
   ];
+
+  const typeLabel: Record<string, string> = {
+    contact: "Contacto General",
+    valuation: "Tasación",
+    vehicle_inquiry: "Consulta Vehículo",
+  };
+
+  const statusConfig: Record<string, { label: string; cls: string }> = {
+    new: { label: "Nuevo", cls: "bg-error-container text-error border border-error/20" },
+    contacted: { label: "Contactado", cls: "bg-secondary-container text-on-secondary-container border border-secondary/20" },
+    closed: { label: "Cerrado", cls: "bg-surface-container-highest text-on-surface-variant border border-outline-variant" },
+  };
 
   return (
     <DashboardLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm">Resumen del estado actual</p>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-on-surface tracking-tight">Panel de Control</h1>
+        <p className="text-on-surface-variant text-sm mt-1">Resumen del estado actual del concesionario</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {stats.map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}>
-              <Icon size={20} />
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {stats.map((s) => (
+          <div key={s.label} className="bg-surface-container-high border border-outline-variant rounded-xl p-5 hover:border-tertiary/50 transition-all group">
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{s.label}</span>
+              {s.trend && (
+                <span className="text-[10px] font-bold text-error bg-error-container px-2 py-0.5 rounded">{s.trend}</span>
+              )}
             </div>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-            <p className="text-sm text-gray-500 mt-0.5">{label}</p>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-4xl font-bold text-on-surface tabular-nums">{s.value}</p>
+                <p className="text-on-surface-variant text-xs mt-1">{s.sub}</p>
+              </div>
+              <span className={`material-symbols-outlined text-[32px] opacity-60 ${s.color}`}>{s.icon}</span>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Quick stats row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+        <div className="bg-surface-container-high border border-outline-variant rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="material-symbols-outlined text-tertiary">speed</span>
+            <span className="text-[10px] font-bold text-success-green">Activo</span>
+          </div>
+          <p className="text-2xl font-bold text-on-surface">{soldVehicles ?? 0}</p>
+          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">Vehículos Vendidos</p>
+        </div>
+        <div className="bg-surface-container-high border border-outline-variant rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="material-symbols-outlined text-tertiary">trending_up</span>
+            <span className="text-[10px] font-bold text-on-surface-variant">En tiempo real</span>
+          </div>
+          <p className="text-2xl font-bold text-on-surface">
+            {totalVehicles ? Math.round(((availableVehicles ?? 0) / totalVehicles) * 100) : 0}%
+          </p>
+          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">Disponibilidad</p>
+        </div>
+        <div className="bg-surface-container-high border border-outline-variant rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="material-symbols-outlined text-tertiary">ads_click</span>
+            <span className="text-[10px] font-bold text-on-surface-variant">Leads</span>
+          </div>
+          <p className="text-2xl font-bold text-on-surface">
+            {totalLeads ? Math.round(((totalLeads - (newLeads ?? 0)) / totalLeads) * 100) : 0}%
+          </p>
+          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">Tasa de Contacto</p>
+        </div>
+      </div>
+
+      {/* Recent Leads */}
       {recentLeads && recentLeads.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-            <h2 className="font-semibold text-gray-900">Últimos leads</h2>
-            <Link href="/leads" className="text-xs text-accent hover:underline">Ver todos</Link>
+        <div className="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center">
+            <h2 className="text-base font-semibold text-on-surface">Leads Recientes</h2>
+            <Link href="/leads" className="text-xs font-bold text-tertiary hover:underline flex items-center gap-1">
+              Ver todos
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </Link>
           </div>
-          <div className="divide-y divide-gray-50">
-            {recentLeads.map((lead) => (
-              <div key={lead.id} className="px-6 py-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{lead.name}</p>
-                  <p className="text-xs text-gray-400">{lead.email}</p>
-                </div>
-                <div className="text-right">
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    lead.status === "new" ? "bg-orange-100 text-orange-700" :
-                    lead.status === "contacted" ? "bg-blue-100 text-blue-700" :
-                    "bg-gray-100 text-gray-600"
-                  }`}>
-                    {lead.status === "new" ? "Nuevo" : lead.status === "contacted" ? "Contactado" : "Cerrado"}
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(lead.created_at).toLocaleDateString("es-ES")}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-surface-container-highest">
+              <tr>
+                <th className="text-left px-6 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Cliente</th>
+                <th className="text-left px-6 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Tipo</th>
+                <th className="text-left px-6 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Estado</th>
+                <th className="text-left px-6 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Fecha</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/30">
+              {recentLeads.map((lead) => {
+                const sc = statusConfig[lead.status] ?? statusConfig.new;
+                return (
+                  <tr key={lead.id} className="hover:bg-surface-variant/40 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-primary font-bold text-xs">
+                          {lead.name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-on-surface text-sm">{lead.name}</p>
+                          <p className="text-[11px] text-on-surface-variant">{lead.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-on-surface-variant text-xs">{typeLabel[lead.type] ?? lead.type}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ${sc.cls}`}>
+                        {sc.label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-on-surface-variant">
+                      {new Date(lead.created_at).toLocaleDateString("es-ES")}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </DashboardLayout>

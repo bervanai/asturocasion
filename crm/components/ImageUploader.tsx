@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Upload, X, Loader2, GripVertical } from "lucide-react";
+import { Upload, X, Loader2, AlertCircle } from "lucide-react";
 
 type Props = {
   vehicleId?: string;
@@ -13,6 +13,7 @@ type Props = {
 export default function ImageUploader({ vehicleId, images, onChange }: Props) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const uploadFiles = async (files: FileList) => {
@@ -23,25 +24,39 @@ export default function ImageUploader({ vehicleId, images, onChange }: Props) {
     }
 
     setUploading(true);
+    setErrors([]);
     const newUrls: string[] = [];
+    const newErrors: string[] = [];
     const folder = vehicleId ?? `tmp_${Date.now()}`;
 
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (!["jpg", "jpeg", "png", "webp", "gif"].includes(ext ?? "")) {
+        newErrors.push(`${file.name}: formato no soportado`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        newErrors.push(`${file.name}: supera 10 MB`);
+        continue;
+      }
+
       const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const { error } = await supabase.storage.from("vehicles").upload(path, file, {
+      const { error } = await supabase.storage.from("fotos").upload(path, file, {
         cacheControl: "3600",
         upsert: false,
       });
 
-      if (!error) {
-        const { data } = supabase.storage.from("vehicles").getPublicUrl(path);
+      if (error) {
+        newErrors.push(`${file.name}: ${error.message}`);
+      } else {
+        const { data } = supabase.storage.from("fotos").getPublicUrl(path);
         newUrls.push(data.publicUrl);
       }
     }
 
     onChange([...images, ...newUrls]);
+    setErrors(newErrors);
     setUploading(false);
   };
 
@@ -87,7 +102,7 @@ export default function ImageUploader({ vehicleId, images, onChange }: Props) {
               Arrastra imágenes o pulsa para seleccionar
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              JPG, PNG, WEBP · Máximo 20 imágenes · {images.length}/20 subidas
+              JPG, PNG, WEBP · Máx 10 MB por imagen · {images.length}/20 subidas
             </p>
           </>
         )}
@@ -101,6 +116,18 @@ export default function ImageUploader({ vehicleId, images, onChange }: Props) {
         />
       </div>
 
+      {/* Upload errors */}
+      {errors.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-1">
+          {errors.map((e, i) => (
+            <div key={i} className="flex items-center gap-2 text-red-600 text-xs">
+              <AlertCircle size={13} />
+              {e}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Preview grid */}
       {images.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
@@ -109,13 +136,11 @@ export default function ImageUploader({ vehicleId, images, onChange }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt={`Imagen ${i + 1}`} className="w-full h-full object-cover" />
 
-              {/* Overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                 {i !== 0 && (
                   <button
                     type="button"
-                    onClick={() => moveFirst(url)}
-                    title="Poner como principal"
+                    onClick={(e) => { e.stopPropagation(); moveFirst(url); }}
                     className="bg-white/90 text-gray-800 text-xs px-1.5 py-1 rounded font-medium hover:bg-white"
                   >
                     Principal
@@ -123,14 +148,13 @@ export default function ImageUploader({ vehicleId, images, onChange }: Props) {
                 )}
                 <button
                   type="button"
-                  onClick={() => remove(url)}
+                  onClick={(e) => { e.stopPropagation(); remove(url); }}
                   className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
                 >
                   <X size={14} />
                 </button>
               </div>
 
-              {/* Badge principal */}
               {i === 0 && (
                 <span className="absolute top-1 left-1 bg-accent text-white text-xs px-1.5 py-0.5 rounded font-semibold">
                   Principal

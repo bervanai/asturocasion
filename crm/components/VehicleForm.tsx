@@ -77,9 +77,10 @@ export default function VehicleForm({ vehicle }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-      <div>
-        <h2 className="font-semibold text-gray-900 mb-4">Información básica</h2>
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      {/* Información básica */}
+      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+        <h2 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-5">Información básica</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Marca *" value={form.brand} onChange={(v) => set("brand", v)} required />
           <Field label="Modelo *" value={form.model} onChange={(v) => set("model", v)} required />
@@ -92,8 +93,9 @@ export default function VehicleForm({ vehicle }: Props) {
         </div>
       </div>
 
-      <div>
-        <h2 className="font-semibold text-gray-900 mb-4">Mecánica y estado</h2>
+      {/* Mecánica y estado */}
+      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+        <h2 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-5">Mecánica y estado</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SelectField label="Combustible *" value={form.fuel_type} onChange={(v) => set("fuel_type", v)}>
             {["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"].map((f) => <option key={f}>{f}</option>)}
@@ -110,53 +112,58 @@ export default function VehicleForm({ vehicle }: Props) {
         </div>
       </div>
 
-      <div>
-        <h2 className="font-semibold text-gray-900 mb-4">Descripción e imágenes</h2>
-        <div className="space-y-4">
+      {/* Descripción e imágenes */}
+      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+        <h2 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-5">Descripción e imágenes</h2>
+        <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Descripción</label>
             <textarea
               rows={3}
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+              className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-tertiary resize-none transition-all"
               placeholder="Descripción del vehículo..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+            <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Imágenes</label>
             <ImageUploader
               vehicleId={vehicle?.id}
               images={form.images as string[]}
               onChange={(urls) => setForm((f) => ({ ...f, images: urls }))}
             />
           </div>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={form.is_featured}
               onChange={(e) => set("is_featured", e.target.checked)}
-              className="rounded accent-accent"
+              className="rounded border-outline-variant bg-surface accent-tertiary w-4 h-4"
             />
-            <span className="text-sm font-medium text-gray-700">Destacar en la homepage</span>
+            <span className="text-sm text-on-surface-variant">Destacar en la homepage</span>
           </label>
         </div>
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="bg-error-container border border-error/20 rounded-lg px-3 py-2">
+          <p className="text-error text-sm">{error}</p>
+        </div>
+      )}
 
-      <div className="flex items-center gap-3 pt-2">
+      <div className="flex items-center gap-3">
         <button
           type="submit"
           disabled={loading}
-          className="bg-accent text-white font-bold px-6 py-2.5 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60"
+          className="bg-[#FF5733] hover:brightness-110 text-white font-bold px-6 py-2.5 rounded-lg transition-all active:scale-95 disabled:opacity-60 text-xs uppercase tracking-wider"
         >
           {loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear vehículo"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/vehiculos")}
-          className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm hover:bg-gray-50 transition-colors"
+          className="px-6 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant text-xs font-bold uppercase tracking-wider hover:bg-surface-variant transition-colors"
         >
           Cancelar
         </button>
@@ -164,9 +171,9 @@ export default function VehicleForm({ vehicle }: Props) {
           <button
             type="button"
             onClick={handleDelete}
-            className="ml-auto px-4 py-2.5 rounded-xl text-red-500 text-sm hover:bg-red-50 transition-colors"
+            className="ml-auto px-4 py-2.5 rounded-lg text-error text-xs font-bold uppercase tracking-wider hover:bg-error/10 transition-colors border border-error/20"
           >
-            Eliminar
+            Eliminar vehículo
           </button>
         )}
       </div>
@@ -180,13 +187,13 @@ function Field({ label, value, onChange, type = "text", required }: {
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">{label}</label>
       <input
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-tertiary transition-all"
       />
     </div>
   );
@@ -197,11 +204,11 @@ function SelectField({ label, value, onChange, children }: {
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-tertiary transition-all"
       >
         {children}
       </select>

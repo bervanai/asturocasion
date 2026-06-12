@@ -12,9 +12,9 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
 
   return (
     <DashboardLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Editar Vehículo</h1>
-        <p className="text-gray-500 text-sm">{vehicle.brand} {vehicle.model}</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-on-surface tracking-tight">Editar Vehículo</h1>
+        <p className="text-on-surface-variant text-sm mt-1">{vehicle.brand} {vehicle.model}</p>
       </div>
       <VehicleForm vehicle={vehicle} />
     </DashboardLayout>

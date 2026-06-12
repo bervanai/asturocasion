@@ -15,9 +15,7 @@ export default function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-
     setLoading(false);
     if (err) {
       setError(err.message);
@@ -30,34 +28,38 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Email</label>
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-tertiary transition-all"
           placeholder="admin@asturocasion.com"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+        <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Contraseña</label>
         <input
           type="password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-tertiary transition-all"
           placeholder="••••••••"
         />
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="bg-error-container border border-error/20 rounded-lg px-3 py-2">
+          <p className="text-error text-xs">{error}</p>
+        </div>
+      )}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-accent text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60"
+        className="w-full bg-[#FF5733] hover:brightness-110 text-white font-bold py-3 rounded-lg transition-all active:scale-95 disabled:opacity-60 text-xs uppercase tracking-widest mt-2"
       >
         {loading ? "Entrando..." : "Entrar"}
       </button>
