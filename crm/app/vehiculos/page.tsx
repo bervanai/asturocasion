@@ -11,12 +11,14 @@ const statusConfig = {
   sold: { label: "Vendido", cls: "border border-outline-variant text-on-surface-variant bg-surface-container-highest" },
 };
 
-export default async function VehiculosPage() {
+export default async function VehiculosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams;
   const admin = createAdminClient();
-  const { data: vehicles } = await admin
-    .from("vehicles")
-    .select("*")
-    .order("created_at", { ascending: false });
+  let query = admin.from("vehicles").select("*").order("created_at", { ascending: false });
+  if (q) {
+    query = query.or(`brand.ilike.%${q}%,model.ilike.%${q}%,color.ilike.%${q}%`);
+  }
+  const { data: vehicles } = await query;
 
   const total = vehicles?.length ?? 0;
   const available = vehicles?.filter((v) => v.status === "available").length ?? 0;
@@ -27,9 +29,15 @@ export default async function VehiculosPage() {
         <div>
           <h1 className="text-3xl font-bold text-on-surface tracking-tight">Inventario de Vehículos</h1>
           <div className="flex items-center gap-3 mt-1">
-            <span className="text-on-surface-variant text-sm">{total} unidades totales</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
-            <span className="text-on-surface-variant text-sm">{available} disponibles</span>
+            {q ? (
+              <span className="text-tertiary text-sm">Resultados para &quot;{q}&quot; — {total} encontrados</span>
+            ) : (
+              <>
+                <span className="text-on-surface-variant text-sm">{total} unidades totales</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
+                <span className="text-on-surface-variant text-sm">{available} disponibles</span>
+              </>
+            )}
           </div>
         </div>
         <Link

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
 const navItems = [
@@ -13,11 +14,32 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const logout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && search.trim()) {
+      const dest = pathname.startsWith("/leads") ? "/leads" : "/vehiculos";
+      router.push(`${dest}?q=${encodeURIComponent(search.trim())}`);
+    }
+    if (e.key === "Escape") setSearch("");
+  };
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   return (
     <div className="min-h-screen bg-surface">
@@ -72,23 +94,66 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
           <input
             type="text"
-            placeholder="Buscar inventario, leads o clientes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearch}
+            placeholder="Buscar vehículos o leads... (Enter)"
             className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-tertiary transition-all"
           />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-3 ml-6">
-          <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-full hover:bg-surface-container-high transition-all">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
+          <Link
+            href="/vehiculos/nuevo"
+            className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-on-surface-variant hover:text-on-surface bg-surface-container-low hover:bg-surface-container-high border border-outline-variant px-3 py-1.5 rounded-lg transition-all uppercase tracking-wider"
+          >
+            <span className="material-symbols-outlined text-[16px]">add</span>
+            Nuevo
+          </Link>
           <div className="h-6 w-px bg-outline-variant" />
-          <div className="flex items-center gap-2 cursor-pointer">
-            <div className="text-right">
-              <p className="text-xs font-semibold text-on-surface leading-none">Admin</p>
-              <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Gerente</p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-on-surface-variant">
-              <span className="material-symbols-outlined text-[18px]">person</span>
-            </div>
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen((o) => !o)}
+              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-semibold text-on-surface leading-none">Admin</p>
+                <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Gerente</p>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[#FF5733] flex items-center justify-center text-white font-bold text-xs">
+                A
+              </div>
+            </button>
+            {profileOpen && (
+              <div className="absolute right-0 top-12 w-48 bg-surface-container-low border border-outline-variant rounded-xl shadow-2xl shadow-black/50 py-1 z-50">
+                <div className="px-4 py-3 border-b border-outline-variant">
+                  <p className="text-xs font-semibold text-on-surface">Admin</p>
+                  <p className="text-[11px] text-on-surface-variant">Gerente · Astur Ocasión</p>
+                </div>
+                <Link
+                  href="/vehiculos/nuevo"
+                  onClick={() => setProfileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                  Nuevo vehículo
+                </Link>
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-error hover:bg-error/10 transition-colors w-full text-left"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
