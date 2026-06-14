@@ -46,14 +46,14 @@ const TIMELINE = [
 
 export default function About() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />
 
       {/* ---- Hero ---- */}
       <section
         style={{
-          background: "#0d0f14",
-          padding: "5rem 0 4rem",
+          background: "#0071E3",
+          padding: "6rem 0 5rem",
           position: "relative",
           overflow: "hidden",
         }}
@@ -69,7 +69,7 @@ export default function About() {
             height: "100%",
             objectFit: "cover",
             objectPosition: "center",
-            opacity: 0.18,
+            opacity: 0.1,
             zIndex: 0,
           }}
         />
@@ -77,7 +77,7 @@ export default function About() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 50% 70% at 80% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0,55,115,0.4) 0%, transparent 70%)",
             zIndex: 1,
           }}
         />
@@ -86,21 +86,22 @@ export default function About() {
             position: "absolute",
             top: 0, left: 0, right: 0,
             height: "3px",
-            background: "linear-gradient(90deg, transparent, #e8a020, #c9a84c, transparent)",
+            background: "rgba(255,255,255,0.3)",
             zIndex: 2,
           }}
         />
         <div className="container" style={{ position: "relative", zIndex: 2 }}>
-          <div className="section-eyebrow">Quiénes somos</div>
+          <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Quiénes somos</div>
           <h1
             style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
-              fontWeight: "600",
-              color: "#f8f6f2",
-              lineHeight: 1.1,
-              maxWidth: "680px",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
+              fontWeight: "800",
+              color: "#FFFFFF",
+              lineHeight: 1.08,
+              maxWidth: "700px",
               margin: "0 0 1.5rem 0",
+              letterSpacing: "-0.03em",
             }}
           >
             Más de 15 Años Conectando Personas con el Coche Perfecto
@@ -108,8 +109,8 @@ export default function About() {
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: "1rem",
-              color: "rgba(248,246,242,0.55)",
+              fontSize: "1.05rem",
+              color: "rgba(255,255,255,0.75)",
               maxWidth: "560px",
               lineHeight: 1.7,
               margin: 0,
@@ -121,7 +122,7 @@ export default function About() {
       </section>
 
       {/* ---- Story + Timeline ---- */}
-      <section style={{ background: "#f8f6f2", padding: "6rem 0" }}>
+      <section style={{ background: "#FFFFFF", padding: "6rem 0" }}>
         <div className="container">
           <div
             style={{
@@ -137,12 +138,13 @@ export default function About() {
               <div className="section-eyebrow">Nuestra historia</div>
               <h2
                 style={{
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: "clamp(1.7rem, 3vw, 2.4rem)",
-                  fontWeight: "600",
-                  color: "#0d0f14",
-                  lineHeight: 1.2,
+                  fontWeight: "700",
+                  color: "#1D1D1F",
+                  lineHeight: 1.15,
                   marginBottom: "1.5rem",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Nacidos en Oviedo, Comprometidos con Asturias
@@ -151,7 +153,7 @@ export default function About() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.95rem",
-                  color: "#6b6456",
+                  color: "#6E6E73",
                   lineHeight: 1.75,
                   marginBottom: "1.25rem",
                 }}
@@ -162,7 +164,7 @@ export default function About() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.95rem",
-                  color: "#6b6456",
+                  color: "#6E6E73",
                   lineHeight: 1.75,
                   marginBottom: "2rem",
                 }}
@@ -180,15 +182,14 @@ export default function About() {
             {/* Timeline */}
             <div>
               <div style={{ position: "relative", paddingLeft: "2rem" }}>
-                {/* Vertical line */}
                 <div
                   style={{
                     position: "absolute",
                     left: "8px",
                     top: "16px",
                     bottom: "16px",
-                    width: "1px",
-                    background: "linear-gradient(to bottom, #e8a020, #ddd8cf)",
+                    width: "1.5px",
+                    background: "linear-gradient(to bottom, #0071E3, #D2D2D7)",
                   }}
                 />
                 <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
@@ -202,18 +203,19 @@ export default function About() {
                           width: "12px",
                           height: "12px",
                           borderRadius: "50%",
-                          background: "#e8a020",
-                          border: "3px solid #f8f6f2",
-                          boxShadow: "0 0 0 1px #e8a020",
+                          background: "#0071E3",
+                          border: "3px solid #FFFFFF",
+                          boxShadow: "0 0 0 1.5px #0071E3",
                         }}
                       />
                       <div
                         style={{
-                          fontFamily: "'Playfair Display', serif",
-                          fontSize: "1.1rem",
-                          fontWeight: "700",
-                          color: "#e8a020",
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "1rem",
+                          fontWeight: "800",
+                          color: "#0071E3",
                           marginBottom: "4px",
+                          letterSpacing: "-0.01em",
                         }}
                       >
                         {item.year}
@@ -222,7 +224,7 @@ export default function About() {
                         style={{
                           fontFamily: "'DM Sans', sans-serif",
                           fontSize: "0.88rem",
-                          color: "#6b6456",
+                          color: "#6E6E73",
                           lineHeight: 1.6,
                           margin: 0,
                         }}
@@ -239,18 +241,18 @@ export default function About() {
       </section>
 
       {/* ---- Values ---- */}
-      <section style={{ background: "#0d0f14", padding: "6rem 0", position: "relative" }}>
-        <div className="grain-overlay" />
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+      <section style={{ background: "#F5F5F7", padding: "6rem 0" }}>
+        <div className="container">
           <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
             <div className="section-eyebrow">Nuestros valores</div>
             <h2
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontSize: "clamp(1.9rem, 4vw, 2.8rem)",
-                fontWeight: "600",
-                color: "#f8f6f2",
+                fontWeight: "700",
+                color: "#1D1D1F",
                 margin: 0,
+                letterSpacing: "-0.02em",
               }}
             >
               Lo que Nos Define
@@ -268,31 +270,34 @@ export default function About() {
               <div
                 key={v.number}
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: "4px",
+                  background: "#FFFFFF",
+                  border: "1px solid #E8E8ED",
+                  borderRadius: "16px",
                   padding: "2rem",
+                  transition: "box-shadow 0.2s ease",
                 }}
               >
                 <div
                   style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: "2.5rem",
-                    fontWeight: "700",
-                    color: "rgba(232,160,32,0.15)",
+                    fontWeight: "800",
+                    color: "rgba(0,113,227,0.12)",
                     lineHeight: 1,
                     marginBottom: "1rem",
+                    letterSpacing: "-0.04em",
                   }}
                 >
                   {v.number}
                 </div>
                 <h3
                   style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: "1.1rem",
-                    fontWeight: "600",
-                    color: "#f8f6f2",
-                    marginBottom: "0.75rem",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "1.05rem",
+                    fontWeight: "700",
+                    color: "#1D1D1F",
+                    marginBottom: "0.6rem",
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   {v.title}
@@ -301,7 +306,7 @@ export default function About() {
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "0.875rem",
-                    color: "rgba(248,246,242,0.5)",
+                    color: "#6E6E73",
                     lineHeight: 1.65,
                     margin: 0,
                   }}
@@ -315,7 +320,7 @@ export default function About() {
       </section>
 
       {/* ---- Features checklist ---- */}
-      <section style={{ background: "#f8f6f2", padding: "6rem 0" }}>
+      <section style={{ background: "#FFFFFF", padding: "6rem 0" }}>
         <div className="container">
           <div
             style={{
@@ -330,12 +335,13 @@ export default function About() {
               <div className="section-eyebrow">Todo incluido</div>
               <h2
                 style={{
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: "clamp(1.7rem, 3vw, 2.4rem)",
-                  fontWeight: "600",
-                  color: "#0d0f14",
-                  lineHeight: 1.2,
+                  fontWeight: "700",
+                  color: "#1D1D1F",
+                  lineHeight: 1.15,
                   marginBottom: "0.75rem",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Compramos sin Complicaciones, Vendemos sin Sorpresas
@@ -344,7 +350,7 @@ export default function About() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.95rem",
-                  color: "#6b6456",
+                  color: "#6E6E73",
                   lineHeight: 1.7,
                 }}
               >
@@ -360,13 +366,14 @@ export default function About() {
                     alignItems: "flex-start",
                     gap: "10px",
                     padding: "1rem",
-                    background: "#ffffff",
-                    border: "1px solid #e8e4dc",
-                    borderRadius: "4px",
+                    background: "#F5F5F7",
+                    border: "1px solid #E8E8ED",
+                    borderRadius: "12px",
+                    transition: "border-color 0.2s ease",
                   }}
                 >
-                  <CheckCircle size={15} color="#e8a020" style={{ flexShrink: 0, marginTop: "1px" }} />
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "#0d0f14", lineHeight: 1.4 }}>{f}</span>
+                  <CheckCircle size={15} color="#0071E3" style={{ flexShrink: 0, marginTop: "1px" }} />
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "#1D1D1F", lineHeight: 1.4, fontWeight: "500" }}>{f}</span>
                 </div>
               ))}
             </div>
@@ -377,7 +384,7 @@ export default function About() {
       {/* ---- CTA ---- */}
       <section
         style={{
-          background: "linear-gradient(135deg, #1a2744 0%, #0d0f14 100%)",
+          background: "linear-gradient(135deg, #0071E3 0%, #0055B3 100%)",
           padding: "5rem 0",
           textAlign: "center",
         }}
@@ -385,11 +392,12 @@ export default function About() {
         <div className="container">
           <h2
             style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)",
-              fontWeight: "600",
-              color: "#f8f6f2",
+              fontWeight: "700",
+              color: "#FFFFFF",
               marginBottom: "1rem",
+              letterSpacing: "-0.02em",
             }}
           >
             Visítanos en Oviedo
@@ -398,7 +406,7 @@ export default function About() {
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.95rem",
-              color: "rgba(248,246,242,0.5)",
+              color: "rgba(255,255,255,0.7)",
               marginBottom: "2.5rem",
               maxWidth: "420px",
               margin: "0 auto 2.5rem",
@@ -408,13 +416,42 @@ export default function About() {
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
             <Link href="/catalogo">
-              <a className="btn-primary">
+              <a
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "#FFFFFF",
+                  color: "#0071E3",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.875rem",
+                  fontWeight: "700",
+                  padding: "0.72rem 1.75rem",
+                  borderRadius: "980px",
+                  textDecoration: "none",
+                }}
+              >
                 Ver catálogo
                 <ArrowRight size={15} />
               </a>
             </Link>
             <Link href="/contacto">
-              <a className="btn-ghost-light">
+              <a
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "rgba(255,255,255,0.15)",
+                  color: "#FFFFFF",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.875rem",
+                  fontWeight: "600",
+                  padding: "0.72rem 1.75rem",
+                  borderRadius: "980px",
+                  textDecoration: "none",
+                  border: "1.5px solid rgba(255,255,255,0.3)",
+                }}
+              >
                 Contactar
               </a>
             </Link>
