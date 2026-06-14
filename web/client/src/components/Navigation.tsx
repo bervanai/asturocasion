@@ -60,29 +60,30 @@ export default function Navigation() {
             >
               <div
                 style={{
-                  width: "34px",
-                  height: "34px",
+                  width: "38px",
+                  height: "38px",
                   background: "#e8a020",
-                  borderRadius: "3px",
+                  borderRadius: "4px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontFamily: "'Playfair Display', serif",
                   fontWeight: "700",
-                  fontSize: "0.85rem",
+                  fontSize: "0.9rem",
                   color: "#0d0f14",
                   letterSpacing: "-0.02em",
                   flexShrink: 0,
+                  boxShadow: "0 2px 10px rgba(232,160,32,0.35)",
                 }}
               >
                 AO
               </div>
-              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
                 <span
                   style={{
                     fontFamily: "'Playfair Display', serif",
                     fontWeight: "600",
-                    fontSize: "0.95rem",
+                    fontSize: "1rem",
                     color: "#f8f6f2",
                     letterSpacing: "0.01em",
                   }}
@@ -92,9 +93,9 @@ export default function Navigation() {
                 <span
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.65rem",
+                    fontSize: "0.62rem",
                     color: "rgba(248,246,242,0.4)",
-                    letterSpacing: "0.12em",
+                    letterSpacing: "0.14em",
                     textTransform: "uppercase",
                   }}
                 >

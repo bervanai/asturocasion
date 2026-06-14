@@ -58,11 +58,27 @@ export default function About() {
           overflow: "hidden",
         }}
       >
+        <img
+          src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=1600&q=80"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+            opacity: 0.18,
+            zIndex: 0,
+          }}
+        />
         <div
           style={{
             position: "absolute",
             inset: 0,
             background: "radial-gradient(ellipse 50% 70% at 80% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+            zIndex: 1,
           }}
         />
         <div
@@ -71,9 +87,10 @@ export default function About() {
             top: 0, left: 0, right: 0,
             height: "3px",
             background: "linear-gradient(90deg, transparent, #e8a020, #c9a84c, transparent)",
+            zIndex: 2,
           }}
         />
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <div className="section-eyebrow">Quiénes somos</div>
           <h1
             style={{

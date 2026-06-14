@@ -233,6 +233,15 @@ export default function Footer() {
               <li>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "rgba(248,246,242,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Ubicación</p>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(248,246,242,0.55)" }}>Oviedo, Asturias</span>
+                <br />
+                <a
+                  href="https://maps.google.com/?q=Astur+Ocasion+Oviedo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#e8a020", textDecoration: "none" }}
+                >
+                  Ver en Google Maps →
+                </a>
               </li>
             </ul>
           </div>

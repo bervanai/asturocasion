@@ -13,43 +13,14 @@ const VEHICLES = [
   { id: 6, name: "Audi Q5 2.0TDI", brand: "Audi", year: 2015, price: 21500, km: 180000, fuel: "Diésel", transmission: "Automático" },
 ];
 
-const BRAND_COLORS: Record<string, string> = {
-  Mercedes: "#1a1a1a",
-  BMW: "#1c69d4",
-  Audi: "#bb0a30",
-  Jaguar: "#0a5f38",
-  Peugeot: "#003189",
+const VEHICLE_IMAGES: Record<number, string> = {
+  1: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  2: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+  3: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
+  4: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
+  5: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
+  6: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
 };
-
-function CarPlaceholder({ brand, name }: { brand: string; name: string }) {
-  const bg = BRAND_COLORS[brand] ?? "#1e2330";
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        background: `linear-gradient(135deg, ${bg}cc 0%, #0d0f14 100%)`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "10px",
-      }}
-    >
-      <svg width="70" height="35" viewBox="0 0 80 40" fill="none">
-        <rect x="10" y="18" width="60" height="14" rx="4" fill="rgba(255,255,255,0.08)" />
-        <rect x="18" y="8" width="36" height="14" rx="4" fill="rgba(255,255,255,0.12)" />
-        <circle cx="20" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-        <circle cx="60" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-        <rect x="2" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-        <rect x="70" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-      </svg>
-      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        {name}
-      </span>
-    </div>
-  );
-}
 
 const SELECT_STYLE: React.CSSProperties = {
   width: "100%",
@@ -334,7 +305,12 @@ export default function Catalog() {
                     >
                       {/* Image */}
                       <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
-                        <CarPlaceholder brand={vehicle.brand} name={vehicle.name} />
+                        <img
+                          src={VEHICLE_IMAGES[vehicle.id]}
+                          alt={vehicle.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                          loading="lazy"
+                        />
                         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(13,15,20,0.7) 100%)" }} />
                         <div
                           style={{

@@ -51,52 +51,16 @@ const VEHICLES = [
   { id: 6, name: "Audi Q5 2.0TDI", year: 2015, price: 21500, km: 180000, fuel: "Diésel", transmission: "Auto", brand: "Audi" },
 ];
 
-/* ---- Car placeholder SVG by brand colour ---- */
-const BRAND_COLORS: Record<string, string> = {
-  Mercedes: "#1a1a1a",
-  BMW: "#1c69d4",
-  Audi: "#bb0a30",
-  Jaguar: "#0a5f38",
-  Peugeot: "#003189",
+/* ---- Real vehicle photos ---- */
+const VEHICLE_IMAGES: Record<number, string> = {
+  1: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  2: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+  3: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
+  4: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
+  5: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
+  6: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
 };
 
-function CarPlaceholder({ brand, name }: { brand: string; name: string }) {
-  const bg = BRAND_COLORS[brand] ?? "#1e2330";
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        background: `linear-gradient(135deg, ${bg}cc 0%, #0d0f14 100%)`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "12px",
-      }}
-    >
-      <svg width="80" height="40" viewBox="0 0 80 40" fill="none">
-        <rect x="10" y="18" width="60" height="14" rx="4" fill="rgba(255,255,255,0.08)" />
-        <rect x="18" y="8" width="36" height="14" rx="4" fill="rgba(255,255,255,0.12)" />
-        <circle cx="20" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-        <circle cx="60" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-        <rect x="2" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-        <rect x="70" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-      </svg>
-      <span
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "0.7rem",
-          color: "rgba(255,255,255,0.2)",
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-        }}
-      >
-        {name}
-      </span>
-    </div>
-  );
-}
 
 /* ---- Vehicle Card ---- */
 function VehicleCard({ vehicle }: { vehicle: typeof VEHICLES[0] }) {
@@ -110,7 +74,12 @@ function VehicleCard({ vehicle }: { vehicle: typeof VEHICLES[0] }) {
         style={{ display: "block" }}
       >
         <div className="vehicle-card-image-wrap">
-          <CarPlaceholder brand={vehicle.brand} name={vehicle.name} />
+          <img
+            src={VEHICLE_IMAGES[vehicle.id]}
+            alt={vehicle.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+            loading="lazy"
+          />
           <div className="vehicle-card-overlay" />
           <div className="vehicle-card-price">{vehicle.price.toLocaleString("es-ES")} €</div>
         </div>
@@ -237,6 +206,23 @@ export default function Home() {
           overflow: "hidden",
         }}
       >
+        {/* Hero background image */}
+        <img
+          src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1800&q=80"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+            opacity: 0.28,
+            zIndex: 0,
+          }}
+        />
+
         {/* Grain */}
         <div className="grain-overlay" />
 
@@ -245,7 +231,8 @@ export default function Home() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 80% 60% at 65% 50%, rgba(26,39,68,0.6) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(232,160,32,0.07) 0%, transparent 60%)",
+            background: "radial-gradient(ellipse 80% 60% at 65% 50%, rgba(13,15,20,0.7) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(232,160,32,0.07) 0%, transparent 60%)",
+            zIndex: 1,
           }}
         />
 
@@ -258,6 +245,7 @@ export default function Home() {
             right: 0,
             height: "3px",
             background: "linear-gradient(90deg, transparent 0%, #e8a020 40%, #c9a84c 70%, transparent 100%)",
+            zIndex: 2,
           }}
         />
 
@@ -721,6 +709,55 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ================================================================
+          LOCATION / MAP
+          ================================================================ */}
+      <section style={{ background: "#0d0f14", padding: "5rem 0 0", position: "relative" }}>
+        <div className="container" style={{ paddingBottom: "3rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+            <div className="section-eyebrow">Dónde estamos</div>
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)",
+                fontWeight: "600",
+                color: "#f8f6f2",
+                margin: "0 0 1rem 0",
+              }}
+            >
+              Encuéntranos en Oviedo
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "2rem",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.88rem",
+                color: "rgba(248,246,242,0.5)",
+              }}
+            >
+              <span>📍 Oviedo, Asturias</span>
+              <a href="tel:984180450" style={{ color: "#e8a020", textDecoration: "none" }}>📞 984 180 450</a>
+              <span>⏰ Lun–Vie: 10:00–13:30 / 16:00–20:00</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ position: "relative", overflow: "hidden" }}>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2908.2!2d-5.8448!3d43.3614!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDIxJzQxLjAiTiA1wrA1MCc0MS4zIlc!5e0!3m2!1ses!2ses!4v1"
+            width="100%"
+            height="400"
+            style={{ border: 0, display: "block", filter: "grayscale(0.3) contrast(1.1)" }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Ubicación Astur Ocasión"
+          />
         </div>
       </section>
 
