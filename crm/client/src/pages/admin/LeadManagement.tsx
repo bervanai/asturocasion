@@ -3,6 +3,17 @@ import { useState } from "react";
 import { Eye, Trash2, Search, X, Phone, MessageCircle, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
+/* ── Vehicle image map ──────────────────────────────────────────────────────── */
+const VEHICLE_IMAGES: Record<string, string> = {
+  "BMW 325D GT":      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=200&q=70",
+  "Audi Q5 S-line":   "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=200&q=70",
+  "Jaguar XF R-Sport":"https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=200&q=70",
+  "Mercedes GLE":     "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=200&q=70",
+  "Peugeot 3008":     "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=200&q=70",
+  "Volvo XC60":       "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=200&q=70",
+  "Volkswagen Tiguan":"https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=200&q=70",
+};
+
 /* ── Types ──────────────────────────────────────────────────────────────────── */
 type Lead = {
   id: number;
@@ -368,8 +379,21 @@ export default function LeadManagement() {
                         <td>
                           <span className={statusBadgeClass(lead.status)}>{lead.status}</span>
                         </td>
-                        <td style={{ color: lead.vehicle ? "#f0f0f0" : "#3f3f46", fontStyle: lead.vehicle ? "normal" : "italic" }}>
-                          {lead.vehicle ?? "—"}
+                        <td>
+                          {lead.vehicle ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <div style={{ width: "52px", height: "36px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: "#1a1a1e", border: "1px solid #1f1f23" }}>
+                                <img
+                                  src={VEHICLE_IMAGES[lead.vehicle as string] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=70"}
+                                  alt={lead.vehicle as string}
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              </div>
+                              <span style={{ fontSize: "0.75rem", color: "#f0f0f0", fontWeight: 500 }}>{lead.vehicle as string}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: "#3f3f46", fontStyle: "italic", fontSize: "0.75rem" }}>—</span>
+                          )}
                         </td>
                         <td style={{ color: "#6b7280", fontSize: "0.6875rem" }}>
                           {new Date(lead.createdAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" })}
@@ -498,7 +522,16 @@ export default function LeadManagement() {
               {selectedLead.vehicle && (
                 <div>
                   <p className="crm-label">Vehículo de Interés</p>
-                  <p style={{ fontSize: "0.8125rem", color: "#f0f0f0", fontWeight: 500 }}>{selectedLead.vehicle}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.4rem" }}>
+                    <div style={{ width: "72px", height: "50px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, border: "1px solid #1f1f23" }}>
+                      <img
+                        src={VEHICLE_IMAGES[selectedLead.vehicle as string] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=70"}
+                        alt={selectedLead.vehicle as string}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </div>
+                    <p style={{ fontSize: "0.8125rem", color: "#f0f0f0", fontWeight: 600 }}>{selectedLead.vehicle as string}</p>
+                  </div>
                 </div>
               )}
 
