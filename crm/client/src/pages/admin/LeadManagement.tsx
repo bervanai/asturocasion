@@ -190,7 +190,7 @@ export default function LeadManagement() {
     { id: "dl-5", name: "Roberto Álvarez", email: "roberto.a@gmail.com", phone: "636 555 444", type: "Compra", vehicle: "Jaguar XF R-Sport", message: "Vi el Jaguar en la web, ¿cuánto es la entrada mínima?", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*90) },
   ];
   const { data: rawLeads = [], isLoading } = trpc.lead.list.useQuery();
-  const leads = rawLeads.length > 0 ? rawLeads : (isLoading ? [] : DEMO_LEADS as unknown as typeof rawLeads);
+  const leads = rawLeads.length > 0 ? rawLeads : DEMO_LEADS as unknown as typeof rawLeads;
 
   const updateMutation = trpc.lead.update.useMutation({
     onSuccess: () => {
@@ -334,11 +334,7 @@ export default function LeadManagement() {
         {/* Table view */}
         {viewMode === "table" && (
           <div className="glass-card" style={{ overflow: "hidden" }}>
-            {isLoading ? (
-              <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
-                Cargando leads…
-              </div>
-            ) : filtered.length === 0 ? (
+            {filtered.length === 0 ? (
               <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
                 No hay leads que coincidan con la búsqueda
               </div>

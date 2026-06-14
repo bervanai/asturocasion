@@ -109,7 +109,7 @@ const DEMO_VEHICLES = [
 export default function VehicleManagement() {
   const utils = trpc.useUtils();
   const { data: rawVehicles = [], isLoading } = trpc.vehicle.list.useQuery();
-  const vehicles = rawVehicles.length > 0 ? rawVehicles : (isLoading ? [] : DEMO_VEHICLES as unknown as typeof rawVehicles);
+  const vehicles = rawVehicles.length > 0 ? rawVehicles : DEMO_VEHICLES as unknown as typeof rawVehicles;
 
   const createMutation = trpc.vehicle.create.useMutation({
     onSuccess: () => {
@@ -399,11 +399,7 @@ export default function VehicleManagement() {
 
       {/* ── Table */}
       <div className="glass-card" style={{ overflow: "hidden" }}>
-        {isLoading ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
-            Cargando inventario…
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div style={{ padding: "3.5rem", textAlign: "center" }}>
             <Car style={{ width: "36px", height: "36px", color: "#2a2a2e", margin: "0 auto 0.75rem" }} />
             <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "1rem" }}>
