@@ -1,4 +1,25 @@
-# Web App Template (tRPC + Manus Auth + Database)
+# Astur Ocasion — Monorepo
+
+This repository contains two independent Netlify projects:
+
+- **`web/`** — Public website (Vite + React). Deploy with Netlify base directory set to `web`.
+- **`crm/`** — Internal CRM (Vite + React). Deploy with Netlify base directory set to `crm`.
+
+Each subfolder has its own `package.json`, `vite.config.ts`, and `netlify.toml`.
+
+---
+
+## Netlify Setup
+
+For each Netlify site, set the **Base directory** in Build Settings:
+- Website: `web`
+- CRM: `crm`
+
+The build command and publish directory are already configured in each subfolder's `netlify.toml`.
+
+---
+
+# Original Web Template Notes
 
 This template gives you a React 19 + Tailwind 4 + Express 4 + tRPC 11 stack with Manus OAuth already wired. Procedures are your contracts, types flow end to end, and authentication "just works".
 
