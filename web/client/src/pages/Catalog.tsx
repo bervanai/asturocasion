@@ -3,34 +3,17 @@ import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import { useState } from "react";
 import { Filter, X, ArrowRight, ChevronDown } from "lucide-react";
-
-const VEHICLES = [
-  { id: 1, name: "Mercedes GLE 250D", brand: "Mercedes", year: 2016, price: 26900, km: 276000, fuel: "Diésel", transmission: "Automático" },
-  { id: 2, name: "Mercedes SLK 300", brand: "Mercedes", year: 2010, price: 18500, km: 145000, fuel: "Gasolina", transmission: "Automático" },
-  { id: 3, name: "Peugeot 3008 2.0HDI", brand: "Peugeot", year: 2014, price: 12900, km: 33000, fuel: "Diésel", transmission: "Manual" },
-  { id: 4, name: "Jaguar XF R-Sport", brand: "Jaguar", year: 2017, price: 20900, km: 162000, fuel: "Diésel", transmission: "Automático" },
-  { id: 5, name: "BMW 325D GT", brand: "BMW", year: 2017, price: 23500, km: 157000, fuel: "Diésel", transmission: "Automático" },
-  { id: 6, name: "Audi Q5 2.0TDI", brand: "Audi", year: 2015, price: 21500, km: 180000, fuel: "Diésel", transmission: "Automático" },
-];
-
-const VEHICLE_IMAGES: Record<number, string> = {
-  1: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
-  2: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
-  3: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
-  4: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
-  5: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
-  6: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
-};
+import { trpc } from "@/lib/trpc";
 
 const SELECT_STYLE: React.CSSProperties = {
   width: "100%",
   background: "transparent",
   border: "none",
-  borderBottom: "1px solid #ddd8cf",
+  borderBottom: "1px solid #D2D2D7",
   padding: "0.5rem 0",
   fontFamily: "'DM Sans', sans-serif",
   fontSize: "0.875rem",
-  color: "#0d0f14",
+  color: "#1D1D1F",
   outline: "none",
   appearance: "none",
   cursor: "pointer",
@@ -46,7 +29,10 @@ export default function Catalog() {
     transmission: "",
   });
 
-  const filteredVehicles = VEHICLES.filter((v) => {
+  const { data: vehiclesData, isLoading, isError } = trpc.vehicle.list.useQuery({ status: "Disponible" });
+  const allVehicles = vehiclesData ?? [];
+
+  const filteredVehicles = allVehicles.filter((v) => {
     if (filters.brand && v.brand !== filters.brand) return false;
     if (v.price < filters.priceMin || v.price > filters.priceMax) return false;
     if (filters.fuel && v.fuel !== filters.fuel) return false;
@@ -54,21 +40,21 @@ export default function Catalog() {
     return true;
   });
 
-  const brands = Array.from(new Set(VEHICLES.map((v) => v.brand)));
-  const fuels = Array.from(new Set(VEHICLES.map((v) => v.fuel)));
-  const transmissions = Array.from(new Set(VEHICLES.map((v) => v.transmission)));
+  const brands = Array.from(new Set(allVehicles.map((v) => v.brand)));
+  const fuels = Array.from(new Set(allVehicles.map((v) => v.fuel)));
+  const transmissions = Array.from(new Set(allVehicles.map((v) => v.transmission)));
 
   const resetFilters = () =>
     setFilters({ brand: "", priceMin: 0, priceMax: 50000, fuel: "", transmission: "" });
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />
 
       {/* Page header */}
       <section
         style={{
-          background: "#0d0f14",
+          background: "#0071E3",
           padding: "4rem 0 3rem",
           position: "relative",
           overflow: "hidden",
@@ -78,17 +64,17 @@ export default function Catalog() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0,85,179,0.4) 0%, transparent 70%)",
           }}
         />
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="section-eyebrow">Catálogo</div>
+          <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Catálogo</div>
           <h1
             style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(2rem, 4vw, 3rem)",
               fontWeight: "600",
-              color: "#f8f6f2",
+              color: "#FFFFFF",
               margin: "0 0 0.75rem 0",
             }}
           >
@@ -98,11 +84,11 @@ export default function Catalog() {
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.95rem",
-              color: "rgba(248,246,242,0.5)",
+              color: "rgba(255,255,255,0.65)",
               margin: 0,
             }}
           >
-            {VEHICLES.length} vehículos disponibles — todos con garantía y transferencia incluidas
+            {allVehicles.length} vehículos disponibles — todos con garantía y transferencia incluidas
           </p>
         </div>
       </section>
@@ -127,31 +113,32 @@ export default function Catalog() {
           >
             <div
               style={{
-                background: "#ffffff",
-                border: "1px solid #e8e4dc",
-                borderRadius: "4px",
+                background: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+                borderRadius: "16px",
                 padding: "1.75rem",
+                boxShadow: "0 2px 20px rgba(0,0,0,0.06)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem" }}>
                 <h3
                   style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: "1rem",
                     fontWeight: "600",
-                    color: "#0d0f14",
+                    color: "#1D1D1F",
                     margin: 0,
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
                   }}
                 >
-                  <Filter size={15} color="#e8a020" />
+                  <Filter size={15} color="#0071E3" />
                   Filtros
                 </h3>
                 <button
                   onClick={() => setShowFilters(false)}
-                  style={{ background: "none", border: "none", color: "#6b6456", cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "#6E6E73", cursor: "pointer" }}
                   className="lg:hidden"
                 >
                   <X size={16} />
@@ -162,7 +149,7 @@ export default function Catalog() {
 
                 {/* Brand */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6456", display: "block", marginBottom: "0.5rem" }}>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
                     Marca
                   </label>
                   <div style={{ position: "relative" }}>
@@ -170,14 +157,14 @@ export default function Catalog() {
                       <option value="">Todas las marcas</option>
                       {brands.map((b) => <option key={b} value={b}>{b}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6b6456", pointerEvents: "none" }} />
+                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
                   </div>
                 </div>
 
                 {/* Price */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6456", display: "block", marginBottom: "0.5rem" }}>
-                    Precio máximo: <span style={{ color: "#e8a020" }}>{filters.priceMax.toLocaleString("es-ES")} €</span>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
+                    Precio máximo: <span style={{ color: "#0071E3" }}>{filters.priceMax.toLocaleString("es-ES")} €</span>
                   </label>
                   <input
                     type="range"
@@ -186,16 +173,16 @@ export default function Catalog() {
                     step="500"
                     value={filters.priceMax}
                     onChange={(e) => setFilters({ ...filters, priceMax: parseInt(e.target.value) })}
-                    style={{ width: "100%", accentColor: "#e8a020" }}
+                    style={{ width: "100%", accentColor: "#0071E3" }}
                   />
-                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "#9a9080", marginTop: "4px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "#86868B", marginTop: "4px" }}>
                     <span>0 €</span><span>50.000 €</span>
                   </div>
                 </div>
 
                 {/* Fuel */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6456", display: "block", marginBottom: "0.5rem" }}>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
                     Combustible
                   </label>
                   <div style={{ position: "relative" }}>
@@ -203,13 +190,13 @@ export default function Catalog() {
                       <option value="">Todos</option>
                       {fuels.map((f) => <option key={f} value={f}>{f}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6b6456", pointerEvents: "none" }} />
+                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
                   </div>
                 </div>
 
                 {/* Transmission */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6456", display: "block", marginBottom: "0.5rem" }}>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
                     Cambio
                   </label>
                   <div style={{ position: "relative" }}>
@@ -217,7 +204,7 @@ export default function Catalog() {
                       <option value="">Todos</option>
                       {transmissions.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6b6456", pointerEvents: "none" }} />
+                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
                   </div>
                 </div>
 
@@ -227,18 +214,18 @@ export default function Catalog() {
                   style={{
                     width: "100%",
                     background: "none",
-                    border: "1px solid #ddd8cf",
-                    borderRadius: "3px",
+                    border: "1px solid #D2D2D7",
+                    borderRadius: "980px",
                     padding: "0.6rem",
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "0.82rem",
-                    color: "#6b6456",
+                    color: "#6E6E73",
                     cursor: "pointer",
                     transition: "border-color 0.2s, color 0.2s",
                     marginTop: "0.5rem",
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#e8a020"; (e.currentTarget as HTMLButtonElement).style.color = "#e8a020"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#ddd8cf"; (e.currentTarget as HTMLButtonElement).style.color = "#6b6456"; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0071E3"; (e.currentTarget as HTMLButtonElement).style.color = "#0071E3"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#D2D2D7"; (e.currentTarget as HTMLButtonElement).style.color = "#6E6E73"; }}
                 >
                   Limpiar filtros
                 </button>
@@ -250,8 +237,8 @@ export default function Catalog() {
           <div>
             {/* Mobile filter toggle + count */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#6b6456", margin: 0 }}>
-                <strong style={{ color: "#0d0f14" }}>{filteredVehicles.length}</strong> vehículos encontrados
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#6E6E73", margin: 0 }}>
+                <strong style={{ color: "#1D1D1F" }}>{filteredVehicles.length}</strong> vehículos encontrados
               </p>
               <button
                 onClick={() => setShowFilters(true)}
@@ -261,12 +248,12 @@ export default function Catalog() {
                   alignItems: "center",
                   gap: "6px",
                   background: "none",
-                  border: "1px solid #ddd8cf",
-                  borderRadius: "3px",
+                  border: "1px solid #D2D2D7",
+                  borderRadius: "980px",
                   padding: "0.5rem 1rem",
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.82rem",
-                  color: "#0d0f14",
+                  color: "#1D1D1F",
                   cursor: "pointer",
                 }}
               >
@@ -275,7 +262,15 @@ export default function Catalog() {
               </button>
             </div>
 
-            {filteredVehicles.length > 0 ? (
+            {isLoading ? (
+              <div style={{ textAlign: "center", padding: "5rem 2rem" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73" }}>Cargando vehículos...</p>
+              </div>
+            ) : isError ? (
+              <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "16px" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73" }}>Error al cargar los vehículos. Inténtalo de nuevo.</p>
+              </div>
+            ) : filteredVehicles.length > 0 ? (
               <div
                 style={{
                   display: "grid",
@@ -289,41 +284,41 @@ export default function Catalog() {
                       style={{
                         display: "block",
                         textDecoration: "none",
-                        background: "#161a23",
-                        borderRadius: "4px",
+                        background: "#FFFFFF",
+                        borderRadius: "18px",
                         overflow: "hidden",
+                        boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
                         transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       }}
                       onMouseEnter={(e) => {
                         (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-4px)";
-                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 20px 50px rgba(0,0,0,0.25)";
+                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 12px 40px rgba(0,0,0,0.14)";
                       }}
                       onMouseLeave={(e) => {
                         (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
-                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
+                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 24px rgba(0,0,0,0.08)";
                       }}
                     >
                       {/* Image */}
-                      <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
-                        <img
-                          src={VEHICLE_IMAGES[vehicle.id]}
-                          alt={vehicle.name}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
-                          loading="lazy"
-                        />
-                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(13,15,20,0.7) 100%)" }} />
+                      <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F5F5F7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="80" height="40" viewBox="0 0 80 40" fill="none">
+                          <rect x="10" y="18" width="60" height="14" rx="4" fill="rgba(0,113,227,0.08)" />
+                          <rect x="18" y="8" width="36" height="14" rx="4" fill="rgba(0,113,227,0.12)" />
+                          <circle cx="20" cy="34" r="6" fill="rgba(0,113,227,0.15)" />
+                          <circle cx="60" cy="34" r="6" fill="rgba(0,113,227,0.15)" />
+                        </svg>
                         <div
                           style={{
                             position: "absolute",
                             top: "12px",
                             right: "12px",
-                            background: "#e8a020",
-                            color: "#0d0f14",
+                            background: "#0071E3",
+                            color: "#FFFFFF",
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: "0.78rem",
                             fontWeight: "700",
-                            padding: "4px 10px",
-                            borderRadius: "2px",
+                            padding: "4px 12px",
+                            borderRadius: "980px",
                           }}
                         >
                           {vehicle.price.toLocaleString("es-ES")} €
@@ -334,15 +329,15 @@ export default function Catalog() {
                       <div style={{ padding: "1.1rem 1.25rem" }}>
                         <h3
                           style={{
-                            fontFamily: "'Playfair Display', serif",
+                            fontFamily: "'DM Sans', sans-serif",
                             fontSize: "1rem",
                             fontWeight: "600",
-                            color: "#f8f6f2",
+                            color: "#1D1D1F",
                             margin: "0 0 0.6rem 0",
                             lineHeight: 1.3,
                           }}
                         >
-                          {vehicle.name}
+                          {vehicle.brand} {vehicle.model}
                         </h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem 1rem" }}>
                           {[
@@ -352,8 +347,8 @@ export default function Catalog() {
                             ["Cambio", vehicle.transmission],
                           ].map(([k, v]) => (
                             <div key={String(k)} style={{ display: "flex", gap: "4px" }}>
-                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#6b6456" }}>{k}:</span>
-                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#c0b89a", fontWeight: "500" }}>{String(v)}</span>
+                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#86868B" }}>{k}:</span>
+                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#1D1D1F", fontWeight: "500" }}>{String(v)}</span>
                             </div>
                           ))}
                         </div>
@@ -365,7 +360,7 @@ export default function Catalog() {
                             marginTop: "1rem",
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: "0.78rem",
-                            color: "#e8a020",
+                            color: "#0071E3",
                           }}
                         >
                           Ver ficha completa
@@ -381,12 +376,12 @@ export default function Catalog() {
                 style={{
                   textAlign: "center",
                   padding: "5rem 2rem",
-                  background: "#ffffff",
-                  border: "1px solid #e8e4dc",
-                  borderRadius: "4px",
+                  background: "#FFFFFF",
+                  border: "1px solid #E8E8ED",
+                  borderRadius: "16px",
                 }}
               >
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6b6456", marginBottom: "1.5rem" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73", marginBottom: "1.5rem" }}>
                   No se encontraron vehículos con los filtros seleccionados.
                 </p>
                 <button onClick={resetFilters} className="btn-primary">

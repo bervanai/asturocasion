@@ -12,7 +12,7 @@ const LABEL_STYLE: React.CSSProperties = {
   fontWeight: "600",
   letterSpacing: "0.1em",
   textTransform: "uppercase",
-  color: "#6b6456",
+  color: "#6E6E73",
   display: "block",
   marginBottom: "0.5rem",
 };
@@ -21,11 +21,11 @@ const TEXTAREA_STYLE: React.CSSProperties = {
   width: "100%",
   background: "transparent",
   border: "none",
-  borderBottom: "1px solid #ddd8cf",
+  borderBottom: "1px solid #D2D2D7",
   padding: "0.6rem 0",
   fontFamily: "'DM Sans', sans-serif",
   fontSize: "0.9rem",
-  color: "#0d0f14",
+  color: "#1D1D1F",
   outline: "none",
   resize: "vertical",
   minHeight: "120px",
@@ -73,8 +73,8 @@ export default function Contact() {
       icon: <Phone size={18} />,
       label: "Teléfono",
       lines: [
-        <a key="1" href="tel:984180450" style={{ color: "#e8a020", textDecoration: "none", fontWeight: "500" }}>984 180 450</a>,
-        <a key="2" href="tel:629574957" style={{ color: "#9a9080", textDecoration: "none" }}>629 574 957</a>,
+        <a key="1" href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "500" }}>984 180 450</a>,
+        <a key="2" href="tel:629574957" style={{ color: "#86868B", textDecoration: "none" }}>629 574 957</a>,
       ],
     },
     {
@@ -88,22 +88,22 @@ export default function Contact() {
       icon: <Mail size={18} />,
       label: "Email",
       lines: [
-        <a key="1" href="mailto:info@asturocasion.es" style={{ color: "#e8a020", textDecoration: "none" }}>info@asturocasion.es</a>,
+        <a key="1" href="mailto:info@asturocasion.es" style={{ color: "#0071E3", textDecoration: "none" }}>info@asturocasion.es</a>,
       ],
     },
     {
       icon: <MapPin size={18} />,
       label: "Ubicación",
       lines: [
-        <span key="1" style={{ color: "#6b6456" }}>Oviedo, Asturias</span>,
+        <span key="1" style={{ color: "#6E6E73" }}>Oviedo, Asturias</span>,
       ],
     },
     {
       icon: <Clock size={18} />,
       label: "Horario",
       lines: [
-        <span key="1" style={{ color: "#6b6456" }}>Lunes – Viernes</span>,
-        <span key="2" style={{ color: "#6b6456" }}>10:00 – 13:30 y 16:00 – 20:00</span>,
+        <span key="1" style={{ color: "#6E6E73" }}>Lunes – Viernes</span>,
+        <span key="2" style={{ color: "#6E6E73" }}>10:00 – 13:30 y 16:00 – 20:00</span>,
       ],
     },
   ];
@@ -111,25 +111,25 @@ export default function Contact() {
   const inputBaseStyle: React.CSSProperties = {
     background: "transparent",
     border: "none",
-    borderBottom: "1px solid #ddd8cf",
+    borderBottom: "1px solid #D2D2D7",
     borderRadius: 0,
     padding: "0.6rem 0",
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "0.9rem",
-    color: "#0d0f14",
+    color: "#1D1D1F",
     outline: "none",
     width: "100%",
     boxShadow: "none",
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />
 
       {/* Header */}
       <section
         style={{
-          background: "#0d0f14",
+          background: "#0071E3",
           padding: "4.5rem 0 3.5rem",
           position: "relative",
           overflow: "hidden",
@@ -139,7 +139,7 @@ export default function Contact() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 50% 80% at 75% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 50% 80% at 75% 50%, rgba(0,55,150,0.35) 0%, transparent 70%)",
           }}
         />
         <div
@@ -147,28 +147,28 @@ export default function Contact() {
             position: "absolute",
             top: 0, left: 0, right: 0,
             height: "3px",
-            background: "linear-gradient(90deg, transparent, #e8a020, #c9a84c, transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
           }}
         />
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="section-eyebrow">Habla con nosotros</div>
+          <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Habla con nosotros</div>
           <h1
             style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(2rem, 4vw, 3rem)",
               fontWeight: "600",
-              color: "#f8f6f2",
+              color: "#FFFFFF",
               margin: "0 0 0.75rem 0",
               lineHeight: 1.1,
             }}
           >
-            Estamos en Oviedo, <em style={{ fontStyle: "italic", color: "#e8a020" }}>a tu Disposición</em>
+            Estamos en Oviedo, <em style={{ fontStyle: "italic", color: "rgba(255,255,255,0.85)" }}>a tu Disposición</em>
           </h1>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.95rem",
-              color: "rgba(248,246,242,0.5)",
+              color: "rgba(255,255,255,0.65)",
               margin: 0,
               maxWidth: "480px",
             }}
@@ -191,18 +191,19 @@ export default function Contact() {
           {/* Form */}
           <div
             style={{
-              background: "#ffffff",
-              border: "1px solid #e8e4dc",
-              borderRadius: "4px",
+              background: "#FFFFFF",
+              border: "1px solid #E8E8ED",
+              borderRadius: "18px",
               padding: "2.5rem",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
             }}
           >
             <h2
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontSize: "1.5rem",
                 fontWeight: "600",
-                color: "#0d0f14",
+                color: "#1D1D1F",
                 marginBottom: "2rem",
               }}
             >
@@ -221,27 +222,27 @@ export default function Contact() {
                     width: "64px",
                     height: "64px",
                     borderRadius: "50%",
-                    background: "rgba(232,160,32,0.1)",
+                    background: "rgba(0,113,227,0.1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     margin: "0 auto 1.5rem",
                   }}
                 >
-                  <CheckCircle size={28} color="#e8a020" />
+                  <CheckCircle size={28} color="#0071E3" />
                 </div>
                 <h3
                   style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: "1.4rem",
                     fontWeight: "600",
-                    color: "#0d0f14",
+                    color: "#1D1D1F",
                     marginBottom: "0.75rem",
                   }}
                 >
                   Mensaje recibido
                 </h3>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6b6456" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6E6E73" }}>
                   Gracias por escribirnos. Nos pondremos en contacto contigo en menos de 24 horas.
                 </p>
               </div>
@@ -279,8 +280,8 @@ export default function Contact() {
                     rows={5}
                     required
                     style={TEXTAREA_STYLE}
-                    onFocus={(e) => (e.currentTarget.style.borderBottomColor = "#e8a020")}
-                    onBlur={(e) => (e.currentTarget.style.borderBottomColor = "#ddd8cf")}
+                    onFocus={(e) => (e.currentTarget.style.borderBottomColor = "#0071E3")}
+                    onBlur={(e) => (e.currentTarget.style.borderBottomColor = "#D2D2D7")}
                   />
                 </div>
 
@@ -314,7 +315,7 @@ export default function Contact() {
                       fontWeight: "600",
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: "#9a9080",
+                      color: "#86868B",
                       marginBottom: "4px",
                     }}
                   >
@@ -332,14 +333,15 @@ export default function Contact() {
             {/* Map */}
             <div
               style={{
-                background: "#ffffff",
-                border: "1px solid #e8e4dc",
-                borderRadius: "4px",
+                background: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+                borderRadius: "16px",
                 overflow: "hidden",
                 marginTop: "0.25rem",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
               }}
             >
-              <div style={{ padding: "1rem 1.25rem 0.75rem", borderBottom: "1px solid #f0ece4" }}>
+              <div style={{ padding: "1rem 1.25rem 0.75rem", borderBottom: "1px solid #F0F0F5" }}>
                 <p
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -347,7 +349,7 @@ export default function Contact() {
                     fontWeight: "600",
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: "#9a9080",
+                    color: "#86868B",
                     margin: 0,
                   }}
                 >
@@ -364,7 +366,7 @@ export default function Contact() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Ubicación Astur Ocasión Oviedo"
-                  style={{ filter: "grayscale(30%)" }}
+                  style={{ filter: "grayscale(20%)" }}
                 />
               </div>
             </div>

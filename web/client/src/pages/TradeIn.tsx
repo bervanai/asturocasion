@@ -17,7 +17,7 @@ const LABEL_STYLE: React.CSSProperties = {
   fontWeight: "600",
   letterSpacing: "0.1em",
   textTransform: "uppercase",
-  color: "#6b6456",
+  color: "#6E6E73",
   display: "block",
   marginBottom: "0.5rem",
 };
@@ -25,12 +25,12 @@ const LABEL_STYLE: React.CSSProperties = {
 const INPUT_BASE_STYLE: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  borderBottom: "1px solid #ddd8cf",
+  borderBottom: "1px solid #D2D2D7",
   borderRadius: 0,
   padding: "0.6rem 0",
   fontFamily: "'DM Sans', sans-serif",
   fontSize: "0.9rem",
-  color: "#0d0f14",
+  color: "#1D1D1F",
   outline: "none",
   width: "100%",
   boxShadow: "none",
@@ -40,11 +40,11 @@ const SELECT_STYLE: React.CSSProperties = {
   width: "100%",
   background: "transparent",
   border: "none",
-  borderBottom: "1px solid #ddd8cf",
+  borderBottom: "1px solid #D2D2D7",
   padding: "0.6rem 0",
   fontFamily: "'DM Sans', sans-serif",
   fontSize: "0.9rem",
-  color: "#0d0f14",
+  color: "#1D1D1F",
   outline: "none",
   appearance: "none",
   cursor: "pointer",
@@ -99,13 +99,13 @@ export default function TradeIn() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />
 
       {/* Header */}
       <section
         style={{
-          background: "#0d0f14",
+          background: "#0071E3",
           padding: "4.5rem 0 3.5rem",
           position: "relative",
           overflow: "hidden",
@@ -115,7 +115,7 @@ export default function TradeIn() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 60% 80% at 75% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 60% 80% at 75% 50%, rgba(0,55,150,0.35) 0%, transparent 70%)",
           }}
         />
         <div
@@ -123,29 +123,29 @@ export default function TradeIn() {
             position: "absolute",
             top: 0, left: 0, right: 0,
             height: "3px",
-            background: "linear-gradient(90deg, transparent, #e8a020, #c9a84c, transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
           }}
         />
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="section-eyebrow">Vendemos por ti</div>
+          <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Vendemos por ti</div>
           <h1
             style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(2rem, 4vw, 3rem)",
               fontWeight: "600",
-              color: "#f8f6f2",
+              color: "#FFFFFF",
               margin: "0 0 0.75rem 0",
               lineHeight: 1.1,
             }}
           >
             Compramos tu Coche al{" "}
-            <em style={{ fontStyle: "italic", color: "#e8a020" }}>Mejor Precio</em>
+            <em style={{ fontStyle: "italic", color: "rgba(255,255,255,0.85)" }}>Mejor Precio</em>
           </h1>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.95rem",
-              color: "rgba(248,246,242,0.5)",
+              color: "rgba(255,255,255,0.65)",
               margin: 0,
               maxWidth: "520px",
             }}
@@ -156,7 +156,7 @@ export default function TradeIn() {
       </section>
 
       {/* Process steps */}
-      <section style={{ background: "#161a23", padding: "3.5rem 0" }}>
+      <section style={{ background: "#FFFFFF", padding: "3.5rem 0", borderBottom: "1px solid #E8E8ED" }}>
         <div className="container">
           <div
             style={{
@@ -166,15 +166,24 @@ export default function TradeIn() {
             }}
           >
             {PROCESS_STEPS.map((step) => (
-              <div key={step.num} className="process-step" style={{ flexDirection: "column", gap: "0.75rem" }}>
-                <div className="process-step-number">{step.num}</div>
+              <div key={step.num} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", padding: "1.5rem", background: "#F5F5F7", borderRadius: "14px" }}>
+                <div style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "1.5rem",
+                  fontWeight: "800",
+                  color: "#0071E3",
+                  opacity: 0.5,
+                  lineHeight: 1,
+                }}>
+                  {step.num}
+                </div>
                 <div>
                   <p
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: "0.9rem",
                       fontWeight: "600",
-                      color: "#f8f6f2",
+                      color: "#1D1D1F",
                       marginBottom: "4px",
                     }}
                   >
@@ -184,7 +193,7 @@ export default function TradeIn() {
                     style={{
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: "0.82rem",
-                      color: "rgba(248,246,242,0.45)",
+                      color: "#6E6E73",
                       lineHeight: 1.55,
                       margin: 0,
                     }}
@@ -212,18 +221,19 @@ export default function TradeIn() {
           {/* Form */}
           <div
             style={{
-              background: "#ffffff",
-              border: "1px solid #e8e4dc",
-              borderRadius: "4px",
+              background: "#FFFFFF",
+              border: "1px solid #E8E8ED",
+              borderRadius: "18px",
               padding: "2.5rem",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
             }}
           >
             <h2
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontSize: "1.5rem",
                 fontWeight: "600",
-                color: "#0d0f14",
+                color: "#1D1D1F",
                 marginBottom: "2rem",
               }}
             >
@@ -235,17 +245,17 @@ export default function TradeIn() {
                 <div
                   style={{
                     width: "64px", height: "64px", borderRadius: "50%",
-                    background: "rgba(232,160,32,0.1)",
+                    background: "rgba(0,113,227,0.1)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     margin: "0 auto 1.5rem",
                   }}
                 >
-                  <CheckCircle size={28} color="#e8a020" />
+                  <CheckCircle size={28} color="#0071E3" />
                 </div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: "600", color: "#0d0f14", marginBottom: "0.75rem" }}>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1.4rem", fontWeight: "600", color: "#1D1D1F", marginBottom: "0.75rem" }}>
                   Solicitud enviada
                 </h3>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6b6456" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6E6E73" }}>
                   Analizaremos tu vehículo y te contactaremos en menos de 24 horas con nuestra oferta.
                 </p>
               </div>
@@ -261,9 +271,9 @@ export default function TradeIn() {
                       fontWeight: "700",
                       letterSpacing: "0.14em",
                       textTransform: "uppercase",
-                      color: "#e8a020",
+                      color: "#0071E3",
                       marginBottom: "1.5rem",
-                      borderBottom: "1px solid #f0ece4",
+                      borderBottom: "1px solid #E8E8ED",
                       paddingBottom: "0.5rem",
                     }}
                   >
@@ -277,7 +287,7 @@ export default function TradeIn() {
                           <option value="">Seleccionar marca</option>
                           {BRANDS.map((b) => <option key={b} value={b}>{b}</option>)}
                         </select>
-                        <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6b6456", pointerEvents: "none" }} />
+                        <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
                       </div>
                     </div>
                     <div>
@@ -304,9 +314,9 @@ export default function TradeIn() {
                       fontWeight: "700",
                       letterSpacing: "0.14em",
                       textTransform: "uppercase",
-                      color: "#e8a020",
+                      color: "#0071E3",
                       marginBottom: "1.5rem",
-                      borderBottom: "1px solid #f0ece4",
+                      borderBottom: "1px solid #E8E8ED",
                       paddingBottom: "0.5rem",
                     }}
                   >
@@ -341,17 +351,17 @@ export default function TradeIn() {
                       width: "100%",
                       background: "transparent",
                       border: "none",
-                      borderBottom: "1px solid #ddd8cf",
+                      borderBottom: "1px solid #D2D2D7",
                       padding: "0.6rem 0",
                       fontFamily: "'DM Sans', sans-serif",
                       fontSize: "0.9rem",
-                      color: "#0d0f14",
+                      color: "#1D1D1F",
                       outline: "none",
                       resize: "vertical",
                       transition: "border-color 0.2s",
                     }}
-                    onFocus={(e) => (e.currentTarget.style.borderBottomColor = "#e8a020")}
-                    onBlur={(e) => (e.currentTarget.style.borderBottomColor = "#ddd8cf")}
+                    onFocus={(e) => (e.currentTarget.style.borderBottomColor = "#0071E3")}
+                    onBlur={(e) => (e.currentTarget.style.borderBottomColor = "#D2D2D7")}
                   />
                 </div>
 
@@ -378,27 +388,19 @@ export default function TradeIn() {
             {/* Benefits */}
             <div
               style={{
-                background: "#0d0f14",
-                borderRadius: "4px",
+                background: "linear-gradient(135deg, #0071E3 0%, #0055B3 100%)",
+                borderRadius: "18px",
                 padding: "1.75rem",
                 position: "relative",
                 overflow: "hidden",
               }}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0,
-                  height: "3px",
-                  background: "linear-gradient(90deg, #e8a020, #c9a84c)",
-                }}
-              />
               <h3
                 style={{
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: "1.1rem",
                   fontWeight: "600",
-                  color: "#f8f6f2",
+                  color: "#FFFFFF",
                   marginBottom: "1.25rem",
                 }}
               >
@@ -419,13 +421,13 @@ export default function TradeIn() {
                     alignItems: "center",
                     gap: "10px",
                     padding: "0.5rem 0",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "0.85rem",
-                    color: "rgba(248,246,242,0.65)",
+                    color: "rgba(255,255,255,0.85)",
                   }}
                 >
-                  <CheckCircle size={13} color="#e8a020" style={{ flexShrink: 0 }} />
+                  <CheckCircle size={13} color="rgba(255,255,255,0.8)" style={{ flexShrink: 0 }} />
                   {item}
                 </div>
               ))}
@@ -434,10 +436,11 @@ export default function TradeIn() {
             {/* Direct contact */}
             <div
               style={{
-                background: "#ffffff",
-                border: "1px solid #e8e4dc",
-                borderRadius: "4px",
+                background: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+                borderRadius: "16px",
                 padding: "1.5rem",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
               }}
             >
               <p
@@ -447,7 +450,7 @@ export default function TradeIn() {
                   fontWeight: "600",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
-                  color: "#9a9080",
+                  color: "#86868B",
                   marginBottom: "1rem",
                 }}
               >
@@ -458,13 +461,13 @@ export default function TradeIn() {
                 style={{
                   display: "flex", alignItems: "center", gap: "10px",
                   fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "500",
-                  color: "#0d0f14", textDecoration: "none", marginBottom: "0.75rem",
+                  color: "#1D1D1F", textDecoration: "none", marginBottom: "0.75rem",
                   transition: "color 0.2s",
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#e8a020")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0d0f14")}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0071E3")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#1D1D1F")}
               >
-                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(232,160,32,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#e8a020", flexShrink: 0 }}>
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(0,113,227,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0071E3", flexShrink: 0 }}>
                   <Phone size={14} />
                 </div>
                 984 180 450
@@ -476,11 +479,11 @@ export default function TradeIn() {
                 style={{
                   display: "flex", alignItems: "center", gap: "10px",
                   fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "500",
-                  color: "#0d0f14", textDecoration: "none",
+                  color: "#1D1D1F", textDecoration: "none",
                   transition: "color 0.2s",
                 }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#25d366")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0d0f14")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#1D1D1F")}
               >
                 <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(37,211,102,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25d366", flexShrink: 0 }}>
                   <MessageCircle size={14} />
@@ -492,9 +495,9 @@ export default function TradeIn() {
             {/* Catalog CTA */}
             <div
               style={{
-                background: "rgba(232,160,32,0.06)",
-                border: "1px solid rgba(232,160,32,0.2)",
-                borderRadius: "4px",
+                background: "rgba(0,113,227,0.06)",
+                border: "1px solid rgba(0,113,227,0.15)",
+                borderRadius: "16px",
                 padding: "1.5rem",
                 textAlign: "center",
               }}
@@ -503,7 +506,7 @@ export default function TradeIn() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.85rem",
-                  color: "#6b6456",
+                  color: "#6E6E73",
                   marginBottom: "1rem",
                   lineHeight: 1.5,
                 }}
@@ -515,7 +518,7 @@ export default function TradeIn() {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "6px",
                   fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", fontWeight: "600",
-                  color: "#e8a020", textDecoration: "none",
+                  color: "#0071E3", textDecoration: "none",
                   transition: "gap 0.2s",
                 }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.gap = "10px")}
