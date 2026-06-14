@@ -1,8 +1,31 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search, Fuel, Gauge, Calendar } from "lucide-react";
+
+function useScrollReveal() {
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
+    if (!("IntersectionObserver" in window) || els.length === 0) {
+      els.forEach((el) => el.classList.add("reveal-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-in");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
 
 // ─── Demo vehicles (hardcoded for demo, replaced by DB data when connected) ───
 const DEMO_VEHICLES = [
@@ -214,6 +237,7 @@ export default function Home() {
   const [brand, setBrand] = useState("");
   const [price, setPrice] = useState("");
   const [fuel, setFuel] = useState("");
+  useScrollReveal();
 
   const handleSearch = () => navigate("/catalogo");
 
@@ -376,8 +400,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── BRAND MARQUEE ───────────────────────────────────────────────────────── */}
+      <section style={{ background: "#FFFFFF", padding: "2.75rem 0", borderBottom: "1px solid #F0F0F5" }}>
+        <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: "600", letterSpacing: "0.2em", textTransform: "uppercase", color: "#86868B", margin: "0 0 1.75rem" }}>
+          Trabajamos las mejores marcas
+        </p>
+        <div className="lux-marquee-wrap" style={{ position: "relative", overflow: "hidden", maskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)" }}>
+          <div className="lux-marquee-track" style={{ display: "flex", alignItems: "center", gap: "3.5rem", width: "max-content" }}>
+            {[...BRANDS.slice(0, 12), ...BRANDS.slice(0, 12)].map((b, i) => (
+              <span key={i} style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: "500", color: "#1D1D1F", opacity: 0.55, whiteSpace: "nowrap", letterSpacing: "-0.01em" }}>
+                {b}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── SHOWROOM ────────────────────────────────────────────────────────────── */}
-      <section style={{ background: "#F5F5F7", padding: "5rem 0" }}>
+      <section className="reveal" style={{ background: "#F5F5F7", padding: "5rem 0" }}>
         <div className="container">
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <div>
@@ -410,7 +450,7 @@ export default function Home() {
       </section>
 
       {/* ── PHYSICAL SHOWROOM ───────────────────────────────────────────────────── */}
-      <section style={{ background: "#06080F", padding: "0", overflow: "hidden" }}>
+      <section className="reveal" style={{ background: "#06080F", padding: "0", overflow: "hidden" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "stretch" }} className="lux-split">
           {/* Image */}
           <div style={{ position: "relative", minHeight: "440px", overflow: "hidden" }}>
@@ -453,7 +493,7 @@ export default function Home() {
       </section>
 
       {/* ── TRUST ───────────────────────────────────────────────────────────────── */}
-      <section style={{ background: "#FFFFFF", padding: "5rem 0" }}>
+      <section className="reveal" style={{ background: "#FFFFFF", padding: "5rem 0" }}>
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem" }}>¿Por qué elegirnos?</p>
@@ -482,7 +522,7 @@ export default function Home() {
       </section>
 
       {/* ── TESTIMONIALS ────────────────────────────────────────────────────────── */}
-      <section style={{ background: "#F5F5F7", padding: "5rem 0" }}>
+      <section className="reveal" style={{ background: "#F5F5F7", padding: "5rem 0" }}>
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem" }}>Opiniones reales</p>
@@ -509,7 +549,7 @@ export default function Home() {
       </section>
 
       {/* ── CTA SELL ────────────────────────────────────────────────────────────── */}
-      <section style={{ position: "relative", overflow: "hidden", padding: "6rem 0" }}>
+      <section className="reveal" style={{ position: "relative", overflow: "hidden", padding: "6rem 0" }}>
         <div style={{ position: "absolute", inset: 0 }}>
           <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1600&q=80" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,50,120,0.92) 0%, rgba(0,100,220,0.75) 100%)" }} />
