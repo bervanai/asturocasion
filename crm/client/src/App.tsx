@@ -275,7 +275,7 @@ function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: (
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={onLogout} />
 
       {/* Main content area */}
-      <div style={{ paddingLeft: 0 }} className="lg:pl-60">
+      <div className="lg:pl-60">
         {/* Mobile top bar */}
         <header
           style={{

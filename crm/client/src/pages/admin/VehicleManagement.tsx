@@ -97,9 +97,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /* ── Main component ─────────────────────────────────────────────────────────── */
+const DEMO_VEHICLES = [
+  { id: "demo-1", brand: "Mercedes-Benz", model: "GLE 250D 4Matic", year: 2016, price: "26900", km: 276000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Techo panorámico, navegación, cuero beige" },
+  { id: "demo-2", brand: "BMW", model: "325D GT Gran Turismo", year: 2017, price: "23500", km: 157000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Pack M Sport, sensores aparcamiento, xenón" },
+  { id: "demo-3", brand: "Audi", model: "Q5 2.0 TDI quattro S-line", year: 2015, price: "21500", km: 180000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Tracción integral, techo solar, virtual cockpit" },
+  { id: "demo-4", brand: "Jaguar", model: "XF R-Sport 2.0D AWD", year: 2017, price: "20900", km: 162000, fuelType: "Diésel", transmission: "Automático", status: "reserved", description: "AWD, meridian sound, cuero negro" },
+  { id: "demo-5", brand: "Peugeot", model: "3008 2.0 HDI Allure", year: 2014, price: "12900", km: 33000, fuelType: "Diésel", transmission: "Manual", status: "available", description: "Muy bajo kilometraje, impecable" },
+  { id: "demo-6", brand: "Volvo", model: "XC60 D4 Inscription", year: 2019, price: "29900", km: 75000, fuelType: "Diésel", transmission: "Automático", status: "sold", description: "Pilot Assist, Bowers & Wilkins, techo panorámico" },
+];
+
 export default function VehicleManagement() {
   const utils = trpc.useUtils();
-  const { data: vehicles = [], isLoading } = trpc.vehicle.list.useQuery();
+  const { data: rawVehicles = [], isLoading } = trpc.vehicle.list.useQuery();
+  const vehicles = rawVehicles.length > 0 ? rawVehicles : (isLoading ? [] : DEMO_VEHICLES as unknown as typeof rawVehicles);
 
   const createMutation = trpc.vehicle.create.useMutation({
     onSuccess: () => {

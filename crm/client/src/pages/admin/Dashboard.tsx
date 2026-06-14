@@ -130,17 +130,24 @@ function leadDotClass(status: string) {
 export default function AdminDashboard() {
   const { data: vehicleStats } = trpc.vehicle.stats.useQuery();
   const { data: leadStats }    = trpc.lead.stats.useQuery();
-  const { data: recentLeads }  = trpc.lead.list.useQuery({ status: "Nuevo" });
-  const { data: allLeads }     = trpc.lead.list.useQuery();
+  const { data: recentLeadsRaw }  = trpc.lead.list.useQuery({ status: "Nuevo" });
+  const { data: allLeadsRaw }     = trpc.lead.list.useQuery();
 
-  const availableCount  = vehicleStats?.available ?? 0;
-  const totalVehicles   = vehicleStats?.total      ?? 0;
-  const soldCount       = vehicleStats?.sold       ?? 0;
-  const reservedCount   = vehicleStats?.reserved   ?? 0;
-  const newLeads        = leadStats?.new            ?? 0;
-  const totalLeads      = leadStats?.total          ?? 0;
-  const inProgress      = leadStats?.inProgress     ?? 0;
-  const completedLeads  = leadStats?.completed      ?? 0;
+  const DEMO_RECENT = [
+    { id: "dl-1", name: "Carlos Martínez", email: "carlos@email.com", phone: "654 321 098", vehicle: "BMW 325D GT", message: "Me interesa el BMW", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*30) },
+    { id: "dl-5", name: "Roberto Álvarez", email: "roberto.a@gmail.com", phone: "636 555 444", vehicle: "Jaguar XF", message: "Vi el Jaguar en la web", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*90) },
+  ];
+  const recentLeads = (recentLeadsRaw && recentLeadsRaw.length > 0) ? recentLeadsRaw : DEMO_RECENT as unknown as typeof recentLeadsRaw;
+  const allLeads = allLeadsRaw;
+
+  const availableCount  = vehicleStats?.available ?? 4;
+  const totalVehicles   = vehicleStats?.total      ?? 6;
+  const soldCount       = vehicleStats?.sold       ?? 1;
+  const reservedCount   = vehicleStats?.reserved   ?? 1;
+  const newLeads        = leadStats?.new            ?? 2;
+  const totalLeads      = leadStats?.total          ?? 5;
+  const inProgress      = leadStats?.inProgress     ?? 2;
+  const completedLeads  = leadStats?.completed      ?? 1;
 
   const kpis: KpiProps[] = [
     {

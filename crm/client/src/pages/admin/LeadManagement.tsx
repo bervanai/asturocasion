@@ -182,7 +182,15 @@ function KanbanColumn({
 /* ── Main component ─────────────────────────────────────────────────────────── */
 export default function LeadManagement() {
   const utils = trpc.useUtils();
-  const { data: leads = [], isLoading } = trpc.lead.list.useQuery();
+  const DEMO_LEADS = [
+    { id: "dl-1", name: "Carlos Martínez", email: "carlos@email.com", phone: "654 321 098", type: "Compra", vehicle: "BMW 325D GT", message: "Me interesa el BMW, ¿está disponible para verlo este fin de semana?", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*30) },
+    { id: "dl-2", name: "Laura Fernández", email: "laura.f@gmail.com", phone: "622 111 333", type: "Venta", vehicle: null, message: "Quiero tasar mi Volkswagen Golf 2018, 45.000 km.", status: "En Proceso", createdAt: new Date(Date.now() - 1000*60*60*3) },
+    { id: "dl-3", name: "Andrés Pérez", email: "andres.p@hotmail.com", phone: "699 876 543", type: "Compra", vehicle: "Audi Q5 S-line", message: "Busco un SUV automático, presupuesto hasta 25.000€.", status: "En Proceso", createdAt: new Date(Date.now() - 1000*60*60*24) },
+    { id: "dl-4", name: "María González", email: "mgonzalez@empresa.es", phone: "984 123 456", type: "Tasación", vehicle: null, message: "Necesito tasar un Mercedes Clase C 2017 para empresa.", status: "Completado", createdAt: new Date(Date.now() - 1000*60*60*48) },
+    { id: "dl-5", name: "Roberto Álvarez", email: "roberto.a@gmail.com", phone: "636 555 444", type: "Compra", vehicle: "Jaguar XF R-Sport", message: "Vi el Jaguar en la web, ¿cuánto es la entrada mínima?", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*90) },
+  ];
+  const { data: rawLeads = [], isLoading } = trpc.lead.list.useQuery();
+  const leads = rawLeads.length > 0 ? rawLeads : (isLoading ? [] : DEMO_LEADS as unknown as typeof rawLeads);
 
   const updateMutation = trpc.lead.update.useMutation({
     onSuccess: () => {
