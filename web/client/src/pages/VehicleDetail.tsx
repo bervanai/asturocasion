@@ -1,70 +1,54 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useRoute } from "wouter";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Calendar, Fuel } from "lucide-react";
+import { Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Calendar, Fuel } from "lucide-react";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 export default function VehicleDetail() {
   const [, params] = useRoute("/vehiculo/:id");
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const vehicle = {
-    id: params?.id,
-    name: "Mercedes GLE 250D",
-    brand: "Mercedes",
-    model: "GLE 250D",
-    year: 2016,
-    price: 26900,
-    km: 276000,
-    fuel: "Diésel",
-    transmission: "Automático",
-    color: "Gris Selenita Metalizado",
-    seats: 5,
-    doors: 5,
-    power: "204 CV",
-    description: `Un solo titular, todas las revisiones en concesionario oficial Mercedes. AMG Line interior y exterior, sistema de navegación COMAND, faros LED, Key-Less Start, suspensión neumática adaptativa, cambio automático de 9 velocidades, espejos retrovisores eléctricos y retráctiles, control de velocidad activo, llantas en 20", techo panorámico, climatizador bizona de serie.
-
-Vehículo en perfecto estado de funcionamiento. Documentación completa y al día. El precio mostrado incluye el cambio de titularidad, sin ningún coste adicional.`,
-    features: [
-      "Navegador COMAND",
-      "Faros LED",
-      "Suspensión Neumática",
-      "Cambio Auto 9vel.",
-      "Techo Panorámico",
-      "Llantas 20\"",
-      "Key-Less Start",
-      "Control Crucero Activo",
-      "Asientos de Cuero",
-      "Climatizador Bizona",
-      "AMG Line Exterior",
-      "AMG Line Interior",
-    ],
-    images: [
-      { label: "Exterior frontal" },
-      { label: "Exterior lateral" },
-      { label: "Interior" },
-      { label: "Motor" },
-    ],
-  };
-
-  const nextImage = () => setCurrentImageIndex((p) => (p + 1) % vehicle.images.length);
-  const prevImage = () => setCurrentImageIndex((p) => (p - 1 + vehicle.images.length) % vehicle.images.length);
+  const vehicleId = params?.id ? parseInt(params.id, 10) : 0;
+  const { data: vehicle, isLoading, isError } = trpc.vehicle.byId.useQuery(
+    { id: vehicleId },
+    { enabled: vehicleId > 0 }
+  );
 
   const BRAND_BG = "#1a1a1a";
 
-  const specRows = [
+  const specRows = vehicle ? [
     { label: "Marca", value: vehicle.brand, icon: null },
     { label: "Modelo", value: vehicle.model, icon: null },
     { label: "Año", value: String(vehicle.year), icon: <Calendar size={13} /> },
     { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
     { label: "Combustible", value: vehicle.fuel, icon: <Fuel size={13} /> },
     { label: "Cambio", value: vehicle.transmission, icon: null },
-    { label: "Color", value: vehicle.color, icon: null },
-    { label: "Potencia", value: vehicle.power, icon: null },
-    { label: "Puertas", value: String(vehicle.doors), icon: null },
-    { label: "Plazas", value: String(vehicle.seats), icon: null },
-  ];
+  ] : [];
+
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+        <Navigation />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6b6456" }}>Cargando vehículo...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError || !vehicle) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
+        <Navigation />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6b6456" }}>Vehículo no encontrado.</p>
+          <Link href="/catalogo"><a className="btn-primary">Volver al catálogo</a></Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
@@ -100,7 +84,7 @@ Vehículo en perfecto estado de funcionamiento. Documentación completa y al dí
           </Link>
           <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "0.7rem" }}>/</span>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "rgba(248,246,242,0.3)" }}>
-            {vehicle.name}
+            {vehicle.brand} {vehicle.model}
           </span>
         </div>
       </div>
@@ -117,7 +101,7 @@ Vehículo en perfecto estado de funcionamiento. Documentación completa y al dí
         >
           {/* Left column */}
           <div>
-            {/* Gallery */}
+            {/* Gallery placeholder */}
             <div
               style={{
                 position: "relative",
@@ -127,7 +111,6 @@ Vehículo en perfecto estado de funcionamiento. Documentación completa y al dí
                 marginBottom: "1rem",
               }}
             >
-              {/* Main image */}
               <div
                 style={{
                   position: "relative",
@@ -149,74 +132,8 @@ Vehículo en perfecto estado de funcionamiento. Documentación completa y al dí
                   <rect x="70" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
                 </svg>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.2)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                  {vehicle.images[currentImageIndex].label}
+                  {vehicle.brand} {vehicle.model} · {vehicle.year}
                 </span>
-
-                {/* Nav buttons */}
-                <button
-                  onClick={prevImage}
-                  style={{
-                    position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)",
-                    background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "50%", width: "40px", height: "40px", display: "flex",
-                    alignItems: "center", justifyContent: "center", color: "#f8f6f2",
-                    cursor: "pointer", transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(232,160,32,0.8)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.5)")}
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <button
-                  onClick={nextImage}
-                  style={{
-                    position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)",
-                    background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "50%", width: "40px", height: "40px", display: "flex",
-                    alignItems: "center", justifyContent: "center", color: "#f8f6f2",
-                    cursor: "pointer", transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(232,160,32,0.8)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.5)")}
-                >
-                  <ChevronRight size={18} />
-                </button>
-
-                <div
-                  style={{
-                    position: "absolute", bottom: "1rem", left: "50%", transform: "translateX(-50%)",
-                    background: "rgba(0,0,0,0.6)", borderRadius: "100px",
-                    padding: "3px 12px",
-                    fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#f8f6f2",
-                  }}
-                >
-                  {currentImageIndex + 1} / {vehicle.images.length}
-                </div>
-              </div>
-
-              {/* Thumbnails */}
-              <div style={{ display: "flex", gap: "6px", padding: "0.75rem" }}>
-                {vehicle.images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentImageIndex(i)}
-                    style={{
-                      flex: 1,
-                      aspectRatio: "16/10",
-                      background: `linear-gradient(135deg, ${BRAND_BG}cc 0%, #0d0f14 100%)`,
-                      border: i === currentImageIndex ? "2px solid #e8a020" : "2px solid transparent",
-                      borderRadius: "3px",
-                      cursor: "pointer",
-                      overflow: "hidden",
-                      transition: "border-color 0.2s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.6rem", color: "rgba(255,255,255,0.2)", letterSpacing: "0.06em" }}>{i + 1}</span>
-                  </button>
-                ))}
               </div>
             </div>
 
@@ -241,56 +158,23 @@ Vehículo en perfecto estado de funcionamiento. Documentación completa y al dí
               >
                 Descripción
               </h2>
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.9rem",
-                  color: "#6b6456",
-                  lineHeight: 1.75,
-                  whiteSpace: "pre-line",
-                  marginBottom: "2rem",
-                }}
-              >
-                {vehicle.description}
-              </p>
-
-              <h3
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.72rem",
-                  fontWeight: "600",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#6b6456",
-                  marginBottom: "1rem",
-                }}
-              >
-                Equipamiento destacado
-              </h3>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-                  gap: "0.6rem",
-                }}
-              >
-                {vehicle.features.map((feature, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: "0.82rem",
-                      color: "#0d0f14",
-                    }}
-                  >
-                    <CheckCircle size={13} color="#e8a020" style={{ flexShrink: 0 }} />
-                    {feature}
-                  </div>
-                ))}
-              </div>
+              {vehicle.description ? (
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.9rem",
+                    color: "#6b6456",
+                    lineHeight: 1.75,
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {vehicle.description}
+                </p>
+              ) : (
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#9a9080", fontStyle: "italic" }}>
+                  Sin descripción disponible.
+                </p>
+              )}
             </div>
           </div>
 
