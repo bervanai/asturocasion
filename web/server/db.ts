@@ -1,12 +1,78 @@
-import { createClient } from "@supabase/supabase-js";
 import { ENV } from "./_core/env";
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
+const BASE = () => {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error("SUPABASE_URL / SUPABASE_SERVICE_KEY not set");
+  return { url, key };
+};
 
-function getSupabase() {
-  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase env vars not set");
-  return createClient(SUPABASE_URL, SUPABASE_KEY);
+async function sb(
+  table: string,
+  method: string,
+  params?: string,
+  body?: unknown
+): Promise<unknown> {
+  const { url, key } = BASE();
+  const endpoint = `${url}/rest/v1/${table}${params ? `?${params}` : ""}`;
+  const res = await fetch(endpoint, {
+    method,
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Prefer: method === "POST" ? "return=representation" : "return=minimal",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase ${method} ${table}: ${res.status} ${text}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type Row = Record<string, unknown>;
+
+function mapVehicle(v: Row) {
+  return {
+    id: v.id as string,
+    brand: v.brand as string,
+    model: v.model as string,
+    year: v.year as number,
+    price: String(v.price),
+    km: v.km as number,
+    fuelType: v.fuel_type as string,
+    transmission: v.transmission as string,
+    color: (v.color ?? null) as string | null,
+    doors: (v.doors ?? null) as number | null,
+    powerCv: (v.power_cv ?? null) as number | null,
+    status: v.status as string,
+    description: (v.description ?? null) as string | null,
+    features: (v.features ?? null) as string[] | null,
+    images: (v.images ?? null) as string[] | null,
+    isFeatured: Boolean(v.is_featured),
+    createdAt: v.created_at as string,
+    updatedAt: v.updated_at as string,
+  };
+}
+
+function mapLead(l: Row) {
+  return {
+    id: l.id as string,
+    name: l.name as string,
+    email: l.email as string,
+    phone: (l.phone ?? null) as string | null,
+    vehicleId: (l.vehicle_id ?? null) as string | null,
+    vehicleInfo: (l.vehicle_info ?? null) as Row | null,
+    message: (l.message ?? null) as string | null,
+    notes: (l.notes ?? null) as string | null,
+    status: l.status as string,
+    createdAt: l.created_at as string,
+  };
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -18,148 +84,80 @@ export async function upsertUser(user: {
   loginMethod?: string | null;
   role?: string;
 }): Promise<void> {
-  const sb = getSupabase();
-  const now = new Date().toISOString();
   const role = user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user");
-  await sb.from("users").upsert(
-    {
-      open_id: user.openId,
-      name: user.name ?? null,
-      email: user.email ?? null,
-      login_method: user.loginMethod ?? null,
-      role,
-      last_signed_in: now,
-      updated_at: now,
-    },
-    { onConflict: "open_id" }
-  );
+  const now = new Date().toISOString();
+  await sb("users", "POST", undefined, {
+    open_id: user.openId,
+    name: user.name ?? null,
+    email: user.email ?? null,
+    login_method: user.loginMethod ?? null,
+    role,
+    last_signed_in: now,
+    updated_at: now,
+  });
 }
 
 export async function getUserByOpenId(openId: string) {
-  const sb = getSupabase();
-  const { data } = await sb.from("users").select("*").eq("open_id", openId).single();
-  if (!data) return undefined;
+  const rows = (await sb("users", "GET", `open_id=eq.${encodeURIComponent(openId)}&limit=1`)) as Row[];
+  if (!rows || rows.length === 0) return undefined;
+  const d = rows[0];
   return {
-    id: data.id,
-    openId: data.open_id,
-    name: data.name,
-    email: data.email,
-    loginMethod: data.login_method,
-    role: data.role,
-    lastSignedIn: data.last_signed_in,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at,
+    id: d.id as string,
+    openId: d.open_id as string,
+    name: d.name as string | null,
+    email: d.email as string | null,
+    loginMethod: d.login_method as string | null,
+    role: d.role as string,
+    lastSignedIn: d.last_signed_in as string,
+    createdAt: d.created_at as string,
+    updatedAt: d.updated_at as string,
   };
 }
 
-// ─── Vehicles ────────────────────────────────────────────────────────────────
-
-function mapVehicle(v: Record<string, unknown>) {
-  return {
-    id: v.id as string,
-    brand: v.brand as string,
-    model: v.model as string,
-    year: v.year as number,
-    price: v.price as string,
-    km: v.km as number,
-    fuelType: v.fuel_type as string,
-    transmission: v.transmission as string,
-    color: v.color as string | null,
-    doors: v.doors as number | null,
-    powerCv: v.power_cv as number | null,
-    status: v.status as string,
-    description: v.description as string | null,
-    features: v.features as string[] | null,
-    images: v.images as string[] | null,
-    isFeatured: v.is_featured as boolean,
-    createdAt: v.created_at as string,
-    updatedAt: v.updated_at as string,
-  };
-}
+// ─── Vehicles ─────────────────────────────────────────────────────────────────
 
 export async function listVehicles(statusFilter?: string) {
-  const sb = getSupabase();
-  let query = sb.from("vehicles").select("*").order("created_at", { ascending: false });
+  let params = "order=created_at.desc";
   if (statusFilter && statusFilter !== "all") {
-    query = query.eq("status", statusFilter);
+    params += `&status=eq.${encodeURIComponent(statusFilter)}`;
   }
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(mapVehicle);
+  const rows = (await sb("vehicles", "GET", params)) as Row[];
+  return (rows ?? []).map(mapVehicle);
 }
 
 export async function getVehicleById(id: string) {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("vehicles").select("*").eq("id", id).single();
-  if (error || !data) return undefined;
-  return mapVehicle(data);
+  const rows = (await sb("vehicles", "GET", `id=eq.${encodeURIComponent(id)}&limit=1`)) as Row[];
+  if (!rows || rows.length === 0) return undefined;
+  return mapVehicle(rows[0]);
 }
 
 export async function createVehicle(data: {
-  brand: string;
-  model: string;
-  year: number;
-  price: string;
-  km: number;
-  fuelType: string;
-  transmission: string;
-  color?: string | null;
-  doors?: number | null;
-  powerCv?: number | null;
-  status?: string;
-  description?: string | null;
-  features?: string[] | null;
-  images?: string[] | null;
-  isFeatured?: boolean;
+  brand: string; model: string; year: number; price: string; km: number;
+  fuelType: string; transmission: string; color?: string | null;
+  doors?: number | null; powerCv?: number | null; status?: string;
+  description?: string | null; features?: string[] | null;
+  images?: string[] | null; isFeatured?: boolean;
 }) {
-  const sb = getSupabase();
-  const { data: row, error } = await sb
-    .from("vehicles")
-    .insert({
-      brand: data.brand,
-      model: data.model,
-      year: data.year,
-      price: data.price,
-      km: data.km,
-      fuel_type: data.fuelType,
-      transmission: data.transmission,
-      color: data.color ?? null,
-      doors: data.doors ?? null,
-      power_cv: data.powerCv ?? null,
-      status: data.status ?? "available",
-      description: data.description ?? null,
-      features: data.features ?? null,
-      images: data.images ?? null,
-      is_featured: data.isFeatured ?? false,
-    })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
-  return { id: row!.id as string };
+  const rows = (await sb("vehicles", "POST", "select=id", {
+    brand: data.brand, model: data.model, year: data.year,
+    price: data.price, km: data.km, fuel_type: data.fuelType,
+    transmission: data.transmission, color: data.color ?? null,
+    doors: data.doors ?? null, power_cv: data.powerCv ?? null,
+    status: data.status ?? "available", description: data.description ?? null,
+    features: data.features ?? null, images: data.images ?? null,
+    is_featured: data.isFeatured ?? false,
+  })) as Row[];
+  return { id: rows[0].id as string };
 }
 
-export async function updateVehicle(
-  id: string,
-  data: Partial<{
-    brand: string;
-    model: string;
-    year: number;
-    price: string;
-    km: number;
-    fuelType: string;
-    transmission: string;
-    color: string | null;
-    doors: number | null;
-    powerCv: number | null;
-    status: string;
-    description: string | null;
-    features: string[] | null;
-    images: string[] | null;
-    isFeatured: boolean;
-  }>
-) {
-  const sb = getSupabase();
-  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+export async function updateVehicle(id: string, data: Partial<{
+  brand: string; model: string; year: number; price: string; km: number;
+  fuelType: string; transmission: string; color: string | null;
+  doors: number | null; powerCv: number | null; status: string;
+  description: string | null; features: string[] | null;
+  images: string[] | null; isFeatured: boolean;
+}>) {
+  const update: Row = { updated_at: new Date().toISOString() };
   if (data.brand !== undefined) update.brand = data.brand;
   if (data.model !== undefined) update.model = data.model;
   if (data.year !== undefined) update.year = data.year;
@@ -175,107 +173,61 @@ export async function updateVehicle(
   if (data.features !== undefined) update.features = data.features;
   if (data.images !== undefined) update.images = data.images;
   if (data.isFeatured !== undefined) update.is_featured = data.isFeatured;
-  const { error } = await sb.from("vehicles").update(update).eq("id", id);
-  if (error) throw new Error(error.message);
+  await sb("vehicles", "PATCH", `id=eq.${encodeURIComponent(id)}`, update);
 }
 
 export async function deleteVehicle(id: string) {
-  const sb = getSupabase();
-  const { error } = await sb.from("vehicles").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await sb("vehicles", "DELETE", `id=eq.${encodeURIComponent(id)}`);
 }
 
 export async function countVehicles() {
-  const sb = getSupabase();
-  const { data } = await sb.from("vehicles").select("status");
-  const rows = data ?? [];
+  const rows = (await sb("vehicles", "GET", "select=status")) as Row[];
+  const r = rows ?? [];
   return {
-    total: rows.length,
-    available: rows.filter((r) => r.status === "available").length,
-    reserved: rows.filter((r) => r.status === "reserved").length,
-    sold: rows.filter((r) => r.status === "sold").length,
+    total: r.length,
+    available: r.filter((v) => v.status === "available").length,
+    reserved: r.filter((v) => v.status === "reserved").length,
+    sold: r.filter((v) => v.status === "sold").length,
   };
 }
 
-// ─── Leads ───────────────────────────────────────────────────────────────────
-
-function mapLead(l: Record<string, unknown>) {
-  return {
-    id: l.id as string,
-    name: l.name as string,
-    email: l.email as string,
-    phone: l.phone as string | null,
-    vehicleId: l.vehicle_id as string | null,
-    vehicleInfo: l.vehicle_info as Record<string, unknown> | null,
-    message: l.message as string | null,
-    notes: l.notes as string | null,
-    status: l.status as string,
-    createdAt: l.created_at as string,
-  };
-}
+// ─── Leads ────────────────────────────────────────────────────────────────────
 
 export async function listLeads(statusFilter?: string) {
-  const sb = getSupabase();
-  let query = sb.from("leads").select("*").order("created_at", { ascending: false });
+  let params = "order=created_at.desc";
   if (statusFilter && statusFilter !== "all") {
-    query = query.eq("status", statusFilter);
+    params += `&status=eq.${encodeURIComponent(statusFilter)}`;
   }
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(mapLead);
+  const rows = (await sb("leads", "GET", params)) as Row[];
+  return (rows ?? []).map(mapLead);
 }
 
 export async function getLeadById(id: string) {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("leads").select("*").eq("id", id).single();
-  if (error || !data) return undefined;
-  return mapLead(data);
+  const rows = (await sb("leads", "GET", `id=eq.${encodeURIComponent(id)}&limit=1`)) as Row[];
+  if (!rows || rows.length === 0) return undefined;
+  return mapLead(rows[0]);
 }
 
 export async function createLead(data: {
-  name: string;
-  email: string;
-  phone?: string | null;
-  vehicleId?: string | null;
-  vehicleInfo?: Record<string, unknown> | null;
-  message?: string | null;
-  notes?: string | null;
-  status?: string;
+  name: string; email: string; phone?: string | null;
+  vehicleId?: string | null; vehicleInfo?: Row | null;
+  message?: string | null; notes?: string | null; status?: string;
 }) {
-  const sb = getSupabase();
-  const { data: row, error } = await sb
-    .from("leads")
-    .insert({
-      name: data.name,
-      email: data.email,
-      phone: data.phone ?? null,
-      vehicle_id: data.vehicleId ?? null,
-      vehicle_info: data.vehicleInfo ?? null,
-      message: data.message ?? null,
-      notes: data.notes ?? null,
-      status: data.status ?? "Nuevo",
-    })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
-  return { id: row!.id as string };
+  const rows = (await sb("leads", "POST", "select=id", {
+    name: data.name, email: data.email, phone: data.phone ?? null,
+    vehicle_id: data.vehicleId ?? null, vehicle_info: data.vehicleInfo ?? null,
+    message: data.message ?? null, notes: data.notes ?? null,
+    status: data.status ?? "Nuevo",
+  })) as Row[];
+  return { id: rows[0].id as string };
 }
 
-export async function updateLead(
-  id: string,
-  data: Partial<{
-    name: string;
-    email: string;
-    phone: string | null;
-    vehicleId: string | null;
-    vehicleInfo: Record<string, unknown> | null;
-    message: string | null;
-    notes: string | null;
-    status: string;
-  }>
-) {
-  const sb = getSupabase();
-  const update: Record<string, unknown> = {};
+export async function updateLead(id: string, data: Partial<{
+  name: string; email: string; phone: string | null;
+  vehicleId: string | null; vehicleInfo: Row | null;
+  message: string | null; notes: string | null; status: string;
+}>) {
+  const update: Row = {};
   if (data.name !== undefined) update.name = data.name;
   if (data.email !== undefined) update.email = data.email;
   if (data.phone !== undefined) update.phone = data.phone;
@@ -284,24 +236,20 @@ export async function updateLead(
   if (data.message !== undefined) update.message = data.message;
   if (data.notes !== undefined) update.notes = data.notes;
   if (data.status !== undefined) update.status = data.status;
-  const { error } = await sb.from("leads").update(update).eq("id", id);
-  if (error) throw new Error(error.message);
+  await sb("leads", "PATCH", `id=eq.${encodeURIComponent(id)}`, update);
 }
 
 export async function deleteLead(id: string) {
-  const sb = getSupabase();
-  const { error } = await sb.from("leads").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await sb("leads", "DELETE", `id=eq.${encodeURIComponent(id)}`);
 }
 
 export async function countLeads() {
-  const sb = getSupabase();
-  const { data } = await sb.from("leads").select("status");
-  const rows = data ?? [];
+  const rows = (await sb("leads", "GET", "select=status")) as Row[];
+  const r = rows ?? [];
   return {
-    total: rows.length,
-    new: rows.filter((r) => r.status === "Nuevo").length,
-    inProgress: rows.filter((r) => r.status === "En Proceso").length,
-    completed: rows.filter((r) => r.status === "Completado").length,
+    total: r.length,
+    new: r.filter((l) => l.status === "Nuevo").length,
+    inProgress: r.filter((l) => l.status === "En Proceso").length,
+    completed: r.filter((l) => l.status === "Completado").length,
   };
 }
