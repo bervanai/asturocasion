@@ -105,23 +105,23 @@ export default function TradeIn() {
       {/* Header */}
       <section
         style={{
-          background: "#0071E3",
-          padding: "4.5rem 0 3.5rem",
+          background: "#06080F",
+          padding: "5rem 0 4rem",
           position: "relative",
           overflow: "hidden",
         }}
       >
         <img
-          src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=70"
+          src="/showroom.jpg"
           alt=""
           aria-hidden="true"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: 0.15, zIndex: 0 }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 55%", opacity: 0.5, zIndex: 0 }}
         />
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(135deg, rgba(0,80,180,0.6) 0%, rgba(0,113,227,0.4) 100%)",
+            background: "linear-gradient(135deg, rgba(6,8,15,0.88) 0%, rgba(10,26,58,0.7) 55%, rgba(0,90,200,0.45) 100%)",
             zIndex: 1,
           }}
         />

@@ -751,3 +751,96 @@
     color: #FFFFFF;
   }
 }
+
+/* ============================================================
+   LUXURY MOTION & POLISH
+   ============================================================ */
+
+@keyframes lux-fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lux-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes lux-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes lux-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes lux-pan {
+  from { transform: scale(1.08) translateX(0); }
+  to   { transform: scale(1.18) translateX(-2%); }
+}
+
+.lux-fade-up   { opacity: 0; animation: lux-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.lux-fade-in   { opacity: 0; animation: lux-fade-in 1.2s ease forwards; }
+.lux-scale-in  { opacity: 0; animation: lux-scale-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+.lux-delay-1 { animation-delay: 0.12s; }
+.lux-delay-2 { animation-delay: 0.24s; }
+.lux-delay-3 { animation-delay: 0.36s; }
+.lux-delay-4 { animation-delay: 0.48s; }
+.lux-delay-5 { animation-delay: 0.6s; }
+.lux-delay-6 { animation-delay: 0.72s; }
+
+/* Slow cinematic pan for hero background */
+.lux-hero-pan {
+  animation: lux-pan 18s ease-out forwards alternate infinite;
+}
+
+/* Elegant hairline divider used above eyebrows */
+.lux-hairline {
+  display: inline-block;
+  width: 42px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  vertical-align: middle;
+  margin-right: 0.85rem;
+}
+
+/* Gold/platinum accent text — luxury touch within blue palette */
+.lux-serif {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+}
+
+/* Premium card lift */
+.lux-card {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lux-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 70px rgba(0, 50, 120, 0.18);
+}
+
+/* Shimmering underline for premium links */
+.lux-underline {
+  position: relative;
+}
+.lux-underline::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 0; height: 1.5px;
+  background: currentColor;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lux-underline:hover::after { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-fade-up, .lux-fade-in, .lux-scale-in, .lux-hero-pan {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

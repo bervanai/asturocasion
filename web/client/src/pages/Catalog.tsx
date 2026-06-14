@@ -127,12 +127,12 @@ export default function Catalog() {
       <Navigation />
 
       {/* Header */}
-      <section style={{ background: "#0071E3", padding: "4.5rem 0 3.5rem", position: "relative", overflow: "hidden" }}>
-        <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1600&q=70" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 35%", opacity: 0.18, zIndex: 0 }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,80,180,0.6) 0%, rgba(0,113,227,0.4) 100%)", zIndex: 1 }} />
+      <section style={{ background: "#06080F", padding: "5rem 0 4rem", position: "relative", overflow: "hidden" }}>
+        <img src="/showroom.jpg" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 55%", opacity: 0.5, zIndex: 0 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(6,8,15,0.88) 0%, rgba(10,26,58,0.7) 55%, rgba(0,90,200,0.45) 100%)", zIndex: 1 }} />
         <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: "0.6rem" }}>Catálogo</p>
-          <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(2rem, 4.5vw, 3.2rem)", fontWeight: "800", color: "#FFFFFF", margin: "0 0 0.75rem", letterSpacing: "-0.035em" }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.2rem, 4.5vw, 3.4rem)", fontWeight: "500", color: "#FFFFFF", margin: "0 0 0.75rem", letterSpacing: "-0.015em" }}>
             Nuestros Vehículos
           </h1>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "rgba(255,255,255,0.6)", margin: 0 }}>

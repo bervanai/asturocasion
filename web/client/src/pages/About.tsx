@@ -52,14 +52,14 @@ export default function About() {
       {/* ---- Hero ---- */}
       <section
         style={{
-          background: "#0071E3",
+          background: "#06080F",
           padding: "6rem 0 5rem",
           position: "relative",
           overflow: "hidden",
         }}
       >
         <img
-          src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=1600&q=80"
+          src="/showroom.jpg"
           alt=""
           aria-hidden="true"
           style={{
@@ -68,8 +68,8 @@ export default function About() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            objectPosition: "center",
-            opacity: 0.1,
+            objectPosition: "center 55%",
+            opacity: 0.5,
             zIndex: 0,
           }}
         />
@@ -77,7 +77,7 @@ export default function About() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0,55,115,0.4) 0%, transparent 70%)",
+            background: "linear-gradient(135deg, rgba(6,8,15,0.9) 0%, rgba(10,26,58,0.72) 55%, rgba(0,90,200,0.4) 100%)",
             zIndex: 1,
           }}
         />
@@ -94,17 +94,17 @@ export default function About() {
           <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Quiénes somos</div>
           <h1
             style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-              fontWeight: "800",
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(2.4rem, 5vw, 3.9rem)",
+              fontWeight: "500",
               color: "#FFFFFF",
-              lineHeight: 1.08,
-              maxWidth: "700px",
+              lineHeight: 1.07,
+              maxWidth: "740px",
               margin: "0 0 1.5rem 0",
-              letterSpacing: "-0.03em",
+              letterSpacing: "-0.015em",
             }}
           >
-            Más de 15 Años Conectando Personas con el Coche Perfecto
+            Más de 15 Años Conectando Personas con el <em style={{ fontStyle: "italic", color: "#4DA3FF" }}>Coche Perfecto</em>
           </h1>
           <p
             style={{
