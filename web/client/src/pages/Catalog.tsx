@@ -5,6 +5,26 @@ import { useState } from "react";
 import { Filter, X, ArrowRight, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
+const BRAND_IMAGES: Record<string, string> = {
+  "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  "Mercedes-Benz": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  "BMW": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
+  "Audi": "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
+  "Peugeot": "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
+  "Jaguar": "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
+  "Volkswagen": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
+  "Ford": "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=800&q=80",
+  "Volvo": "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=800&q=80",
+  "Toyota": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=800&q=80",
+  "Seat": "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80",
+  "Renault": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80",
+};
+
+function getCarImage(brand: string, images?: string[] | null): string {
+  if (images && images.length > 0) return images[0];
+  return BRAND_IMAGES[brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80";
+}
+
 const SELECT_STYLE: React.CSSProperties = {
   width: "100%",
   background: "transparent",
@@ -300,19 +320,22 @@ export default function Catalog() {
                       }}
                     >
                       {/* Image */}
-                      <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F5F5F7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <svg width="80" height="40" viewBox="0 0 80 40" fill="none">
-                          <rect x="10" y="18" width="60" height="14" rx="4" fill="rgba(0,113,227,0.08)" />
-                          <rect x="18" y="8" width="36" height="14" rx="4" fill="rgba(0,113,227,0.12)" />
-                          <circle cx="20" cy="34" r="6" fill="rgba(0,113,227,0.15)" />
-                          <circle cx="60" cy="34" r="6" fill="rgba(0,113,227,0.15)" />
-                        </svg>
+                      <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F5F5F7" }}>
+                        <img
+                          src={getCarImage(vehicle.brand, vehicle.images)}
+                          alt={`${vehicle.brand} ${vehicle.model}`}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
+                          loading="lazy"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"; }}
+                        />
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.5) 100%)" }} />
                         <div
                           style={{
                             position: "absolute",
                             top: "12px",
                             right: "12px",
-                            background: "#0071E3",
+                            background: "rgba(0,0,0,0.75)",
+                            backdropFilter: "blur(8px)",
                             color: "#FFFFFF",
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: "0.78rem",
@@ -321,7 +344,7 @@ export default function Catalog() {
                             borderRadius: "980px",
                           }}
                         >
-                          {vehicle.price.toLocaleString("es-ES")} €
+                          {Number(vehicle.price).toLocaleString("es-ES")} €
                         </div>
                       </div>
 

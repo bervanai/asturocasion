@@ -5,6 +5,16 @@ import { Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Cale
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 
+const BRAND_IMAGES: Record<string, string> = {
+  "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
+  "Mercedes-Benz": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
+  "BMW": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1200&q=80",
+  "Audi": "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=80",
+  "Peugeot": "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=80",
+  "Jaguar": "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=1200&q=80",
+  "Volkswagen": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80",
+};
+
 export default function VehicleDetail() {
   const [, params] = useRoute("/vehiculo/:id");
 
@@ -13,8 +23,6 @@ export default function VehicleDetail() {
     { id: vehicleId },
     { enabled: vehicleId.length > 0 }
   );
-
-  const BRAND_BG = "#1a1a1a";
 
   const specRows = vehicle ? [
     { label: "Marca", value: vehicle.brand, icon: null },
@@ -101,39 +109,26 @@ export default function VehicleDetail() {
         >
           {/* Left column */}
           <div>
-            {/* Gallery placeholder */}
+            {/* Gallery */}
             <div
               style={{
                 position: "relative",
-                background: "#161a23",
-                borderRadius: "4px",
+                borderRadius: "12px",
                 overflow: "hidden",
                 marginBottom: "1rem",
+                aspectRatio: "16/9",
+                background: "#F5F5F7",
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  aspectRatio: "16/9",
-                  background: `linear-gradient(135deg, ${BRAND_BG}cc 0%, #0d0f14 100%)`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                <svg width="120" height="60" viewBox="0 0 80 40" fill="none">
-                  <rect x="10" y="18" width="60" height="14" rx="4" fill="rgba(255,255,255,0.08)" />
-                  <rect x="18" y="8" width="36" height="14" rx="4" fill="rgba(255,255,255,0.12)" />
-                  <circle cx="20" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-                  <circle cx="60" cy="34" r="6" fill="rgba(255,255,255,0.15)" />
-                  <rect x="2" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-                  <rect x="70" y="22" width="8" height="6" rx="2" fill="rgba(232,160,32,0.4)" />
-                </svg>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.2)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                  {vehicle.brand} {vehicle.model} · {vehicle.year}
-                </span>
+              <img
+                src={(vehicle.images && vehicle.images.length > 0) ? vehicle.images[0] : (BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80")}
+                alt={`${vehicle.brand} ${vehicle.model}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
+              <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "rgba(255,255,255,0.8)", fontWeight: "500" }}>
+                {vehicle.brand} {vehicle.model} · {vehicle.year}
               </div>
             </div>
 

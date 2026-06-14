@@ -53,6 +53,26 @@ function StatItem({ value, suffix, label, start }: { value: number; suffix: stri
 }
 
 const BRANDS = ["Mercedes", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus", "Toyota", "Volkswagen", "Seat", "Renault", "Opel", "Hyundai", "Kia"];
+
+const BRAND_IMAGES: Record<string, string> = {
+  "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  "Mercedes-Benz": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+  "BMW": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
+  "Audi": "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
+  "Peugeot": "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
+  "Jaguar": "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
+  "Volkswagen": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
+  "Ford": "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=800&q=80",
+  "Volvo": "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=800&q=80",
+  "Toyota": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=800&q=80",
+  "Seat": "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80",
+  "Renault": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80",
+};
+
+function getCarImage(vehicle: { brand: string; images?: string[] | null }): string {
+  if (vehicle.images && vehicle.images.length > 0) return vehicle.images[0];
+  return BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80";
+}
 const FUELS = ["Diésel", "Gasolina", "Híbrido", "Eléctrico"];
 const PRICE_RANGES = [
   { label: "Hasta 10.000 €", value: "10000" },
@@ -82,7 +102,7 @@ export default function Home() {
   const [price, setPrice] = useState("");
   const [fuel, setFuel] = useState("");
 
-  const { data: vehiclesData } = trpc.vehicle.list.useQuery({ status: "Disponible" });
+  const { data: vehiclesData } = trpc.vehicle.list.useQuery({ status: "available" });
   const vehicles = (vehiclesData ?? []).slice(0, 8);
 
   const handleSearch = () => {
@@ -271,15 +291,17 @@ export default function Home() {
                       (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
                     }}
                   >
-                    <div style={{ position: "relative", aspectRatio: "16/10", background: "#F5F5F7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <svg width="80" height="40" viewBox="0 0 80 40" fill="none" opacity="0.3">
-                        <rect x="10" y="18" width="60" height="14" rx="4" fill="#0071E3" />
-                        <rect x="18" y="8" width="36" height="14" rx="4" fill="#0071E3" />
-                        <circle cx="20" cy="34" r="6" fill="#0071E3" />
-                        <circle cx="60" cy="34" r="6" fill="#0071E3" />
-                      </svg>
-                      <div style={{ position: "absolute", top: "10px", left: "10px", background: "#1D1D1F", color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", fontWeight: "700", padding: "4px 10px", borderRadius: "6px" }}>
-                        {v.price.toLocaleString("es-ES")}€
+                    <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F5F5F7" }}>
+                      <img
+                        src={getCarImage(v)}
+                        alt={`${v.brand} ${v.model}`}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
+                        loading="lazy"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"; }}
+                      />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35) 100%)" }} />
+                      <div style={{ position: "absolute", top: "10px", left: "10px", background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", fontWeight: "700", padding: "4px 12px", borderRadius: "20px" }}>
+                        {Number(v.price).toLocaleString("es-ES")}€
                       </div>
                     </div>
                     <div style={{ padding: "1rem 1.1rem 1.25rem" }}>
@@ -287,7 +309,7 @@ export default function Home() {
                         {v.brand} {v.model}
                       </h3>
                       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "#86868B", margin: 0 }}>
-                        {v.year} · {v.km.toLocaleString("es-ES")} km · {v.fuel}
+                        {v.year} · {v.km.toLocaleString("es-ES")} km · {v.fuelType}
                       </p>
                     </div>
                   </a>
@@ -341,7 +363,7 @@ export default function Home() {
                         {v.name}
                       </h3>
                       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "#86868B", margin: 0 }}>
-                        {v.year} · {v.km.toLocaleString("es-ES")} km · {v.fuel}
+                        {v.year} · {v.km.toLocaleString("es-ES")} km · {v.fuelType}
                       </p>
                     </div>
                   </a>
