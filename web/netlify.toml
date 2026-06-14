@@ -1,6 +1,16 @@
 [build]
-  command = "npm install --legacy-peer-deps && npx vite build"
+  command = "npm install --legacy-peer-deps && npm install serverless-http && npx vite build"
   publish = "dist/public"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"

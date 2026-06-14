@@ -2,248 +2,219 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import { useState } from "react";
-import { Filter, X, ArrowRight, ChevronDown } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { Filter, X, ArrowRight, ChevronDown, Fuel, Gauge, Calendar, Settings2 } from "lucide-react";
 
-const BRAND_IMAGES: Record<string, string> = {
-  "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
-  "Mercedes-Benz": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
-  "BMW": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80",
-  "Audi": "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80",
-  "Peugeot": "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=800&q=80",
-  "Jaguar": "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80",
-  "Volkswagen": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
-  "Ford": "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=800&q=80",
-  "Volvo": "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=800&q=80",
-  "Toyota": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=800&q=80",
-  "Seat": "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80",
-  "Renault": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80",
-};
-
-function getCarImage(brand: string, images?: string[] | null): string {
-  if (images && images.length > 0) return images[0];
-  return BRAND_IMAGES[brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80";
-}
+// ─── Demo vehicles ────────────────────────────────────────────────────────────
+const DEMO_VEHICLES = [
+  { id: "1", brand: "Mercedes-Benz", model: "GLE 250D 4Matic", year: 2016, price: "26900", km: 276000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=900&q=80" },
+  { id: "2", brand: "BMW", model: "325D GT Gran Turismo", year: 2017, price: "23500", km: 157000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=900&q=80" },
+  { id: "3", brand: "Audi", model: "Q5 2.0 TDI quattro S-line", year: 2015, price: "21500", km: 180000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=900&q=80" },
+  { id: "4", brand: "Jaguar", model: "XF R-Sport 2.0D AWD", year: 2017, price: "20900", km: 162000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=900&q=80" },
+  { id: "5", brand: "Peugeot", model: "3008 2.0 HDI Allure", year: 2014, price: "12900", km: 33000, fuelType: "Diésel", transmission: "Manual", image: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=900&q=80" },
+  { id: "6", brand: "Volvo", model: "XC60 D4 Inscription", year: 2019, price: "29900", km: 75000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=900&q=80" },
+  { id: "7", brand: "Mercedes-Benz", model: "SLK 300 AMG Line", year: 2010, price: "18500", km: 145000, fuelType: "Gasolina", transmission: "Automático", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&w=900&q=80" },
+  { id: "8", brand: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: 2018, price: "24900", km: 98000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=900&q=80" },
+  { id: "9", brand: "Ford", model: "Mustang GT 5.0 V8", year: 2019, price: "39900", km: 42000, fuelType: "Gasolina", transmission: "Manual", image: "https://images.unsplash.com/photo-1547744152-14d985cb937f?auto=format&fit=crop&w=900&q=80" },
+];
 
 const SELECT_STYLE: React.CSSProperties = {
-  width: "100%",
-  background: "transparent",
-  border: "none",
-  borderBottom: "1px solid #D2D2D7",
-  padding: "0.5rem 0",
-  fontFamily: "'DM Sans', sans-serif",
-  fontSize: "0.875rem",
-  color: "#1D1D1F",
-  outline: "none",
-  appearance: "none",
-  cursor: "pointer",
+  width: "100%", background: "transparent", border: "none",
+  borderBottom: "1.5px solid #E0E0E8", padding: "0.5rem 0",
+  fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem",
+  color: "#1D1D1F", outline: "none", appearance: "none", cursor: "pointer",
 };
+
+function VehicleCard({ v }: { v: typeof DEMO_VEHICLES[0] }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Link href={`/vehiculo/${v.id}`}>
+      <a
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: "block", textDecoration: "none", background: "#FFFFFF",
+          borderRadius: "20px", overflow: "hidden",
+          boxShadow: hovered ? "0 20px 60px rgba(0,0,0,0.15)" : "0 4px 20px rgba(0,0,0,0.07)",
+          transform: hovered ? "translateY(-5px)" : "translateY(0)",
+          transition: "box-shadow 0.3s ease, transform 0.3s ease",
+          border: "1px solid rgba(0,0,0,0.06)",
+        }}
+      >
+        {/* Photo */}
+        <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F0F0F5" }}>
+          <img
+            src={v.image}
+            alt={`${v.brand} ${v.model}`}
+            style={{
+              width: "100%", height: "100%", objectFit: "cover",
+              transition: "transform 0.5s ease",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+            }}
+            loading="lazy"
+          />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 100%)" }} />
+          <div style={{
+            position: "absolute", bottom: "14px", left: "14px",
+            background: "#0071E3", color: "#fff",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", fontWeight: "800",
+            padding: "6px 16px", borderRadius: "50px", letterSpacing: "-0.02em",
+          }}>
+            {Number(v.price).toLocaleString("es-ES")} €
+          </div>
+          <div style={{
+            position: "absolute", top: "12px", right: "12px",
+            background: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)",
+            color: "#1a8a4a", fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.65rem", fontWeight: "800",
+            padding: "4px 10px", borderRadius: "50px",
+            letterSpacing: "0.06em", textTransform: "uppercase",
+          }}>
+            Disponible
+          </div>
+        </div>
+
+        {/* Info */}
+        <div style={{ padding: "1.1rem 1.25rem 1.4rem" }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", fontWeight: "700", color: "#1D1D1F", margin: "0 0 0.85rem", lineHeight: 1.3 }}>
+            {v.brand} {v.model}
+          </h3>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem 0.75rem" }}>
+            {[
+              { icon: <Calendar size={11} color="#0071E3" />, label: "Año", val: v.year },
+              { icon: <Gauge size={11} color="#0071E3" />, label: "Km", val: v.km.toLocaleString("es-ES") },
+              { icon: <Fuel size={11} color="#0071E3" />, label: "Comb.", val: v.fuelType },
+              { icon: <Settings2 size={11} color="#0071E3" />, label: "Cambio", val: v.transmission },
+            ].map(({ icon, label, val }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                {icon}
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "#6E6E73" }}>{label}:</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "#1D1D1F", fontWeight: "600" }}>{String(val)}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: "4px", marginTop: "1rem",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "#0071E3", fontWeight: "600",
+          }}>
+            Ver ficha completa <ArrowRight size={12} />
+          </div>
+        </div>
+      </a>
+    </Link>
+  );
+}
 
 export default function Catalog() {
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    brand: "",
-    priceMin: 0,
-    priceMax: 50000,
-    fuel: "",
-    transmission: "",
-  });
+  const [filters, setFilters] = useState({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
-  const { data: vehiclesData, isLoading, isError } = trpc.vehicle.list.useQuery({ status: "available" });
-  const allVehicles = vehiclesData ?? [];
+  const brands = Array.from(new Set(DEMO_VEHICLES.map((v) => v.brand)));
+  const fuels = Array.from(new Set(DEMO_VEHICLES.map((v) => v.fuelType)));
+  const transmissions = Array.from(new Set(DEMO_VEHICLES.map((v) => v.transmission)));
 
-  const filteredVehicles = allVehicles.filter((v) => {
+  const filtered = DEMO_VEHICLES.filter((v) => {
     if (filters.brand && v.brand !== filters.brand) return false;
-    if (v.price < filters.priceMin || v.price > filters.priceMax) return false;
+    if (Number(v.price) > filters.priceMax) return false;
     if (filters.fuel && v.fuelType !== filters.fuel) return false;
     if (filters.transmission && v.transmission !== filters.transmission) return false;
     return true;
   });
 
-  const brands = Array.from(new Set(allVehicles.map((v) => v.brand)));
-  const fuels = Array.from(new Set(allVehicles.map((v) => v.fuelType)));
-  const transmissions = Array.from(new Set(allVehicles.map((v) => v.transmission)));
-
-  const resetFilters = () =>
-    setFilters({ brand: "", priceMin: 0, priceMax: 50000, fuel: "", transmission: "" });
+  const resetFilters = () => setFilters({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />
 
-      {/* Page header */}
-      <section
-        style={{
-          background: "#0071E3",
-          padding: "4rem 0 3rem",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0,85,179,0.4) 0%, transparent 70%)",
-          }}
-        />
+      {/* Header */}
+      <section style={{ background: "linear-gradient(135deg, #0A1628 0%, #0D2B6B 60%, #0071E3 100%)", padding: "4.5rem 0 3.5rem", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.08 }}>
+          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=60" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Catálogo</div>
-          <h1
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: "600",
-              color: "#FFFFFF",
-              margin: "0 0 0.75rem 0",
-            }}
-          >
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: "0.6rem" }}>Catálogo</p>
+          <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(2rem, 4.5vw, 3.2rem)", fontWeight: "800", color: "#FFFFFF", margin: "0 0 0.75rem", letterSpacing: "-0.035em" }}>
             Nuestros Vehículos
           </h1>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "0.95rem",
-              color: "rgba(255,255,255,0.65)",
-              margin: 0,
-            }}
-          >
-            {allVehicles.length} vehículos disponibles — todos con garantía y transferencia incluidas
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "rgba(255,255,255,0.6)", margin: 0 }}>
+            {filtered.length} vehículos disponibles — garantía y transferencia incluidas
           </p>
         </div>
       </section>
 
-      <div className="container" style={{ flex: 1, padding: "2.5rem 1.25rem" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "280px 1fr",
-            gap: "2.5rem",
-            alignItems: "start",
-          }}
-          className="catalog-grid"
-        >
-          {/* Sidebar Filters */}
-          <aside
-            style={{
-              position: "sticky",
-              top: "88px",
-            }}
-            className={showFilters ? "block" : "hidden lg:block"}
-          >
-            <div
-              style={{
-                background: "#FFFFFF",
-                border: "1px solid #E8E8ED",
-                borderRadius: "16px",
-                padding: "1.75rem",
-                boxShadow: "0 2px 20px rgba(0,0,0,0.06)",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem" }}>
-                <h3
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "1rem",
-                    fontWeight: "600",
-                    color: "#1D1D1F",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                >
-                  <Filter size={15} color="#0071E3" />
-                  Filtros
+      <div className="container" style={{ flex: 1, padding: "2.5rem 1.25rem 4rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "2rem", alignItems: "start" }} className="catalog-grid">
+
+          {/* Sidebar */}
+          <aside style={{ position: "sticky", top: "88px" }} className={showFilters ? "sidebar-open" : "sidebar-closed"}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px", padding: "1.75rem", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "700", color: "#1D1D1F", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Filter size={15} color="#0071E3" /> Filtros
                 </h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  style={{ background: "none", border: "none", color: "#6E6E73", cursor: "pointer" }}
-                  className="lg:hidden"
-                >
+                <button onClick={() => setShowFilters(false)} style={{ background: "none", border: "none", color: "#6E6E73", cursor: "pointer" }} className="sidebar-close">
                   <X size={16} />
                 </button>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-
-                {/* Brand */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+                {/* Marca */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
-                    Marca
-                  </label>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.68rem", fontWeight: "700", letterSpacing: "0.1em", textTransform: "uppercase", color: "#86868B", display: "block", marginBottom: "0.6rem" }}>Marca</label>
                   <div style={{ position: "relative" }}>
                     <select value={filters.brand} onChange={(e) => setFilters({ ...filters, brand: e.target.value })} style={SELECT_STYLE}>
                       <option value="">Todas las marcas</option>
                       {brands.map((b) => <option key={b} value={b}>{b}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
+                    <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#86868B", pointerEvents: "none" }} />
                   </div>
                 </div>
 
-                {/* Price */}
+                {/* Precio */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.68rem", fontWeight: "700", letterSpacing: "0.1em", textTransform: "uppercase", color: "#86868B", display: "block", marginBottom: "0.6rem" }}>
                     Precio máximo: <span style={{ color: "#0071E3" }}>{filters.priceMax.toLocaleString("es-ES")} €</span>
                   </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="50000"
-                    step="500"
+                  <input type="range" min="5000" max="50000" step="500"
                     value={filters.priceMax}
                     onChange={(e) => setFilters({ ...filters, priceMax: parseInt(e.target.value) })}
                     style={{ width: "100%", accentColor: "#0071E3" }}
                   />
-                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "#86868B", marginTop: "4px" }}>
-                    <span>0 €</span><span>50.000 €</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "#86868B", marginTop: "4px" }}>
+                    <span>5.000 €</span><span>50.000 €</span>
                   </div>
                 </div>
 
-                {/* Fuel */}
+                {/* Combustible */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
-                    Combustible
-                  </label>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.68rem", fontWeight: "700", letterSpacing: "0.1em", textTransform: "uppercase", color: "#86868B", display: "block", marginBottom: "0.6rem" }}>Combustible</label>
                   <div style={{ position: "relative" }}>
                     <select value={filters.fuel} onChange={(e) => setFilters({ ...filters, fuel: e.target.value })} style={SELECT_STYLE}>
                       <option value="">Todos</option>
                       {fuels.map((f) => <option key={f} value={f}>{f}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
+                    <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#86868B", pointerEvents: "none" }} />
                   </div>
                 </div>
 
-                {/* Transmission */}
+                {/* Cambio */}
                 <div>
-                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E6E73", display: "block", marginBottom: "0.5rem" }}>
-                    Cambio
-                  </label>
+                  <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.68rem", fontWeight: "700", letterSpacing: "0.1em", textTransform: "uppercase", color: "#86868B", display: "block", marginBottom: "0.6rem" }}>Cambio</label>
                   <div style={{ position: "relative" }}>
                     <select value={filters.transmission} onChange={(e) => setFilters({ ...filters, transmission: e.target.value })} style={SELECT_STYLE}>
                       <option value="">Todos</option>
                       {transmissions.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
-                    <ChevronDown size={14} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6E6E73", pointerEvents: "none" }} />
+                    <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#86868B", pointerEvents: "none" }} />
                   </div>
                 </div>
 
-                {/* Reset */}
-                <button
-                  onClick={resetFilters}
-                  style={{
-                    width: "100%",
-                    background: "none",
-                    border: "1px solid #D2D2D7",
-                    borderRadius: "980px",
-                    padding: "0.6rem",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.82rem",
-                    color: "#6E6E73",
-                    cursor: "pointer",
-                    transition: "border-color 0.2s, color 0.2s",
-                    marginTop: "0.5rem",
-                  }}
+                <button onClick={resetFilters} style={{
+                  width: "100%", background: "none", border: "1.5px solid #D2D2D7",
+                  borderRadius: "50px", padding: "0.65rem",
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem",
+                  color: "#6E6E73", cursor: "pointer", transition: "all 0.2s",
+                }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0071E3"; (e.currentTarget as HTMLButtonElement).style.color = "#0071E3"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#D2D2D7"; (e.currentTarget as HTMLButtonElement).style.color = "#6E6E73"; }}
                 >
@@ -253,161 +224,37 @@ export default function Catalog() {
             </div>
           </aside>
 
-          {/* Vehicles grid */}
+          {/* Grid */}
           <div>
-            {/* Mobile filter toggle + count */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#6E6E73", margin: 0 }}>
-                <strong style={{ color: "#1D1D1F" }}>{filteredVehicles.length}</strong> vehículos encontrados
+                <strong style={{ color: "#1D1D1F" }}>{filtered.length}</strong> vehículos encontrados
               </p>
-              <button
-                onClick={() => setShowFilters(true)}
-                className="lg:hidden"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  background: "none",
-                  border: "1px solid #D2D2D7",
-                  borderRadius: "980px",
-                  padding: "0.5rem 1rem",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.82rem",
-                  color: "#1D1D1F",
-                  cursor: "pointer",
-                }}
-              >
-                <Filter size={13} />
-                Filtros
+              <button onClick={() => setShowFilters(true)} className="filter-btn-mobile" style={{
+                display: "none", alignItems: "center", gap: "6px",
+                background: "none", border: "1.5px solid #D2D2D7", borderRadius: "50px",
+                padding: "0.5rem 1rem", fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.82rem", color: "#1D1D1F", cursor: "pointer",
+              }}>
+                <Filter size={13} /> Filtros
               </button>
             </div>
 
-            {isLoading ? (
-              <div style={{ textAlign: "center", padding: "5rem 2rem" }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73" }}>Cargando vehículos...</p>
-              </div>
-            ) : isError ? (
-              <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "16px" }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73" }}>Error al cargar los vehículos. Inténtalo de nuevo.</p>
-              </div>
-            ) : filteredVehicles.length > 0 ? (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                  gap: "1.25rem",
-                }}
-              >
-                {filteredVehicles.map((vehicle) => (
-                  <Link key={vehicle.id} href={`/vehiculo/${vehicle.id}`}>
-                    <a
-                      style={{
-                        display: "block",
-                        textDecoration: "none",
-                        background: "#FFFFFF",
-                        borderRadius: "18px",
-                        overflow: "hidden",
-                        boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-4px)";
-                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 12px 40px rgba(0,0,0,0.14)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
-                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 24px rgba(0,0,0,0.08)";
-                      }}
-                    >
-                      {/* Image */}
-                      <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F5F5F7" }}>
-                        <img
-                          src={getCarImage(vehicle.brand, vehicle.images)}
-                          alt={`${vehicle.brand} ${vehicle.model}`}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
-                          loading="lazy"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"; }}
-                        />
-                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.5) 100%)" }} />
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "12px",
-                            right: "12px",
-                            background: "rgba(0,0,0,0.75)",
-                            backdropFilter: "blur(8px)",
-                            color: "#FFFFFF",
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "0.78rem",
-                            fontWeight: "700",
-                            padding: "4px 12px",
-                            borderRadius: "980px",
-                          }}
-                        >
-                          {Number(vehicle.price).toLocaleString("es-ES")} €
-                        </div>
-                      </div>
-
-                      {/* Info */}
-                      <div style={{ padding: "1.1rem 1.25rem" }}>
-                        <h3
-                          style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "1rem",
-                            fontWeight: "600",
-                            color: "#1D1D1F",
-                            margin: "0 0 0.6rem 0",
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {vehicle.brand} {vehicle.model}
-                        </h3>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem 1rem" }}>
-                          {[
-                            ["Año", vehicle.year],
-                            ["Km", vehicle.km.toLocaleString("es-ES")],
-                            ["Combustible", vehicle.fuel],
-                            ["Cambio", vehicle.transmission],
-                          ].map(([k, v]) => (
-                            <div key={String(k)} style={{ display: "flex", gap: "4px" }}>
-                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#86868B" }}>{k}:</span>
-                              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.73rem", color: "#1D1D1F", fontWeight: "500" }}>{String(v)}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            marginTop: "1rem",
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: "0.78rem",
-                            color: "#0071E3",
-                          }}
-                        >
-                          Ver ficha completa
-                          <ArrowRight size={12} />
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
-                ))}
+            {filtered.length > 0 ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
+                {filtered.map((v) => <VehicleCard key={v.id} v={v} />)}
               </div>
             ) : (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "5rem 2rem",
-                  background: "#FFFFFF",
-                  border: "1px solid #E8E8ED",
-                  borderRadius: "16px",
-                }}
-              >
+              <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px" }}>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", color: "#6E6E73", marginBottom: "1.5rem" }}>
                   No se encontraron vehículos con los filtros seleccionados.
                 </p>
-                <button onClick={resetFilters} className="btn-primary">
+                <button onClick={resetFilters} style={{
+                  background: "#0071E3", color: "#fff", border: "none",
+                  borderRadius: "50px", padding: "0.7rem 1.75rem",
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem",
+                  fontWeight: "600", cursor: "pointer",
+                }}>
                   Limpiar filtros
                 </button>
               </div>
@@ -416,29 +263,27 @@ export default function Catalog() {
         </div>
       </div>
 
-      {/* Full-width catalog grid style override for mobile */}
-      <style>{`
-        @media (max-width: 1023px) {
-          .catalog-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-
       <Footer />
 
-      {/* WhatsApp Float */}
-      <a
-        href="https://wa.me/34629574957"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="whatsapp-float"
-        aria-label="WhatsApp"
-      >
+      <a href="https://wa.me/34629574957" target="_blank" rel="noopener noreferrer" className="whatsapp-float" aria-label="WhatsApp">
         <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
         </svg>
       </a>
+
+      <style>{`
+        @media (max-width: 1023px) {
+          .catalog-grid { grid-template-columns: 1fr !important; }
+          .sidebar-closed { display: none; }
+          .sidebar-open { display: block; }
+          .filter-btn-mobile { display: flex !important; }
+          .sidebar-close { display: block !important; }
+        }
+        @media (min-width: 1024px) {
+          .sidebar-closed { display: block; }
+          .sidebar-close { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

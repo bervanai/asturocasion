@@ -1,0 +1,392 @@
+import { useState, useEffect, useRef } from "react";
+import { X, Send, MessageCircle, Car, Euro, Phone, ChevronRight } from "lucide-react";
+
+type Message = {
+  id: number;
+  from: "bot" | "user";
+  text: string;
+  options?: { label: string; value: string }[];
+};
+
+const BOT_NAME = "Astur Bot";
+const BOT_AVATAR = "AO";
+
+const INITIAL_MESSAGE: Message = {
+  id: 0,
+  from: "bot",
+  text: "¡Hola! Soy el asistente virtual de **Astur Ocasión**. ¿En qué puedo ayudarte hoy?",
+  options: [
+    { label: "🚗 Ver coches disponibles", value: "catalogo" },
+    { label: "💰 Vender mi coche", value: "vender" },
+    { label: "📋 Información y precios", value: "info" },
+    { label: "📞 Hablar con un asesor", value: "asesor" },
+  ],
+};
+
+const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; value: string }[] }> = {
+  catalogo: {
+    text: "Tenemos una amplia selección de vehículos de ocasión: Mercedes, BMW, Audi, Peugeot, Jaguar y más. Todos revisados, con ITV al día y garantía incluida. ¿Qué tipo de coche buscas?",
+    options: [
+      { label: "🔍 Ver catálogo completo", value: "ir_catalogo" },
+      { label: "💶 Por precio", value: "precio" },
+      { label: "⛽ Por combustible", value: "combustible" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  vender: {
+    text: "¡Perfecto! En Astur Ocasión compramos tu coche al mejor precio del mercado asturiano. El proceso es muy sencillo:\n\n1️⃣ Rellenas el formulario de tasación\n2️⃣ Te contactamos en menos de 24h con una oferta real\n3️⃣ Visita y verificación en nuestras instalaciones\n4️⃣ Pago inmediato y nosotros gestionamos el papeleo",
+    options: [
+      { label: "📝 Solicitar tasación gratis", value: "ir_tasacion" },
+      { label: "📞 Hablar con un asesor", value: "asesor" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  info: {
+    text: "Todo lo que incluimos en el precio:\n\n✅ Revisión mecánica completa\n✅ ITV en vigor\n✅ Garantía incluida\n✅ Transferencia sin coste adicional\n✅ Sin letra pequeña\n\n¿Algo más en lo que pueda ayudarte?",
+    options: [
+      { label: "💳 ¿Tienen financiación?", value: "financiacion" },
+      { label: "📍 ¿Dónde están?", value: "ubicacion" },
+      { label: "⏰ Horario", value: "horario" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  financiacion: {
+    text: "Sí, ofrecemos opciones de financiación adaptadas a tu presupuesto con las mejores condiciones del mercado asturiano. Para obtener información personalizada, lo mejor es que contactes con uno de nuestros asesores.",
+    options: [
+      { label: "📞 Hablar con un asesor", value: "asesor" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  ubicacion: {
+    text: "Estamos en **Oviedo, Asturias**. Puedes visitarnos en nuestras instalaciones de lunes a viernes.",
+    options: [
+      { label: "⏰ Ver horario", value: "horario" },
+      { label: "📞 Contactar", value: "asesor" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  horario: {
+    text: "Nuestro horario de atención es:\n\n🕙 Lunes a Viernes\n10:00 – 13:30 y 16:00 – 20:00\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
+    options: [
+      { label: "📞 Llamar ahora", value: "llamar" },
+      { label: "💬 WhatsApp", value: "whatsapp" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  asesor: {
+    text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados. Nuestro horario es de lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00.",
+    options: [
+      { label: "📞 Llamar: 984 180 450", value: "llamar" },
+      { label: "💬 WhatsApp: 629 574 957", value: "whatsapp" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  precio: {
+    text: "Tenemos vehículos para todos los presupuestos, desde 8.000€ hasta más de 40.000€. Todos con garantía y transferencia incluida. ¿Quieres ver el catálogo completo?",
+    options: [
+      { label: "🔍 Ver catálogo", value: "ir_catalogo" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  combustible: {
+    text: "Disponemos de vehículos en todas las opciones de combustible: Diésel, Gasolina, Híbrido y Eléctrico. ¿Tienes preferencia?",
+    options: [
+      { label: "⛽ Diésel", value: "ir_catalogo" },
+      { label: "🔋 Híbrido / Eléctrico", value: "ir_catalogo" },
+      { label: "🔍 Ver todos", value: "ir_catalogo" },
+    ],
+  },
+  inicio: {
+    text: "¿En qué más puedo ayudarte?",
+    options: INITIAL_MESSAGE.options,
+  },
+};
+
+function renderText(text: string) {
+  return text.split("\n").map((line, i) => {
+    const formatted = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    return (
+      <span key={i}>
+        <span dangerouslySetInnerHTML={{ __html: formatted }} />
+        {i < text.split("\n").length - 1 && <br />}
+      </span>
+    );
+  });
+}
+
+export default function ChatBot() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+  let msgId = useRef(1);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing]);
+
+  const addBotMessage = (key: string) => {
+    const resp = BOT_RESPONSES[key];
+    if (!resp) return;
+
+    setTyping(true);
+    setTimeout(() => {
+      setTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { id: msgId.current++, from: "bot", text: resp.text, options: resp.options },
+      ]);
+    }, 800);
+  };
+
+  const handleOption = (value: string) => {
+    if (value === "ir_catalogo") {
+      window.location.href = "/catalogo";
+      return;
+    }
+    if (value === "ir_tasacion") {
+      window.location.href = "/compramos-tu-coche";
+      return;
+    }
+    if (value === "llamar") {
+      window.location.href = "tel:984180450";
+      return;
+    }
+    if (value === "whatsapp") {
+      window.open("https://wa.me/34629574957", "_blank");
+      return;
+    }
+
+    const label = INITIAL_MESSAGE.options?.find((o) => o.value === value)?.label
+      ?? messages.flatMap((m) => m.options ?? []).find((o) => o.value === value)?.label
+      ?? value;
+
+    setMessages((prev) => [
+      ...prev,
+      { id: msgId.current++, from: "user", text: label },
+    ]);
+    addBotMessage(value);
+  };
+
+  const handleSend = () => {
+    const text = input.trim();
+    if (!text) return;
+    setInput("");
+    setMessages((prev) => [...prev, { id: msgId.current++, from: "user", text }]);
+
+    // Simple keyword matching
+    const lower = text.toLowerCase();
+    let key = "inicio";
+    if (lower.includes("coche") || lower.includes("catálogo") || lower.includes("catalogo") || lower.includes("comprar")) key = "catalogo";
+    else if (lower.includes("vend") || lower.includes("tasac")) key = "vender";
+    else if (lower.includes("precio") || lower.includes("€") || lower.includes("financ")) key = "financiacion";
+    else if (lower.includes("horario") || lower.includes("abre")) key = "horario";
+    else if (lower.includes("donde") || lower.includes("dónde") || lower.includes("ubic")) key = "ubicacion";
+    else if (lower.includes("hablar") || lower.includes("asesor") || lower.includes("persona")) key = "asesor";
+    else if (lower.includes("whatsapp") || lower.includes("wsp")) key = "asesor";
+    addBotMessage(key);
+  };
+
+  return (
+    <>
+      {/* Floating button */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Chat con asistente"
+        style={{
+          position: "fixed",
+          bottom: "1.5rem",
+          right: "1.5rem",
+          zIndex: 1000,
+          width: "56px",
+          height: "56px",
+          borderRadius: "50%",
+          background: open ? "#1D1D1F" : "#0071E3",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 4px 24px rgba(0,113,227,0.35)",
+          transition: "background 0.2s, transform 0.2s",
+          transform: open ? "rotate(0deg)" : "scale(1)",
+        }}
+        onMouseEnter={(e) => { if (!open) (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.08)"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+      >
+        {open
+          ? <X size={22} color="#FFFFFF" />
+          : <MessageCircle size={22} color="#FFFFFF" fill="rgba(255,255,255,0.15)" />
+        }
+      </button>
+
+      {/* Notification dot */}
+      {!open && (
+        <span style={{
+          position: "fixed",
+          bottom: "calc(1.5rem + 40px)",
+          right: "calc(1.5rem + 2px)",
+          zIndex: 1001,
+          width: "10px",
+          height: "10px",
+          borderRadius: "50%",
+          background: "#34C759",
+          border: "2px solid #FFFFFF",
+        }} />
+      )}
+
+      {/* Chat panel */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "calc(1.5rem + 68px)",
+          right: "1.5rem",
+          zIndex: 999,
+          width: "340px",
+          maxHeight: "520px",
+          background: "#FFFFFF",
+          borderRadius: "20px",
+          boxShadow: "0 16px 60px rgba(0,0,0,0.18)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transform: open ? "translateY(0) scale(1)" : "translateY(12px) scale(0.97)",
+          transition: "opacity 0.25s ease, transform 0.25s ease",
+        }}
+      >
+        {/* Header */}
+        <div style={{ background: "#0071E3", padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", fontWeight: "800", fontSize: "0.8rem", color: "#FFFFFF", flexShrink: 0 }}>
+            {BOT_AVATAR}
+          </div>
+          <div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", fontWeight: "700", color: "#FFFFFF", margin: 0 }}>{BOT_NAME}</p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(255,255,255,0.7)", margin: 0, display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#34C759", display: "inline-block" }} />
+              En línea ahora
+            </p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {messages.map((msg) => (
+            <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.from === "bot" ? "flex-start" : "flex-end", gap: "0.5rem" }}>
+              <div
+                style={{
+                  maxWidth: "85%",
+                  background: msg.from === "bot" ? "#F5F5F7" : "#0071E3",
+                  color: msg.from === "bot" ? "#1D1D1F" : "#FFFFFF",
+                  borderRadius: msg.from === "bot" ? "4px 16px 16px 16px" : "16px 4px 16px 16px",
+                  padding: "0.65rem 0.9rem",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.83rem",
+                  lineHeight: 1.55,
+                }}
+              >
+                {renderText(msg.text)}
+              </div>
+              {msg.options && msg.from === "bot" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", width: "100%" }}>
+                  {msg.options.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleOption(opt.value)}
+                      style={{
+                        background: "#FFFFFF",
+                        border: "1px solid #E8E8ED",
+                        borderRadius: "10px",
+                        padding: "0.5rem 0.85rem",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.8rem",
+                        color: "#0071E3",
+                        fontWeight: "500",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        transition: "background 0.15s, border-color 0.15s",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F0F6FF"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#0071E3"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#E8E8ED"; }}
+                    >
+                      {opt.label}
+                      <ChevronRight size={12} style={{ flexShrink: 0, opacity: 0.5 }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {typing && (
+            <div style={{ display: "flex", alignItems: "center", gap: "5px", padding: "0.65rem 0.9rem", background: "#F5F5F7", borderRadius: "4px 16px 16px 16px", width: "fit-content" }}>
+              {[0, 1, 2].map((i) => (
+                <span key={i} style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#86868B", display: "block", animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+              ))}
+            </div>
+          )}
+          <div ref={endRef} />
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid #F0F0F5", display: "flex", gap: "0.5rem", background: "#FFFFFF" }}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            placeholder="Escribe tu pregunta..."
+            style={{
+              flex: 1,
+              border: "1px solid #E8E8ED",
+              borderRadius: "10px",
+              padding: "0.55rem 0.85rem",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.83rem",
+              color: "#1D1D1F",
+              outline: "none",
+              background: "#F5F5F7",
+            }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim()}
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "10px",
+              background: input.trim() ? "#0071E3" : "#E8E8ED",
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: input.trim() ? "pointer" : "default",
+              transition: "background 0.15s",
+              flexShrink: 0,
+            }}
+          >
+            <Send size={15} color={input.trim() ? "#FFFFFF" : "#86868B"} />
+          </button>
+        </div>
+
+        <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", color: "#C0C0C0", padding: "0.4rem 0 0.6rem" }}>
+          Asistente virtual demo · Astur Ocasión
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-6px); }
+        }
+        @media (max-width: 400px) {
+          .chatbot-panel { width: calc(100vw - 2rem) !important; right: 1rem !important; }
+        }
+      `}</style>
+    </>
+  );
+}

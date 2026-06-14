@@ -30,7 +30,18 @@ const emptyForm: VehicleForm = {
 
 type FuelType = "Gasolina" | "Diésel" | "Híbrido" | "Eléctrico" | "GLP";
 type TransType = "Manual" | "Automático";
-type VehicleStatus = "Disponible" | "Reservado" | "Vendido";
+type VehicleStatus = "available" | "reserved" | "sold";
+
+const STATUS_TO_API: Record<string, VehicleStatus> = {
+  Disponible: "available",
+  Reservado: "reserved",
+  Vendido: "sold",
+};
+const STATUS_FROM_API: Record<string, string> = {
+  available: "Disponible",
+  reserved: "Reservado",
+  sold: "Vendido",
+};
 
 /* ── Fuel badge ─────────────────────────────────────────────────────────────── */
 const FUEL_COLORS: Record<string, { bg: string; color: string; border: string }> = {
@@ -64,12 +75,15 @@ function FuelBadge({ fuel }: { fuel: string }) {
 
 /* ── Status badge ───────────────────────────────────────────────────────────── */
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    Disponible: "badge badge-disponible",
-    Reservado:  "badge badge-reservado",
-    Vendido:    "badge badge-vendido",
+  const label: Record<string, string> = {
+    available: "Disponible", reserved: "Reservado", sold: "Vendido",
+    Disponible: "Disponible", Reservado: "Reservado", Vendido: "Vendido",
   };
-  return <span className={map[status] ?? "badge badge-vendido"}>{status}</span>;
+  const cls: Record<string, string> = {
+    available: "badge badge-disponible", reserved: "badge badge-reservado", sold: "badge badge-vendido",
+    Disponible: "badge badge-disponible", Reservado: "badge badge-reservado", Vendido: "badge badge-vendido",
+  };
+  return <span className={cls[status] ?? "badge badge-vendido"}>{label[status] ?? status}</span>;
 }
 
 /* ── Form field wrapper ─────────────────────────────────────────────────────── */
@@ -140,9 +154,9 @@ export default function VehicleManagement() {
       year: String(v.year),
       price: String(v.price),
       km: String(v.km),
-      fuel: v.fuel,
+      fuel: v.fuelType,
       transmission: v.transmission,
-      status: v.status,
+      status: STATUS_FROM_API[v.status] ?? "Disponible",
       description: v.description ?? "",
     });
     setShowForm(true);
@@ -155,11 +169,11 @@ export default function VehicleManagement() {
       brand: formData.brand,
       model: formData.model,
       year: Number(formData.year),
-      price: Number(formData.price),
+      price: formData.price,
       km: Number(formData.km),
-      fuel: formData.fuel as FuelType,
+      fuelType: formData.fuel as FuelType,
       transmission: formData.transmission as TransType,
-      status: formData.status as VehicleStatus,
+      status: STATUS_TO_API[formData.status] ?? "available",
       description: formData.description || undefined,
     };
     if (editingId !== null) {
@@ -336,15 +350,15 @@ export default function VehicleManagement() {
           onChange={(e) => setStatusFilter(e.target.value)}
         >
           <option value="all">Todos los estados</option>
-          <option value="Disponible">Disponible</option>
-          <option value="Reservado">Reservado</option>
-          <option value="Vendido">Vendido</option>
+          <option value="available">Disponible</option>
+          <option value="reserved">Reservado</option>
+          <option value="sold">Vendido</option>
         </select>
         {/* Quick stat pills */}
-        {(["Disponible", "Reservado", "Vendido"] as const).map((s) => {
+        {(["available", "reserved", "sold"] as const).map((s) => {
           const count = vehicles.filter((v) => v.status === s).length;
-          const dotClass =
-            s === "Disponible" ? "#22c55e" : s === "Reservado" ? "#f59e0b" : "#6b7280";
+          const label = s === "available" ? "Disponible" : s === "reserved" ? "Reservado" : "Vendido";
+          const dotClass = s === "available" ? "#22c55e" : s === "reserved" ? "#f59e0b" : "#6b7280";
           return (
             <button
               key={s}
@@ -367,7 +381,7 @@ export default function VehicleManagement() {
               }}
             >
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: dotClass, flexShrink: 0 }} />
-              {s} ({count})
+              {label} ({count})
             </button>
           );
         })}
@@ -454,7 +468,7 @@ export default function VehicleManagement() {
                     <td style={{ color: "#a1a1aa", fontVariantNumeric: "tabular-nums", fontSize: "0.6875rem" }}>
                       {v.km.toLocaleString("es-ES")} km
                     </td>
-                    <td><FuelBadge fuel={v.fuel} /></td>
+                    <td><FuelBadge fuel={v.fuelType} /></td>
                     <td>
                       <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.6875rem", color: "#a1a1aa" }}>
                         <Settings2 style={{ width: "11px", height: "11px", flexShrink: 0 }} />
