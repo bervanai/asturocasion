@@ -98,12 +98,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 /* ── Main component ─────────────────────────────────────────────────────────── */
 const DEMO_VEHICLES = [
-  { id: "demo-1", brand: "Mercedes-Benz", model: "GLE 250D 4Matic", year: 2016, price: "26900", km: 276000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Techo panorámico, navegación, cuero beige" },
-  { id: "demo-2", brand: "BMW", model: "325D GT Gran Turismo", year: 2017, price: "23500", km: 157000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Pack M Sport, sensores aparcamiento, xenón" },
-  { id: "demo-3", brand: "Audi", model: "Q5 2.0 TDI quattro S-line", year: 2015, price: "21500", km: 180000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Tracción integral, techo solar, virtual cockpit" },
-  { id: "demo-4", brand: "Jaguar", model: "XF R-Sport 2.0D AWD", year: 2017, price: "20900", km: 162000, fuelType: "Diésel", transmission: "Automático", status: "reserved", description: "AWD, meridian sound, cuero negro" },
-  { id: "demo-5", brand: "Peugeot", model: "3008 2.0 HDI Allure", year: 2014, price: "12900", km: 33000, fuelType: "Diésel", transmission: "Manual", status: "available", description: "Muy bajo kilometraje, impecable" },
-  { id: "demo-6", brand: "Volvo", model: "XC60 D4 Inscription", year: 2019, price: "29900", km: 75000, fuelType: "Diésel", transmission: "Automático", status: "sold", description: "Pilot Assist, Bowers & Wilkins, techo panorámico" },
+  { id: "demo-1", brand: "Mercedes-Benz", model: "GLE 250D 4Matic", year: 2016, price: "26900", km: 276000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Techo panorámico, navegación, cuero beige", images: ["https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=400&q=80"] },
+  { id: "demo-2", brand: "BMW", model: "325D GT Gran Turismo", year: 2017, price: "23500", km: 157000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Pack M Sport, sensores aparcamiento, xenón", images: ["https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"] },
+  { id: "demo-3", brand: "Audi", model: "Q5 2.0 TDI quattro S-line", year: 2015, price: "21500", km: 180000, fuelType: "Diésel", transmission: "Automático", status: "available", description: "Tracción integral, techo solar, virtual cockpit", images: ["https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=400&q=80"] },
+  { id: "demo-4", brand: "Jaguar", model: "XF R-Sport 2.0D AWD", year: 2017, price: "20900", km: 162000, fuelType: "Diésel", transmission: "Automático", status: "reserved", description: "AWD, meridian sound, cuero negro", images: ["https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=400&q=80"] },
+  { id: "demo-5", brand: "Peugeot", model: "3008 2.0 HDI Allure", year: 2014, price: "12900", km: 33000, fuelType: "Diésel", transmission: "Manual", status: "available", description: "Muy bajo kilometraje, impecable", images: ["https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=400&q=80"] },
+  { id: "demo-6", brand: "Volvo", model: "XC60 D4 Inscription", year: 2019, price: "29900", km: 75000, fuelType: "Diésel", transmission: "Automático", status: "sold", description: "Pilot Assist, Bowers & Wilkins, techo panorámico", images: ["https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"] },
 ];
 
 export default function VehicleManagement() {
@@ -437,20 +437,14 @@ export default function VehicleManagement() {
                   <tr key={v.id}>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                        <div
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
-                            background: "#1a1a1e",
-                            border: "1px solid #1f1f23",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Car style={{ width: "14px", height: "14px", color: "#6b7280" }} />
+                        <div style={{ width: "56px", height: "40px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "#1a1a1e", border: "1px solid #1f1f23" }}>
+                          {v.images && v.images[0] ? (
+                            <img src={v.images[0]} alt={v.brand} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <Car style={{ width: "14px", height: "14px", color: "#6b7280" }} />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <p style={{ fontWeight: 600, color: "#f0f0f0", fontSize: "0.8125rem" }}>
