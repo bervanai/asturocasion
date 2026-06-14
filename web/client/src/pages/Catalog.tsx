@@ -127,11 +127,10 @@ export default function Catalog() {
       <Navigation />
 
       {/* Header */}
-      <section style={{ background: "linear-gradient(135deg, #0A1628 0%, #0D2B6B 60%, #0071E3 100%)", padding: "4.5rem 0 3.5rem", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, opacity: 0.08 }}>
-          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=60" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </div>
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+      <section style={{ background: "#0071E3", padding: "4.5rem 0 3.5rem", position: "relative", overflow: "hidden" }}>
+        <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1600&q=70" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 35%", opacity: 0.18, zIndex: 0 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,80,180,0.6) 0%, rgba(0,113,227,0.4) 100%)", zIndex: 1 }} />
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: "0.6rem" }}>Catálogo</p>
           <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(2rem, 4.5vw, 3.2rem)", fontWeight: "800", color: "#FFFFFF", margin: "0 0 0.75rem", letterSpacing: "-0.035em" }}>
             Nuestros Vehículos

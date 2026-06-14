@@ -1,12 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Menu, X, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 
 export default function Navigation() {
   const { user, logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
 
@@ -15,10 +13,6 @@ export default function Navigation() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location]);
 
   const navLinks = [
     { href: "/", label: "Inicio" },
@@ -126,135 +120,9 @@ export default function Navigation() {
               </Link>
             )}
 
-            {/* Mobile toggle */}
-            <button
-              className="md:hidden"
-              onClick={() => setIsOpen(!isOpen)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#1D1D1F",
-                padding: "6px",
-                display: "flex",
-                alignItems: "center",
-              }}
-              aria-label="Menú"
-            >
-              {isOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
           </div>
         </div>
       </nav>
-
-      {/* Mobile drawer */}
-      <div
-        className="md:hidden"
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 49,
-          pointerEvents: isOpen ? "auto" : "none",
-        }}
-      >
-        {/* Backdrop */}
-        <div
-          onClick={() => setIsOpen(false)}
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.25)",
-            opacity: isOpen ? 1 : 0,
-            transition: "opacity 0.3s ease",
-          }}
-        />
-        {/* Drawer */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: "280px",
-            background: "#FFFFFF",
-            borderLeft: "1px solid #E8E8ED",
-            transform: isOpen ? "translateX(0)" : "translateX(100%)",
-            transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-            padding: "5rem 2rem 2rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.25rem",
-          }}
-        >
-          <button
-            onClick={() => setIsOpen(false)}
-            style={{
-              position: "absolute",
-              top: "1.25rem",
-              right: "1.25rem",
-              background: "none",
-              border: "none",
-              color: "#86868B",
-              cursor: "pointer",
-            }}
-          >
-            <X size={20} />
-          </button>
-
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <a
-                onClick={() => setIsOpen(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "1rem",
-                  fontWeight: "500",
-                  color: isActive(link.href) ? "#0071E3" : "#1D1D1F",
-                  textDecoration: "none",
-                  padding: "0.85rem 0",
-                  borderBottom: "1px solid #F5F5F7",
-                }}
-              >
-                {link.label}
-                <ChevronRight size={16} style={{ opacity: 0.3 }} />
-              </a>
-            </Link>
-          ))}
-
-          <div style={{ marginTop: "2rem" }}>
-            <a
-              href="tel:984180450"
-              style={{
-                display: "block",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.88rem",
-                fontWeight: "600",
-                color: "#0071E3",
-                textDecoration: "none",
-                marginBottom: "0.5rem",
-              }}
-            >
-              984 180 450
-            </a>
-            <a
-              href="https://wa.me/34629574957"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "block",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.85rem",
-                color: "#6E6E73",
-                textDecoration: "none",
-              }}
-            >
-              WhatsApp: 629 574 957
-            </a>
-          </div>
-        </div>
-      </div>
     </>
   );
 }

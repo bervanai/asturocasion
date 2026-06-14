@@ -22,34 +22,17 @@ export default function Footer() {
         >
           {/* Brand */}
           <div style={{ maxWidth: "280px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.25rem" }}>
-              <div
-                style={{
-                  width: "34px",
-                  height: "34px",
-                  background: "#0071E3",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: "800",
-                  fontSize: "0.82rem",
-                  color: "#FFFFFF",
-                }}
-              >
-                AO
-              </div>
+            <div style={{ marginBottom: "1.25rem" }}>
               <span
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: "700",
-                  fontSize: "0.95rem",
+                  fontWeight: "800",
+                  fontSize: "1.2rem",
                   color: "#F5F5F7",
-                  letterSpacing: "-0.01em",
+                  letterSpacing: "-0.03em",
                 }}
               >
-                Astur Ocasión
+                Astur <span style={{ color: "#0071E3" }}>Ocasión</span>
               </span>
             </div>
             <p
@@ -63,7 +46,7 @@ export default function Footer() {
             >
               Concesionario de vehículos de ocasión premium en Oviedo. Calidad, transparencia y trato personal desde hace más de 15 años.
             </p>
-            <div style={{ display: "flex", gap: "0.75rem" }}>
+            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
               {/* Facebook */}
               <a
                 href="https://facebook.com/asturocasion"
@@ -71,29 +54,19 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Facebook"
                 style={{
-                  width: "34px",
-                  height: "34px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "rgba(245,245,247,0.4)",
-                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
+                  width: "44px", height: "44px",
+                  borderRadius: "12px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "#1877F2",
+                  color: "#FFFFFF",
+                  transition: "transform 0.2s, opacity 0.2s",
                   textDecoration: "none",
+                  boxShadow: "0 2px 8px rgba(24,119,242,0.35)",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#0071E3";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,113,227,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "0.9"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                 </svg>
               </a>
@@ -104,29 +77,19 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Instagram"
                 style={{
-                  width: "34px",
-                  height: "34px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "rgba(245,245,247,0.4)",
-                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
+                  width: "44px", height: "44px",
+                  borderRadius: "12px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
+                  color: "#FFFFFF",
+                  transition: "transform 0.2s, opacity 0.2s",
                   textDecoration: "none",
+                  boxShadow: "0 2px 8px rgba(220,39,67,0.35)",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#0071E3";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,113,227,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "0.9"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
@@ -139,29 +102,19 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
                 style={{
-                  width: "34px",
-                  height: "34px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "rgba(245,245,247,0.4)",
-                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
+                  width: "44px", height: "44px",
+                  borderRadius: "12px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "#25D366",
+                  color: "#FFFFFF",
+                  transition: "transform 0.2s, opacity 0.2s",
                   textDecoration: "none",
+                  boxShadow: "0 2px 8px rgba(37,211,102,0.35)",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#25d366";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#25d366";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(37,211,102,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "0.9"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
                 </svg>
               </a>

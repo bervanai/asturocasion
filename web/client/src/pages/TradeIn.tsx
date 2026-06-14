@@ -111,22 +111,21 @@ export default function TradeIn() {
           overflow: "hidden",
         }}
       >
+        <img
+          src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=70"
+          alt=""
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", opacity: 0.15, zIndex: 0 }}
+        />
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse 60% 80% at 75% 50%, rgba(0,55,150,0.35) 0%, transparent 70%)",
+            background: "linear-gradient(135deg, rgba(0,80,180,0.6) 0%, rgba(0,113,227,0.4) 100%)",
+            zIndex: 1,
           }}
         />
-        <div
-          style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0,
-            height: "3px",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-          }}
-        />
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <div className="section-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>Vendemos por ti</div>
           <h1
             style={{
