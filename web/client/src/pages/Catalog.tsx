@@ -29,7 +29,7 @@ export default function Catalog() {
     transmission: "",
   });
 
-  const { data: vehiclesData, isLoading, isError } = trpc.vehicle.list.useQuery({ status: "Disponible" });
+  const { data: vehiclesData, isLoading, isError } = trpc.vehicle.list.useQuery({ status: "available" });
   const allVehicles = vehiclesData ?? [];
 
   const filteredVehicles = allVehicles.filter((v) => {

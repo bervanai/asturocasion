@@ -44,7 +44,7 @@ export const vehicles = pgTable("vehicles", {
   description: text("description"),
   features: text("features").array(),
   images: text("images").array(),
-  status: text("status").notNull().default("Disponible"),
+  status: text("status").notNull().default("available"),
   isFeatured: boolean("is_featured").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

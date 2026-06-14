@@ -118,9 +118,9 @@ export async function countVehicles() {
   const [row] = await db
     .select({
       total: sql<number>`COUNT(*)`,
-      available: sql<number>`SUM(CASE WHEN status = 'Disponible' THEN 1 ELSE 0 END)`,
-      reserved: sql<number>`SUM(CASE WHEN status = 'Reservado' THEN 1 ELSE 0 END)`,
-      sold: sql<number>`SUM(CASE WHEN status = 'Vendido' THEN 1 ELSE 0 END)`,
+      available: sql<number>`SUM(CASE WHEN status = 'available' THEN 1 ELSE 0 END)`,
+      reserved: sql<number>`SUM(CASE WHEN status = 'reserved' THEN 1 ELSE 0 END)`,
+      sold: sql<number>`SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END)`,
     })
     .from(vehicles);
   return {
