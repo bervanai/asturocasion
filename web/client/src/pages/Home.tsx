@@ -72,6 +72,28 @@ const DEMO_VEHICLES = [
     transmission: "Automático",
     image: "https://images.unsplash.com/photo-1568844293986-8d0400bd4745?auto=format&fit=crop&w=900&q=80",
   },
+  {
+    id: "7",
+    brand: "Ford",
+    model: "Focus 1.5 TDCi Titanium",
+    year: 2018,
+    price: "14500",
+    km: 98000,
+    fuelType: "Diésel",
+    transmission: "Manual",
+    image: "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "8",
+    brand: "SEAT",
+    model: "León 2.0 TDI FR",
+    year: 2019,
+    price: "16900",
+    km: 86000,
+    fuelType: "Diésel",
+    transmission: "Manual",
+    image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&w=900&q=80",
+  },
 ];
 
 const BRANDS = ["Mercedes-Benz", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus", "Toyota", "Volkswagen", "Seat", "Renault", "Opel", "Hyundai", "Kia"];
@@ -199,7 +221,6 @@ export default function Home() {
     { name: "Carlos M.", location: "Oviedo", text: "Compré un BMW 325D hace seis meses y no puedo estar más satisfecho. El equipo fue transparente desde el primer momento, sin letra pequeña ni sorpresas.", rating: 5, photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" },
     { name: "Laura F.", location: "Gijón", text: "Vendí mi coche en menos de 48 horas. Me hicieron la mejor tasación que encontré en Asturias y gestionaron todo el papeleo ellos. Profesionalidad total.", rating: 5, photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face" },
     { name: "Andrés P.", location: "Avilés", text: "Buscaba un SUV por encargo y lo encontraron en dos semanas. Precio justo, ITV al día, transferencia incluida. No voy a comprar en ningún otro sitio.", rating: 5, photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" },
-    { name: "Marta V.", location: "Oviedo", text: "Llevaba meses buscando un Volvo XC60 y aquí lo encontré al mejor precio. Todo el equipo súper atento, me explicaron cada detalle del vehículo. 100% recomendable.", rating: 5, photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&crop=face" },
   ];
 
   return (
