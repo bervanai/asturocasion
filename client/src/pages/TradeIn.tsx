@@ -1,12 +1,61 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowRight, Phone, MessageCircle, Send, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+
+const BRANDS = [
+  "Mercedes", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus",
+  "Toyota", "Volkswagen", "Seat", "Renault", "Opel", "Hyundai", "Kia", "Otro",
+];
+
+const LABEL_STYLE: React.CSSProperties = {
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: "0.72rem",
+  fontWeight: "600",
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  color: "#6b6456",
+  display: "block",
+  marginBottom: "0.5rem",
+};
+
+const INPUT_BASE_STYLE: React.CSSProperties = {
+  background: "transparent",
+  border: "none",
+  borderBottom: "1px solid #ddd8cf",
+  borderRadius: 0,
+  padding: "0.6rem 0",
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: "0.9rem",
+  color: "#0d0f14",
+  outline: "none",
+  width: "100%",
+  boxShadow: "none",
+};
+
+const SELECT_STYLE: React.CSSProperties = {
+  width: "100%",
+  background: "transparent",
+  border: "none",
+  borderBottom: "1px solid #ddd8cf",
+  padding: "0.6rem 0",
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: "0.9rem",
+  color: "#0d0f14",
+  outline: "none",
+  appearance: "none",
+  cursor: "pointer",
+};
+
+const PROCESS_STEPS = [
+  { num: "01", title: "Rellena el formulario", desc: "Indícanos la marca, modelo, año y kilometraje de tu vehículo." },
+  { num: "02", title: "Valoración en 24h", desc: "Nuestro equipo analiza tu coche y te contacta con una oferta real." },
+  { num: "03", title: "Visita y confirmación", desc: "Quedamos en nuestras instalaciones en Oviedo para verificar el vehículo." },
+  { num: "04", title: "Pago inmediato", desc: "Cobras en el acto. Gestionamos el cambio de titularidad nosotros." },
+];
 
 export default function TradeIn() {
   const [formData, setFormData] = useState({
@@ -26,7 +75,7 @@ export default function TradeIn() {
     onSuccess: () => {
       setSubmitted(true);
       setFormData({ brand: "", model: "", year: "", km: "", name: "", email: "", phone: "", message: "" });
-      setTimeout(() => setSubmitted(false), 4000);
+      setTimeout(() => setSubmitted(false), 5000);
     },
     onError: (err) => toast.error("Error al enviar: " + err.message),
   });
@@ -49,259 +98,453 @@ export default function TradeIn() {
     });
   };
 
-  const brands = ["Mercedes", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus"];
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
       <Navigation />
 
       {/* Header */}
-      <section className="py-12 bg-card border-b border-border">
-        <div className="container">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Compramos tu Coche
+      <section
+        style={{
+          background: "#0d0f14",
+          padding: "4.5rem 0 3.5rem",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(ellipse 60% 80% at 75% 50%, rgba(26,39,68,0.5) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 0, left: 0, right: 0,
+            height: "3px",
+            background: "linear-gradient(90deg, transparent, #e8a020, #c9a84c, transparent)",
+          }}
+        />
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+          <div className="section-eyebrow">Vendemos por ti</div>
+          <h1
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(2rem, 4vw, 3rem)",
+              fontWeight: "600",
+              color: "#f8f6f2",
+              margin: "0 0 0.75rem 0",
+              lineHeight: 1.1,
+            }}
+          >
+            Compramos tu Coche al{" "}
+            <em style={{ fontStyle: "italic", color: "#e8a020" }}>Mejor Precio</em>
           </h1>
-          <p className="text-muted-foreground">
-            Te ofrecemos la mejor tasación del mercado con pago inmediato
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.95rem",
+              color: "rgba(248,246,242,0.5)",
+              margin: 0,
+              maxWidth: "520px",
+            }}
+          >
+            Tasación gratuita, pago inmediato, cambio de titularidad incluido. Sin intermediarios, sin esperas.
           </p>
         </div>
       </section>
 
-      <div className="flex-1 container py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form */}
-          <div className="lg:col-span-2">
-            <Card className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                Tasación Gratuita
-              </h2>
-
-              {submitted ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    ¡Solicitud Enviada!
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Nos pondremos en contacto contigo en breve para ofrecerte la mejor tasación.
+      {/* Process steps */}
+      <section style={{ background: "#161a23", padding: "3.5rem 0" }}>
+        <div className="container">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {PROCESS_STEPS.map((step) => (
+              <div key={step.num} className="process-step" style={{ flexDirection: "column", gap: "0.75rem" }}>
+                <div className="process-step-number">{step.num}</div>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.9rem",
+                      fontWeight: "600",
+                      color: "#f8f6f2",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {step.title}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.82rem",
+                      color: "rgba(248,246,242,0.45)",
+                      lineHeight: 1.55,
+                      margin: 0,
+                    }}
+                  >
+                    {step.desc}
                   </p>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Vehicle Info */}
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-4">
-                      Información del Vehículo
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Marca *
-                        </label>
-                        <select
-                          name="brand"
-                          value={formData.brand}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                        >
-                          <option value="">Selecciona una marca</option>
-                          {brands.map((brand) => (
-                            <option key={brand} value={brand}>
-                              {brand}
-                            </option>
-                          ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Form + Sidebar */}
+      <div className="container" style={{ flex: 1, paddingTop: "3rem", paddingBottom: "3.5rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 340px",
+            gap: "2.5rem",
+            alignItems: "start",
+          }}
+          className="tradein-grid"
+        >
+          {/* Form */}
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e8e4dc",
+              borderRadius: "4px",
+              padding: "2.5rem",
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "1.5rem",
+                fontWeight: "600",
+                color: "#0d0f14",
+                marginBottom: "2rem",
+              }}
+            >
+              Solicitar Tasación Gratuita
+            </h2>
+
+            {submitted ? (
+              <div style={{ textAlign: "center", padding: "4rem 2rem" }}>
+                <div
+                  style={{
+                    width: "64px", height: "64px", borderRadius: "50%",
+                    background: "rgba(232,160,32,0.1)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    margin: "0 auto 1.5rem",
+                  }}
+                >
+                  <CheckCircle size={28} color="#e8a020" />
+                </div>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: "600", color: "#0d0f14", marginBottom: "0.75rem" }}>
+                  Solicitud enviada
+                </h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6b6456" }}>
+                  Analizaremos tu vehículo y te contactaremos en menos de 24 horas con nuestra oferta.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+
+                {/* Vehicle section */}
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.72rem",
+                      fontWeight: "700",
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: "#e8a020",
+                      marginBottom: "1.5rem",
+                      borderBottom: "1px solid #f0ece4",
+                      paddingBottom: "0.5rem",
+                    }}
+                  >
+                    Datos del vehículo
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem 2rem" }} className="form-two-col">
+                    <div>
+                      <label style={LABEL_STYLE}>Marca *</label>
+                      <div style={{ position: "relative" }}>
+                        <select name="brand" value={formData.brand} onChange={handleChange} required style={SELECT_STYLE}>
+                          <option value="">Seleccionar marca</option>
+                          {BRANDS.map((b) => <option key={b} value={b}>{b}</option>)}
                         </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Modelo *
-                        </label>
-                        <Input
-                          type="text"
-                          name="model"
-                          value={formData.model}
-                          onChange={handleChange}
-                          placeholder="Ej: GLE 250D"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Año *
-                        </label>
-                        <Input
-                          type="number"
-                          name="year"
-                          value={formData.year}
-                          onChange={handleChange}
-                          placeholder="Ej: 2016"
-                          min="1990"
-                          max={new Date().getFullYear()}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Kilómetros *
-                        </label>
-                        <Input
-                          type="number"
-                          name="km"
-                          value={formData.km}
-                          onChange={handleChange}
-                          placeholder="Ej: 150000"
-                          required
-                        />
+                        <ChevronDown size={13} style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#6b6456", pointerEvents: "none" }} />
                       </div>
                     </div>
-                  </div>
-
-                  {/* Contact Info */}
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-4">
-                      Tus Datos de Contacto
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Nombre Completo *
-                        </label>
-                        <Input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          placeholder="Tu nombre"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Email *
-                        </label>
-                        <Input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="tu@email.com"
-                          required
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Teléfono *
-                        </label>
-                        <Input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="Ej: 600123456"
-                          required
-                        />
-                      </div>
+                    <div>
+                      <label style={LABEL_STYLE}>Modelo *</label>
+                      <Input type="text" name="model" value={formData.model} onChange={handleChange} placeholder="Ej: GLE 250D" required style={INPUT_BASE_STYLE} />
+                    </div>
+                    <div>
+                      <label style={LABEL_STYLE}>Año *</label>
+                      <Input type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2016" min="1990" max={new Date().getFullYear()} required style={INPUT_BASE_STYLE} />
+                    </div>
+                    <div>
+                      <label style={LABEL_STYLE}>Kilómetros *</label>
+                      <Input type="number" name="km" value={formData.km} onChange={handleChange} placeholder="Ej: 150000" required style={INPUT_BASE_STYLE} />
                     </div>
                   </div>
+                </div>
 
-                  {/* Message */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Comentarios Adicionales
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder="Cuéntanos más sobre el estado del vehículo..."
-                      rows={4}
-                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                    />
+                {/* Contact section */}
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.72rem",
+                      fontWeight: "700",
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: "#e8a020",
+                      marginBottom: "1.5rem",
+                      borderBottom: "1px solid #f0ece4",
+                      paddingBottom: "0.5rem",
+                    }}
+                  >
+                    Tus datos de contacto
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem 2rem" }} className="form-two-col">
+                    <div>
+                      <label style={LABEL_STYLE}>Nombre completo *</label>
+                      <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Tu nombre" required style={INPUT_BASE_STYLE} />
+                    </div>
+                    <div>
+                      <label style={LABEL_STYLE}>Email *</label>
+                      <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" required style={INPUT_BASE_STYLE} />
+                    </div>
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <label style={LABEL_STYLE}>Teléfono *</label>
+                      <Input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Ej: 600 123 456" required style={INPUT_BASE_STYLE} />
+                    </div>
                   </div>
+                </div>
 
-                  <Button type="submit" size="lg" className="w-full" disabled={createLead.isPending}>
-                    Solicitar Tasación Gratuita
-                  </Button>
-                </form>
-              )}
-            </Card>
+                {/* Comments */}
+                <div>
+                  <label style={LABEL_STYLE}>Comentarios adicionales</label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Estado del vehículo, reformas, historial de mantenimiento..."
+                    rows={4}
+                    style={{
+                      width: "100%",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid #ddd8cf",
+                      padding: "0.6rem 0",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "0.9rem",
+                      color: "#0d0f14",
+                      outline: "none",
+                      resize: "vertical",
+                      transition: "border-color 0.2s",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderBottomColor = "#e8a020")}
+                    onBlur={(e) => (e.currentTarget.style.borderBottomColor = "#ddd8cf")}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={createLead.isPending}
+                  className="btn-primary"
+                  style={{ alignSelf: "flex-start", opacity: createLead.isPending ? 0.7 : 1 }}
+                >
+                  {createLead.isPending ? "Enviando..." : (
+                    <>
+                      Solicitar tasación gratuita
+                      <Send size={14} />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Benefits */}
-            <Card className="p-6 mb-6 bg-primary/5 border-primary/20">
-              <h3 className="font-semibold text-foreground mb-4">Ventajas</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Tasación gratuita sin compromiso
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Mejor precio del mercado
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Pago inmediato
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Cambio de titularidad gratuito
-                  </span>
-                </li>
-              </ul>
-            </Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 
-            {/* Contact Card */}
-            <Card className="p-6 bg-card border-border">
-              <h3 className="font-semibold text-foreground mb-4">
-                ¿Prefieres contactar directamente?
+            {/* Benefits */}
+            <div
+              style={{
+                background: "#0d0f14",
+                borderRadius: "4px",
+                padding: "1.75rem",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0,
+                  height: "3px",
+                  background: "linear-gradient(90deg, #e8a020, #c9a84c)",
+                }}
+              />
+              <h3
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                  color: "#f8f6f2",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                Por qué elegirnos
               </h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground mb-1">Teléfono</p>
-                  <a
-                    href="tel:984180450"
-                    className="text-primary hover:text-primary/80 font-medium"
-                  >
-                    984 180 450
-                  </a>
+              {[
+                "Tasación gratuita y sin compromiso",
+                "Mejor precio del mercado asturiano",
+                "Pago inmediato al cerrar el trato",
+                "Cambio de titularidad incluido",
+                "Sin comisiones ni intermediarios",
+                "Gestión completa del papeleo",
+              ].map((item) => (
+                <div
+                  key={item}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "0.5rem 0",
+                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.85rem",
+                    color: "rgba(248,246,242,0.65)",
+                  }}
+                >
+                  <CheckCircle size={13} color="#e8a020" style={{ flexShrink: 0 }} />
+                  {item}
                 </div>
-                <div>
-                  <p className="text-muted-foreground mb-1">WhatsApp</p>
-                  <a
-                    href="https://wa.me/34629574957"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 font-medium"
-                  >
-                    629 574 957
-                  </a>
+              ))}
+            </div>
+
+            {/* Direct contact */}
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid #e8e4dc",
+                borderRadius: "4px",
+                padding: "1.5rem",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.72rem",
+                  fontWeight: "600",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "#9a9080",
+                  marginBottom: "1rem",
+                }}
+              >
+                Contacto directo
+              </p>
+              <a
+                href="tel:984180450"
+                style={{
+                  display: "flex", alignItems: "center", gap: "10px",
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "500",
+                  color: "#0d0f14", textDecoration: "none", marginBottom: "0.75rem",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#e8a020")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0d0f14")}
+              >
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(232,160,32,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#e8a020", flexShrink: 0 }}>
+                  <Phone size={14} />
                 </div>
-              </div>
-            </Card>
+                984 180 450
+              </a>
+              <a
+                href="https://wa.me/34629574957"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex", alignItems: "center", gap: "10px",
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "500",
+                  color: "#0d0f14", textDecoration: "none",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#25d366")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0d0f14")}
+              >
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(37,211,102,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25d366", flexShrink: 0 }}>
+                  <MessageCircle size={14} />
+                </div>
+                WhatsApp: 629 574 957
+              </a>
+            </div>
+
+            {/* Catalog CTA */}
+            <div
+              style={{
+                background: "rgba(232,160,32,0.06)",
+                border: "1px solid rgba(232,160,32,0.2)",
+                borderRadius: "4px",
+                padding: "1.5rem",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "0.85rem",
+                  color: "#6b6456",
+                  marginBottom: "1rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                ¿Prefieres comprar un coche antes? Explora nuestro catálogo de vehículos disponibles.
+              </p>
+              <a
+                href="/catalogo"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "6px",
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", fontWeight: "600",
+                  color: "#e8a020", textDecoration: "none",
+                  transition: "gap 0.2s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.gap = "10px")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.gap = "6px")}
+              >
+                Ver catálogo
+                <ArrowRight size={13} />
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
+      <style>{`
+        @media (max-width: 1023px) {
+          .tradein-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 640px) {
+          .form-two-col { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
       <Footer />
+
+      <a href="https://wa.me/34629574957" target="_blank" rel="noopener noreferrer" className="whatsapp-float" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+        </svg>
+      </a>
     </div>
   );
 }
