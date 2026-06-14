@@ -51,50 +51,17 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/">
             <a style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-              <div
+              <span
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  background: "#0071E3",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                   fontFamily: "'DM Sans', sans-serif",
                   fontWeight: "800",
-                  fontSize: "0.85rem",
-                  color: "#FFFFFF",
-                  letterSpacing: "-0.02em",
-                  flexShrink: 0,
+                  fontSize: "1.15rem",
+                  color: "#1D1D1F",
+                  letterSpacing: "-0.03em",
                 }}
               >
-                AO
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: "700",
-                    fontSize: "0.95rem",
-                    color: "#1D1D1F",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  Astur Ocasión
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.6rem",
-                    color: "#86868B",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    fontWeight: "500",
-                  }}
-                >
-                  del Automóvil
-                </span>
-              </div>
+                Astur <span style={{ color: "#0071E3" }}>Ocasión</span>
+              </span>
             </a>
           </Link>
 
