@@ -26,7 +26,7 @@ const vehicleRouter = router({
     .query(({ input }) => listVehicles(input?.status)),
 
   byId: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .query(({ input }) => getVehicleById(input.id)),
 
   stats: adminProcedure.query(() => countVehicles()),
@@ -37,12 +37,18 @@ const vehicleRouter = router({
         brand: z.string().min(1),
         model: z.string().min(1),
         year: z.number().int().min(1900).max(2100),
-        price: z.number().int().min(0),
+        price: z.string(),
         km: z.number().int().min(0),
-        fuel: z.enum(["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"]),
+        fuelType: z.enum(["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"]),
         transmission: z.enum(["Manual", "Automático"]),
+        color: z.string().optional(),
+        doors: z.number().int().optional(),
+        powerCv: z.number().int().optional(),
         status: z.enum(["Disponible", "Reservado", "Vendido"]).optional(),
         description: z.string().optional(),
+        features: z.array(z.string()).optional(),
+        images: z.array(z.string()).optional(),
+        isFeatured: z.boolean().optional(),
       })
     )
     .mutation(({ input }) => createVehicle(input)),
@@ -50,16 +56,22 @@ const vehicleRouter = router({
   update: adminProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string().uuid(),
         brand: z.string().min(1).optional(),
         model: z.string().min(1).optional(),
         year: z.number().int().optional(),
-        price: z.number().int().optional(),
+        price: z.string().optional(),
         km: z.number().int().optional(),
-        fuel: z.enum(["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"]).optional(),
+        fuelType: z.enum(["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"]).optional(),
         transmission: z.enum(["Manual", "Automático"]).optional(),
+        color: z.string().optional(),
+        doors: z.number().int().optional(),
+        powerCv: z.number().int().optional(),
         status: z.enum(["Disponible", "Reservado", "Vendido"]).optional(),
         description: z.string().optional(),
+        features: z.array(z.string()).optional(),
+        images: z.array(z.string()).optional(),
+        isFeatured: z.boolean().optional(),
       })
     )
     .mutation(({ input }) => {
@@ -68,7 +80,7 @@ const vehicleRouter = router({
     }),
 
   delete: adminProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(({ input }) => deleteVehicle(input.id)),
 });
 
@@ -80,7 +92,7 @@ const leadRouter = router({
     .query(({ input }) => listLeads(input?.status)),
 
   byId: adminProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .query(({ input }) => getLeadById(input.id)),
 
   stats: adminProcedure.query(() => countLeads()),
@@ -90,34 +102,34 @@ const leadRouter = router({
       z.object({
         name: z.string().min(1),
         email: z.string().email(),
-        phone: z.string().min(1),
+        phone: z.string().optional(),
         type: z.enum(["Contacto", "Tasación", "Financiación"]).optional(),
-        vehicle: z.string().optional(),
         message: z.string().optional(),
+        vehicleId: z.string().uuid().optional(),
       })
     )
     .mutation(({ input }) =>
       createLead({
         name: input.name,
         email: input.email,
-        phone: input.phone,
+        phone: input.phone ?? null,
         type: input.type ?? "Contacto",
-        vehicle: input.vehicle ?? null,
         message: input.message ?? null,
+        vehicleId: input.vehicleId ?? null,
       })
     ),
 
   update: adminProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string().uuid(),
         name: z.string().optional(),
         email: z.string().email().optional(),
         phone: z.string().optional(),
         type: z.enum(["Contacto", "Tasación", "Financiación"]).optional(),
-        vehicle: z.string().optional(),
         message: z.string().optional(),
         status: z.enum(["Nuevo", "En Proceso", "Completado", "Descartado"]).optional(),
+        notes: z.string().optional(),
       })
     )
     .mutation(({ input }) => {
@@ -126,7 +138,7 @@ const leadRouter = router({
     }),
 
   delete: adminProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(({ input }) => deleteLead(input.id)),
 });
 

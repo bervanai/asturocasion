@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -37,35 +37,30 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     return;
   }
 
-  try {
-    const now = new Date();
-    const values: InsertUser = {
-      openId: user.openId,
-      name: user.name ?? null,
-      email: user.email ?? null,
-      loginMethod: user.loginMethod ?? null,
-      role: user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user"),
-      lastSignedIn: user.lastSignedIn ?? now,
-    };
+  const now = new Date();
+  const values: InsertUser = {
+    openId: user.openId,
+    name: user.name ?? null,
+    email: user.email ?? null,
+    loginMethod: user.loginMethod ?? null,
+    role: user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user"),
+    lastSignedIn: now,
+  };
 
-    await db
-      .insert(users)
-      .values(values)
-      .onConflictDoUpdate({
-        target: users.openId,
-        set: {
-          name: values.name,
-          email: values.email,
-          loginMethod: values.loginMethod,
-          role: values.role,
-          lastSignedIn: now,
-          updatedAt: now,
-        },
-      });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
-  }
+  await db
+    .insert(users)
+    .values(values)
+    .onConflictDoUpdate({
+      target: users.openId,
+      set: {
+        name: values.name,
+        email: values.email,
+        loginMethod: values.loginMethod,
+        role: values.role,
+        lastSignedIn: now,
+        updatedAt: now,
+      },
+    });
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -85,13 +80,13 @@ export async function listVehicles(statusFilter?: string) {
     return db
       .select()
       .from(vehicles)
-      .where(eq(vehicles.status, statusFilter as "Disponible" | "Reservado" | "Vendido"))
+      .where(eq(vehicles.status, statusFilter))
       .orderBy(desc(vehicles.createdAt));
   }
   return db.select().from(vehicles).orderBy(desc(vehicles.createdAt));
 }
 
-export async function getVehicleById(id: number) {
+export async function getVehicleById(id: string) {
   const db = await getDb();
   if (!db) return undefined;
   const result = await db.select().from(vehicles).where(eq(vehicles.id, id)).limit(1);
@@ -105,13 +100,13 @@ export async function createVehicle(data: Omit<InsertVehicle, "id">) {
   return { id: result[0].id };
 }
 
-export async function updateVehicle(id: number, data: Partial<InsertVehicle>) {
+export async function updateVehicle(id: string, data: Partial<InsertVehicle>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(vehicles).set({ ...data, updatedAt: new Date() }).where(eq(vehicles.id, id));
 }
 
-export async function deleteVehicle(id: number) {
+export async function deleteVehicle(id: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(vehicles).where(eq(vehicles.id, id));
@@ -146,13 +141,13 @@ export async function listLeads(statusFilter?: string) {
     return db
       .select()
       .from(leads)
-      .where(eq(leads.status, statusFilter as "Nuevo" | "En Proceso" | "Completado" | "Descartado"))
+      .where(eq(leads.status, statusFilter))
       .orderBy(desc(leads.createdAt));
   }
   return db.select().from(leads).orderBy(desc(leads.createdAt));
 }
 
-export async function getLeadById(id: number) {
+export async function getLeadById(id: string) {
   const db = await getDb();
   if (!db) return undefined;
   const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
@@ -166,13 +161,13 @@ export async function createLead(data: Omit<InsertLead, "id">) {
   return { id: result[0].id };
 }
 
-export async function updateLead(id: number, data: Partial<InsertLead>) {
+export async function updateLead(id: string, data: Partial<InsertLead>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(leads).set({ ...data, updatedAt: new Date() }).where(eq(leads.id, id));
+  await db.update(leads).set(data).where(eq(leads.id, id));
 }
 
-export async function deleteLead(id: number) {
+export async function deleteLead(id: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(leads).where(eq(leads.id, id));

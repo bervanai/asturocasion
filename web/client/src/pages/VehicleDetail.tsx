@@ -8,10 +8,10 @@ import { trpc } from "@/lib/trpc";
 export default function VehicleDetail() {
   const [, params] = useRoute("/vehiculo/:id");
 
-  const vehicleId = params?.id ? parseInt(params.id, 10) : 0;
+  const vehicleId = params?.id ?? "";
   const { data: vehicle, isLoading, isError } = trpc.vehicle.byId.useQuery(
     { id: vehicleId },
-    { enabled: vehicleId > 0 }
+    { enabled: vehicleId.length > 0 }
   );
 
   const BRAND_BG = "#1a1a1a";
@@ -21,7 +21,7 @@ export default function VehicleDetail() {
     { label: "Modelo", value: vehicle.model, icon: null },
     { label: "Año", value: String(vehicle.year), icon: <Calendar size={13} /> },
     { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
-    { label: "Combustible", value: vehicle.fuel, icon: <Fuel size={13} /> },
+    { label: "Combustible", value: vehicle.fuelType, icon: <Fuel size={13} /> },
     { label: "Cambio", value: vehicle.transmission, icon: null },
   ] : [];
 

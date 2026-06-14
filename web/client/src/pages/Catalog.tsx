@@ -35,13 +35,13 @@ export default function Catalog() {
   const filteredVehicles = allVehicles.filter((v) => {
     if (filters.brand && v.brand !== filters.brand) return false;
     if (v.price < filters.priceMin || v.price > filters.priceMax) return false;
-    if (filters.fuel && v.fuel !== filters.fuel) return false;
+    if (filters.fuel && v.fuelType !== filters.fuel) return false;
     if (filters.transmission && v.transmission !== filters.transmission) return false;
     return true;
   });
 
   const brands = Array.from(new Set(allVehicles.map((v) => v.brand)));
-  const fuels = Array.from(new Set(allVehicles.map((v) => v.fuel)));
+  const fuels = Array.from(new Set(allVehicles.map((v) => v.fuelType)));
   const transmissions = Array.from(new Set(allVehicles.map((v) => v.transmission)));
 
   const resetFilters = () =>

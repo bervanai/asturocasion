@@ -1,34 +1,27 @@
 import {
+  boolean,
   integer,
-  pgEnum,
+  jsonb,
+  numeric,
   pgTable,
-  serial,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
-export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
-export const fuelEnum = pgEnum("fuel_type", ["Gasolina", "Diésel", "Híbrido", "Eléctrico", "GLP"]);
-export const transmissionEnum = pgEnum("transmission_type", ["Manual", "Automático"]);
-export const vehicleStatusEnum = pgEnum("vehicle_status", ["Disponible", "Reservado", "Vendido"]);
-export const leadTypeEnum = pgEnum("lead_type", ["Contacto", "Tasación", "Financiación"]);
-export const leadStatusEnum = pgEnum("lead_status", ["Nuevo", "En Proceso", "Completado", "Descartado"]);
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   openId: varchar("open_id", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("login_method", { length: 64 }),
-  role: userRoleEnum("role").default("user").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),
+  role: varchar("role", { length: 20 }).default("user").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  lastSignedIn: timestamp("last_signed_in", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -37,18 +30,24 @@ export type InsertUser = typeof users.$inferInsert;
 // ─── Vehicles ────────────────────────────────────────────────────────────────
 
 export const vehicles = pgTable("vehicles", {
-  id: serial("id").primaryKey(),
-  brand: varchar("brand", { length: 100 }).notNull(),
-  model: varchar("model", { length: 100 }).notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  brand: text("brand").notNull(),
+  model: text("model").notNull(),
   year: integer("year").notNull(),
-  price: integer("price").notNull(),
+  price: numeric("price").notNull(),
   km: integer("km").notNull(),
-  fuel: fuelEnum("fuel").notNull().default("Gasolina"),
-  transmission: transmissionEnum("transmission").notNull().default("Manual"),
-  status: vehicleStatusEnum("status").notNull().default("Disponible"),
+  fuelType: text("fuel_type").notNull().default("Gasolina"),
+  transmission: text("transmission").notNull().default("Manual"),
+  color: text("color"),
+  doors: integer("doors"),
+  powerCv: integer("power_cv"),
   description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  features: text("features").array(),
+  images: text("images").array(),
+  status: text("status").notNull().default("Disponible"),
+  isFeatured: boolean("is_featured").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type Vehicle = typeof vehicles.$inferSelect;
@@ -57,16 +56,17 @@ export type InsertVehicle = typeof vehicles.$inferInsert;
 // ─── Leads ────────────────────────────────────────────────────────────────────
 
 export const leads = pgTable("leads", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 200 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  type: leadTypeEnum("type").notNull().default("Contacto"),
-  vehicle: varchar("vehicle", { length: 200 }),
+  id: uuid("id").primaryKey().defaultRandom(),
+  type: text("type").notNull().default("Contacto"),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
   message: text("message"),
-  status: leadStatusEnum("status").notNull().default("Nuevo"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  vehicleId: uuid("vehicle_id"),
+  vehicleInfo: jsonb("vehicle_info"),
+  status: text("status").notNull().default("Nuevo"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type Lead = typeof leads.$inferSelect;
