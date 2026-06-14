@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Link, useLocation } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search } from "lucide-react";
+
 import { trpc } from "@/lib/trpc";
 
 /* ---- Animated counter hook ---- */
@@ -89,9 +90,9 @@ export default function Home() {
   };
 
   const testimonials = [
-    { name: "Carlos M.", location: "Oviedo", text: "Compré un BMW 325D hace seis meses y no puedo estar más satisfecho. El equipo fue transparente desde el primer momento, sin letra pequeña ni sorpresas.", rating: 5 },
-    { name: "Laura F.", location: "Gijón", text: "Vendí mi coche en menos de 48 horas. Me hicieron la mejor tasación que encontré en Asturias y gestionaron todo el papeleo ellos. Profesionalidad total.", rating: 5 },
-    { name: "Andrés P.", location: "Avilés", text: "Buscaba un SUV por encargo y lo encontraron en dos semanas. Precio justo, ITV al día, transferencia incluida. No voy a comprar en ningún otro sitio.", rating: 5 },
+    { name: "Carlos M.", location: "Oviedo", text: "Compré un BMW 325D hace seis meses y no puedo estar más satisfecho. El equipo fue transparente desde el primer momento, sin letra pequeña ni sorpresas.", rating: 5, photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" },
+    { name: "Laura F.", location: "Gijón", text: "Vendí mi coche en menos de 48 horas. Me hicieron la mejor tasación que encontré en Asturias y gestionaron todo el papeleo ellos. Profesionalidad total.", rating: 5, photo: "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=80&h=80&fit=crop&crop=face" },
+    { name: "Andrés P.", location: "Avilés", text: "Buscaba un SUV por encargo y lo encontraron en dos semanas. Precio justo, ITV al día, transferencia incluida. No voy a comprar en ningún otro sitio.", rating: 5, photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" },
   ];
 
   return (
@@ -351,19 +352,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================================================================
-          STATS BAR
-          ================================================================ */}
-      <section ref={statsRef.ref} style={{ background: "#0071E3", padding: "3.5rem 0" }}>
-        <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "2rem" }}>
-            <StatItem value={200} suffix="+" label="Vehículos vendidos" start={statsRef.inView} />
-            <StatItem value={15} suffix="" label="Años de experiencia" start={statsRef.inView} />
-            <StatItem value={98} suffix="%" label="Clientes satisfechos" start={statsRef.inView} />
-            <StatItem value={4.9} suffix="★" label="Valoración media" start={statsRef.inView} />
-          </div>
-        </div>
-      </section>
+      {/* Stats removed */}
 
       {/* ================================================================
           TRUST STRIP
@@ -407,19 +396,21 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
             {testimonials.map((t, i) => (
               <div key={i} style={{ background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "16px", padding: "1.75rem" }}>
-                <div style={{ color: "#0071E3", fontSize: "1rem", marginBottom: "1rem" }}>{"★".repeat(t.rating)}</div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6E6E73", lineHeight: 1.7, marginBottom: "1.5rem", fontStyle: "italic" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.25rem" }}>
+                  <img
+                    src={t.photo}
+                    alt={t.name}
+                    style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+                  />
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", fontWeight: "700", color: "#1D1D1F", margin: 0 }}>{t.name}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#86868B", margin: "2px 0 0" }}>{t.location}</p>
+                  </div>
+                  <div style={{ marginLeft: "auto", color: "#F5A623", fontSize: "0.85rem" }}>{"★".repeat(t.rating)}</div>
+                </div>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6E6E73", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>
                   "{t.text}"
                 </p>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(0,113,227,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "700", color: "#0071E3" }}>
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "700", color: "#1D1D1F", margin: 0 }}>{t.name}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#86868B", margin: 0 }}>{t.location}</p>
-                  </div>
-                </div>
               </div>
             ))}
           </div>

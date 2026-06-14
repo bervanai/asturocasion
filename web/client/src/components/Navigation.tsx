@@ -11,12 +11,11 @@ export default function Navigation() {
   const [location] = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
@@ -39,41 +38,34 @@ export default function Navigation() {
           position: "sticky",
           top: 0,
           zIndex: 50,
-          transition: "background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
-          background: scrolled ? "rgba(13,15,20,0.97)" : "#0d0f14",
-          backdropFilter: scrolled ? "blur(12px)" : "none",
-          boxShadow: scrolled ? "0 1px 0 rgba(255,255,255,0.06)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(255,255,255,0.04)",
+          transition: "background 0.3s ease, box-shadow 0.3s ease",
+          background: scrolled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.08)" : "none",
+          borderBottom: "1px solid rgba(0,0,0,0.06)",
         }}
       >
-        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "68px" }}>
+        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "64px" }}>
 
           {/* Logo */}
           <Link href="/">
-            <a
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                textDecoration: "none",
-              }}
-            >
+            <a style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
               <div
                 style={{
-                  width: "38px",
-                  height: "38px",
-                  background: "#e8a020",
-                  borderRadius: "4px",
+                  width: "36px",
+                  height: "36px",
+                  background: "#0071E3",
+                  borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: "700",
-                  fontSize: "0.9rem",
-                  color: "#0d0f14",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: "800",
+                  fontSize: "0.85rem",
+                  color: "#FFFFFF",
                   letterSpacing: "-0.02em",
                   flexShrink: 0,
-                  boxShadow: "0 2px 10px rgba(232,160,32,0.35)",
                 }}
               >
                 AO
@@ -81,11 +73,11 @@ export default function Navigation() {
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
                 <span
                   style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontWeight: "600",
-                    fontSize: "1rem",
-                    color: "#f8f6f2",
-                    letterSpacing: "0.01em",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: "700",
+                    fontSize: "0.95rem",
+                    color: "#1D1D1F",
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   Astur Ocasión
@@ -93,10 +85,11 @@ export default function Navigation() {
                 <span
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.62rem",
-                    color: "rgba(248,246,242,0.4)",
-                    letterSpacing: "0.14em",
+                    fontSize: "0.6rem",
+                    color: "#86868B",
+                    letterSpacing: "0.1em",
                     textTransform: "uppercase",
+                    fontWeight: "500",
                   }}
                 >
                   del Automóvil
@@ -106,12 +99,12 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Links */}
-          <div style={{ display: "flex", alignItems: "center", gap: "2.25rem" }} className="hidden md:flex">
+          <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="hidden md:flex">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <a
                   className={`nav-link ${isActive(link.href) ? "active" : ""}`}
-                  style={{ color: isActive(link.href) ? "#e8a020" : "rgba(248,246,242,0.75)" }}
+                  style={{ color: isActive(link.href) ? "#0071E3" : "#1D1D1F" }}
                 >
                   {link.label}
                 </a>
@@ -120,7 +113,7 @@ export default function Navigation() {
           </div>
 
           {/* Right side */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             {user ? (
               <>
                 {user.role === "admin" && (
@@ -130,11 +123,11 @@ export default function Navigation() {
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: "0.8rem",
                         fontWeight: "500",
-                        color: "rgba(248,246,242,0.6)",
+                        color: "#6E6E73",
                         textDecoration: "none",
                         padding: "6px 12px",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: "3px",
+                        border: "1px solid #D2D2D7",
+                        borderRadius: "980px",
                         transition: "border-color 0.2s, color 0.2s",
                       }}
                       className="hidden md:inline-flex"
@@ -148,7 +141,7 @@ export default function Navigation() {
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "0.8rem",
-                    color: "rgba(248,246,242,0.5)",
+                    color: "#86868B",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
@@ -160,7 +153,7 @@ export default function Navigation() {
               </>
             ) : (
               <Link href="/catalogo">
-                <a className="btn-primary hidden md:inline-flex" style={{ padding: "0.6rem 1.4rem", fontSize: "0.82rem" }}>
+                <a className="btn-primary hidden md:inline-flex" style={{ padding: "0.55rem 1.25rem", fontSize: "0.82rem" }}>
                   Ver Catálogo
                 </a>
               </Link>
@@ -173,7 +166,7 @@ export default function Navigation() {
               style={{
                 background: "none",
                 border: "none",
-                color: "#f8f6f2",
+                color: "#1D1D1F",
                 padding: "6px",
                 display: "flex",
                 alignItems: "center",
@@ -202,7 +195,7 @@ export default function Navigation() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,0.6)",
+            background: "rgba(0,0,0,0.25)",
             opacity: isOpen ? 1 : 0,
             transition: "opacity 0.3s ease",
           }}
@@ -215,8 +208,8 @@ export default function Navigation() {
             right: 0,
             bottom: 0,
             width: "280px",
-            background: "#0d0f14",
-            borderLeft: "1px solid rgba(255,255,255,0.08)",
+            background: "#FFFFFF",
+            borderLeft: "1px solid #E8E8ED",
             transform: isOpen ? "translateX(0)" : "translateX(100%)",
             transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
             padding: "5rem 2rem 2rem",
@@ -233,7 +226,7 @@ export default function Navigation() {
               right: "1.25rem",
               background: "none",
               border: "none",
-              color: "rgba(248,246,242,0.5)",
+              color: "#86868B",
               cursor: "pointer",
             }}
           >
@@ -251,14 +244,14 @@ export default function Navigation() {
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "1rem",
                   fontWeight: "500",
-                  color: isActive(link.href) ? "#e8a020" : "rgba(248,246,242,0.8)",
+                  color: isActive(link.href) ? "#0071E3" : "#1D1D1F",
                   textDecoration: "none",
                   padding: "0.85rem 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: "1px solid #F5F5F7",
                 }}
               >
                 {link.label}
-                <ChevronRight size={16} style={{ opacity: 0.4 }} />
+                <ChevronRight size={16} style={{ opacity: 0.3 }} />
               </a>
             </Link>
           ))}
@@ -269,8 +262,9 @@ export default function Navigation() {
               style={{
                 display: "block",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.85rem",
-                color: "#e8a020",
+                fontSize: "0.88rem",
+                fontWeight: "600",
+                color: "#0071E3",
                 textDecoration: "none",
                 marginBottom: "0.5rem",
               }}
@@ -285,7 +279,7 @@ export default function Navigation() {
                 display: "block",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.85rem",
-                color: "rgba(248,246,242,0.5)",
+                color: "#6E6E73",
                 textDecoration: "none",
               }}
             >

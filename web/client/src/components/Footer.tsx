@@ -6,9 +6,9 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "#0d0f14",
-        color: "#f8f6f2",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        background: "#1D1D1F",
+        color: "#F5F5F7",
+        borderTop: "none",
       }}
     >
       <div className="container" style={{ padding: "4rem 1.25rem 2rem" }}>
@@ -25,27 +25,28 @@ export default function Footer() {
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.25rem" }}>
               <div
                 style={{
-                  width: "32px",
-                  height: "32px",
-                  background: "#e8a020",
-                  borderRadius: "3px",
+                  width: "34px",
+                  height: "34px",
+                  background: "#0071E3",
+                  borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: "700",
-                  fontSize: "0.8rem",
-                  color: "#0d0f14",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: "800",
+                  fontSize: "0.82rem",
+                  color: "#FFFFFF",
                 }}
               >
                 AO
               </div>
               <span
                 style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: "600",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: "700",
                   fontSize: "0.95rem",
-                  color: "#f8f6f2",
+                  color: "#F5F5F7",
+                  letterSpacing: "-0.01em",
                 }}
               >
                 Astur Ocasión
@@ -55,14 +56,15 @@ export default function Footer() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.85rem",
-                color: "rgba(248,246,242,0.45)",
+                color: "rgba(245,245,247,0.45)",
                 lineHeight: 1.7,
                 marginBottom: "1.5rem",
               }}
             >
               Concesionario de vehículos de ocasión premium en Oviedo. Calidad, transparencia y trato personal desde hace más de 15 años.
             </p>
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              {/* Facebook */}
               <a
                 href="https://facebook.com/asturocasion"
                 target="_blank"
@@ -72,27 +74,30 @@ export default function Footer() {
                   width: "34px",
                   height: "34px",
                   border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "50%",
+                  borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "rgba(248,246,242,0.4)",
-                  transition: "border-color 0.2s, color 0.2s",
+                  color: "rgba(245,245,247,0.4)",
+                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#e8a020";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#e8a020";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#0071E3";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,113,227,0.1)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                 </svg>
               </a>
+              {/* Instagram */}
               <a
                 href="https://instagram.com/asturocasion"
                 target="_blank"
@@ -102,21 +107,23 @@ export default function Footer() {
                   width: "34px",
                   height: "34px",
                   border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "50%",
+                  borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "rgba(248,246,242,0.4)",
-                  transition: "border-color 0.2s, color 0.2s",
+                  color: "rgba(245,245,247,0.4)",
+                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#e8a020";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#e8a020";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#0071E3";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,113,227,0.1)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -125,6 +132,7 @@ export default function Footer() {
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                 </svg>
               </a>
+              {/* WhatsApp */}
               <a
                 href="https://wa.me/34629574957"
                 target="_blank"
@@ -134,21 +142,23 @@ export default function Footer() {
                   width: "34px",
                   height: "34px",
                   border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "50%",
+                  borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "rgba(248,246,242,0.4)",
-                  transition: "border-color 0.2s, color 0.2s",
+                  color: "rgba(245,245,247,0.4)",
+                  transition: "border-color 0.2s, color 0.2s, background 0.2s",
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLAnchorElement).style.borderColor = "#25d366";
                   (e.currentTarget as HTMLAnchorElement).style.color = "#25d366";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(37,211,102,0.1)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.4)";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -164,10 +174,10 @@ export default function Footer() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.68rem",
-                fontWeight: "600",
-                letterSpacing: "0.14em",
+                fontWeight: "700",
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "rgba(248,246,242,0.3)",
+                color: "rgba(245,245,247,0.3)",
                 marginBottom: "1.25rem",
               }}
             >
@@ -187,12 +197,12 @@ export default function Footer() {
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: "0.85rem",
-                        color: "rgba(248,246,242,0.45)",
+                        color: "rgba(245,245,247,0.45)",
                         textDecoration: "none",
                         transition: "color 0.2s",
                       }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#e8a020")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.45)")}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0071E3")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.45)")}
                     >
                       {link.label}
                     </a>
@@ -208,10 +218,10 @@ export default function Footer() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.68rem",
-                fontWeight: "600",
-                letterSpacing: "0.14em",
+                fontWeight: "700",
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "rgba(248,246,242,0.3)",
+                color: "rgba(245,245,247,0.3)",
                 marginBottom: "1.25rem",
               }}
             >
@@ -219,26 +229,26 @@ export default function Footer() {
             </p>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
               <li>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "rgba(248,246,242,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Teléfono</p>
-                <a href="tel:984180450" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#e8a020", textDecoration: "none" }}>984 180 450</a>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Teléfono</p>
+                <a href="tel:984180450" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#0071E3", textDecoration: "none", fontWeight: "600" }}>984 180 450</a>
               </li>
               <li>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "rgba(248,246,242,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp</p>
-                <a href="https://wa.me/34629574957" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(248,246,242,0.55)", textDecoration: "none" }}>629 574 957</a>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp</p>
+                <a href="https://wa.me/34629574957" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)", textDecoration: "none" }}>629 574 957</a>
               </li>
               <li>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "rgba(248,246,242,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Email</p>
-                <a href="mailto:info@asturocasion.es" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(248,246,242,0.55)", textDecoration: "none" }}>info@asturocasion.es</a>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Email</p>
+                <a href="mailto:info@asturocasion.es" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)", textDecoration: "none" }}>info@asturocasion.es</a>
               </li>
               <li>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", color: "rgba(248,246,242,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Ubicación</p>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(248,246,242,0.55)" }}>Oviedo, Asturias</span>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Ubicación</p>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)" }}>Oviedo, Asturias</span>
                 <br />
                 <a
                   href="https://maps.google.com/?q=Astur+Ocasion+Oviedo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#e8a020", textDecoration: "none" }}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#0071E3", textDecoration: "none", fontWeight: "500" }}
                 >
                   Ver en Google Maps →
                 </a>
@@ -252,10 +262,10 @@ export default function Footer() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.68rem",
-                fontWeight: "600",
-                letterSpacing: "0.14em",
+                fontWeight: "700",
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "rgba(248,246,242,0.3)",
+                color: "rgba(245,245,247,0.3)",
                 marginBottom: "1.25rem",
               }}
             >
@@ -263,9 +273,9 @@ export default function Footer() {
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "500", color: "rgba(248,246,242,0.7)", marginBottom: "2px" }}>Lunes — Viernes</p>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(248,246,242,0.4)" }}>10:00 – 13:30</p>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(248,246,242,0.4)" }}>16:00 – 20:00</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "600", color: "rgba(245,245,247,0.7)", marginBottom: "2px" }}>Lunes — Viernes</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(245,245,247,0.4)" }}>10:00 – 13:30</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(245,245,247,0.4)" }}>16:00 – 20:00</p>
               </div>
               <div style={{ marginTop: "0.5rem" }}>
                 <div
@@ -273,16 +283,17 @@ export default function Footer() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    background: "rgba(232,160,32,0.1)",
-                    border: "1px solid rgba(232,160,32,0.2)",
+                    background: "rgba(0,113,227,0.15)",
+                    border: "1px solid rgba(0,113,227,0.3)",
                     borderRadius: "100px",
                     padding: "4px 12px",
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "0.72rem",
-                    color: "#e8a020",
+                    color: "#5AC8FA",
+                    fontWeight: "500",
                   }}
                 >
-                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#e8a020", display: "inline-block" }} />
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#0071E3", display: "inline-block" }} />
                   Atención personalizada
                 </div>
               </div>
@@ -293,7 +304,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div
           style={{
-            borderTop: "1px solid rgba(255,255,255,0.06)",
+            borderTop: "1px solid rgba(255,255,255,0.07)",
             paddingTop: "2rem",
             display: "flex",
             flexWrap: "wrap",
@@ -306,7 +317,7 @@ export default function Footer() {
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.78rem",
-              color: "rgba(248,246,242,0.3)",
+              color: "rgba(245,245,247,0.3)",
             }}
           >
             &copy; {currentYear} Astur Ocasión del Automóvil. Todos los derechos reservados.
@@ -319,12 +330,12 @@ export default function Footer() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.78rem",
-                  color: "rgba(248,246,242,0.25)",
+                  color: "rgba(245,245,247,0.25)",
                   textDecoration: "none",
                   transition: "color 0.2s",
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.6)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.25)")}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.6)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.25)")}
               >
                 {item}
               </a>
