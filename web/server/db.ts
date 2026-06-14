@@ -1,193 +1,307 @@
-import { desc, eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import {
-  InsertLead,
-  InsertUser,
-  InsertVehicle,
-  leads,
-  users,
-  vehicles,
-} from "../drizzle/schema";
+import { createClient } from "@supabase/supabase-js";
 import { ENV } from "./_core/env";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
 
-export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      const client = postgres(process.env.DATABASE_URL, { ssl: "require" });
-      _db = drizzle(client);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
-  }
-  return _db;
+function getSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase env vars not set");
+  return createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
-export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) throw new Error("User openId is required for upsert");
-
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
-  }
-
-  const now = new Date();
-  const values: InsertUser = {
-    openId: user.openId,
-    name: user.name ?? null,
-    email: user.email ?? null,
-    loginMethod: user.loginMethod ?? null,
-    role: user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user"),
-    lastSignedIn: now,
-  };
-
-  await db
-    .insert(users)
-    .values(values)
-    .onConflictDoUpdate({
-      target: users.openId,
-      set: {
-        name: values.name,
-        email: values.email,
-        loginMethod: values.loginMethod,
-        role: values.role,
-        lastSignedIn: now,
-        updatedAt: now,
-      },
-    });
+export async function upsertUser(user: {
+  openId: string;
+  name?: string | null;
+  email?: string | null;
+  loginMethod?: string | null;
+  role?: string;
+}): Promise<void> {
+  const sb = getSupabase();
+  const now = new Date().toISOString();
+  const role = user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user");
+  await sb.from("users").upsert(
+    {
+      open_id: user.openId,
+      name: user.name ?? null,
+      email: user.email ?? null,
+      login_method: user.loginMethod ?? null,
+      role,
+      last_signed_in: now,
+      updated_at: now,
+    },
+    { onConflict: "open_id" }
+  );
 }
 
 export async function getUserByOpenId(openId: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-  return result[0] ?? undefined;
+  const sb = getSupabase();
+  const { data } = await sb.from("users").select("*").eq("open_id", openId).single();
+  if (!data) return undefined;
+  return {
+    id: data.id,
+    openId: data.open_id,
+    name: data.name,
+    email: data.email,
+    loginMethod: data.login_method,
+    role: data.role,
+    lastSignedIn: data.last_signed_in,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
 }
 
 // ─── Vehicles ────────────────────────────────────────────────────────────────
 
-export async function listVehicles(statusFilter?: string) {
-  const db = await getDb();
-  if (!db) return [];
+function mapVehicle(v: Record<string, unknown>) {
+  return {
+    id: v.id as string,
+    brand: v.brand as string,
+    model: v.model as string,
+    year: v.year as number,
+    price: v.price as string,
+    km: v.km as number,
+    fuelType: v.fuel_type as string,
+    transmission: v.transmission as string,
+    color: v.color as string | null,
+    doors: v.doors as number | null,
+    powerCv: v.power_cv as number | null,
+    status: v.status as string,
+    description: v.description as string | null,
+    features: v.features as string[] | null,
+    images: v.images as string[] | null,
+    isFeatured: v.is_featured as boolean,
+    createdAt: v.created_at as string,
+    updatedAt: v.updated_at as string,
+  };
+}
 
+export async function listVehicles(statusFilter?: string) {
+  const sb = getSupabase();
+  let query = sb.from("vehicles").select("*").order("created_at", { ascending: false });
   if (statusFilter && statusFilter !== "all") {
-    return db
-      .select()
-      .from(vehicles)
-      .where(eq(vehicles.status, statusFilter))
-      .orderBy(desc(vehicles.createdAt));
+    query = query.eq("status", statusFilter);
   }
-  return db.select().from(vehicles).orderBy(desc(vehicles.createdAt));
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapVehicle);
 }
 
 export async function getVehicleById(id: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(vehicles).where(eq(vehicles.id, id)).limit(1);
-  return result[0] ?? undefined;
+  const sb = getSupabase();
+  const { data, error } = await sb.from("vehicles").select("*").eq("id", id).single();
+  if (error || !data) return undefined;
+  return mapVehicle(data);
 }
 
-export async function createVehicle(data: Omit<InsertVehicle, "id">) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(vehicles).values(data).returning({ id: vehicles.id });
-  return { id: result[0].id };
+export async function createVehicle(data: {
+  brand: string;
+  model: string;
+  year: number;
+  price: string;
+  km: number;
+  fuelType: string;
+  transmission: string;
+  color?: string | null;
+  doors?: number | null;
+  powerCv?: number | null;
+  status?: string;
+  description?: string | null;
+  features?: string[] | null;
+  images?: string[] | null;
+  isFeatured?: boolean;
+}) {
+  const sb = getSupabase();
+  const { data: row, error } = await sb
+    .from("vehicles")
+    .insert({
+      brand: data.brand,
+      model: data.model,
+      year: data.year,
+      price: data.price,
+      km: data.km,
+      fuel_type: data.fuelType,
+      transmission: data.transmission,
+      color: data.color ?? null,
+      doors: data.doors ?? null,
+      power_cv: data.powerCv ?? null,
+      status: data.status ?? "available",
+      description: data.description ?? null,
+      features: data.features ?? null,
+      images: data.images ?? null,
+      is_featured: data.isFeatured ?? false,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return { id: row!.id as string };
 }
 
-export async function updateVehicle(id: string, data: Partial<InsertVehicle>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(vehicles).set({ ...data, updatedAt: new Date() }).where(eq(vehicles.id, id));
+export async function updateVehicle(
+  id: string,
+  data: Partial<{
+    brand: string;
+    model: string;
+    year: number;
+    price: string;
+    km: number;
+    fuelType: string;
+    transmission: string;
+    color: string | null;
+    doors: number | null;
+    powerCv: number | null;
+    status: string;
+    description: string | null;
+    features: string[] | null;
+    images: string[] | null;
+    isFeatured: boolean;
+  }>
+) {
+  const sb = getSupabase();
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (data.brand !== undefined) update.brand = data.brand;
+  if (data.model !== undefined) update.model = data.model;
+  if (data.year !== undefined) update.year = data.year;
+  if (data.price !== undefined) update.price = data.price;
+  if (data.km !== undefined) update.km = data.km;
+  if (data.fuelType !== undefined) update.fuel_type = data.fuelType;
+  if (data.transmission !== undefined) update.transmission = data.transmission;
+  if (data.color !== undefined) update.color = data.color;
+  if (data.doors !== undefined) update.doors = data.doors;
+  if (data.powerCv !== undefined) update.power_cv = data.powerCv;
+  if (data.status !== undefined) update.status = data.status;
+  if (data.description !== undefined) update.description = data.description;
+  if (data.features !== undefined) update.features = data.features;
+  if (data.images !== undefined) update.images = data.images;
+  if (data.isFeatured !== undefined) update.is_featured = data.isFeatured;
+  const { error } = await sb.from("vehicles").update(update).eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function deleteVehicle(id: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(vehicles).where(eq(vehicles.id, id));
+  const sb = getSupabase();
+  const { error } = await sb.from("vehicles").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function countVehicles() {
-  const db = await getDb();
-  if (!db) return { total: 0, available: 0, reserved: 0, sold: 0 };
-  const [row] = await db
-    .select({
-      total: sql<number>`COUNT(*)`,
-      available: sql<number>`SUM(CASE WHEN status = 'available' THEN 1 ELSE 0 END)`,
-      reserved: sql<number>`SUM(CASE WHEN status = 'reserved' THEN 1 ELSE 0 END)`,
-      sold: sql<number>`SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END)`,
-    })
-    .from(vehicles);
+  const sb = getSupabase();
+  const { data } = await sb.from("vehicles").select("status");
+  const rows = data ?? [];
   return {
-    total: Number(row.total) || 0,
-    available: Number(row.available) || 0,
-    reserved: Number(row.reserved) || 0,
-    sold: Number(row.sold) || 0,
+    total: rows.length,
+    available: rows.filter((r) => r.status === "available").length,
+    reserved: rows.filter((r) => r.status === "reserved").length,
+    sold: rows.filter((r) => r.status === "sold").length,
   };
 }
 
 // ─── Leads ───────────────────────────────────────────────────────────────────
 
-export async function listLeads(statusFilter?: string) {
-  const db = await getDb();
-  if (!db) return [];
+function mapLead(l: Record<string, unknown>) {
+  return {
+    id: l.id as string,
+    name: l.name as string,
+    email: l.email as string,
+    phone: l.phone as string | null,
+    vehicleId: l.vehicle_id as string | null,
+    vehicleInfo: l.vehicle_info as Record<string, unknown> | null,
+    message: l.message as string | null,
+    notes: l.notes as string | null,
+    status: l.status as string,
+    createdAt: l.created_at as string,
+  };
+}
 
+export async function listLeads(statusFilter?: string) {
+  const sb = getSupabase();
+  let query = sb.from("leads").select("*").order("created_at", { ascending: false });
   if (statusFilter && statusFilter !== "all") {
-    return db
-      .select()
-      .from(leads)
-      .where(eq(leads.status, statusFilter))
-      .orderBy(desc(leads.createdAt));
+    query = query.eq("status", statusFilter);
   }
-  return db.select().from(leads).orderBy(desc(leads.createdAt));
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapLead);
 }
 
 export async function getLeadById(id: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
-  return result[0] ?? undefined;
+  const sb = getSupabase();
+  const { data, error } = await sb.from("leads").select("*").eq("id", id).single();
+  if (error || !data) return undefined;
+  return mapLead(data);
 }
 
-export async function createLead(data: Omit<InsertLead, "id">) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(leads).values(data).returning({ id: leads.id });
-  return { id: result[0].id };
+export async function createLead(data: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  vehicleId?: string | null;
+  vehicleInfo?: Record<string, unknown> | null;
+  message?: string | null;
+  notes?: string | null;
+  status?: string;
+}) {
+  const sb = getSupabase();
+  const { data: row, error } = await sb
+    .from("leads")
+    .insert({
+      name: data.name,
+      email: data.email,
+      phone: data.phone ?? null,
+      vehicle_id: data.vehicleId ?? null,
+      vehicle_info: data.vehicleInfo ?? null,
+      message: data.message ?? null,
+      notes: data.notes ?? null,
+      status: data.status ?? "Nuevo",
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return { id: row!.id as string };
 }
 
-export async function updateLead(id: string, data: Partial<InsertLead>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(leads).set(data).where(eq(leads.id, id));
+export async function updateLead(
+  id: string,
+  data: Partial<{
+    name: string;
+    email: string;
+    phone: string | null;
+    vehicleId: string | null;
+    vehicleInfo: Record<string, unknown> | null;
+    message: string | null;
+    notes: string | null;
+    status: string;
+  }>
+) {
+  const sb = getSupabase();
+  const update: Record<string, unknown> = {};
+  if (data.name !== undefined) update.name = data.name;
+  if (data.email !== undefined) update.email = data.email;
+  if (data.phone !== undefined) update.phone = data.phone;
+  if (data.vehicleId !== undefined) update.vehicle_id = data.vehicleId;
+  if (data.vehicleInfo !== undefined) update.vehicle_info = data.vehicleInfo;
+  if (data.message !== undefined) update.message = data.message;
+  if (data.notes !== undefined) update.notes = data.notes;
+  if (data.status !== undefined) update.status = data.status;
+  const { error } = await sb.from("leads").update(update).eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function deleteLead(id: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(leads).where(eq(leads.id, id));
+  const sb = getSupabase();
+  const { error } = await sb.from("leads").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function countLeads() {
-  const db = await getDb();
-  if (!db) return { total: 0, new: 0, inProgress: 0, completed: 0 };
-  const [row] = await db
-    .select({
-      total: sql<number>`COUNT(*)`,
-      newLeads: sql<number>`SUM(CASE WHEN status = 'Nuevo' THEN 1 ELSE 0 END)`,
-      inProgress: sql<number>`SUM(CASE WHEN status = 'En Proceso' THEN 1 ELSE 0 END)`,
-      completed: sql<number>`SUM(CASE WHEN status = 'Completado' THEN 1 ELSE 0 END)`,
-    })
-    .from(leads);
+  const sb = getSupabase();
+  const { data } = await sb.from("leads").select("status");
+  const rows = data ?? [];
   return {
-    total: Number(row.total) || 0,
-    new: Number(row.newLeads) || 0,
-    inProgress: Number(row.inProgress) || 0,
-    completed: Number(row.completed) || 0,
+    total: rows.length,
+    new: rows.filter((r) => r.status === "Nuevo").length,
+    inProgress: rows.filter((r) => r.status === "En Proceso").length,
+    completed: rows.filter((r) => r.status === "Completado").length,
   };
 }
