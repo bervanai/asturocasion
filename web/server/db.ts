@@ -68,6 +68,7 @@ function mapVehicle(v: Row) {
 function mapLead(l: Row) {
   return {
     id: l.id as string,
+    type: (l.type ?? "Contacto") as string,
     name: l.name as string,
     email: l.email as string,
     phone: (l.phone ?? null) as string | null,
@@ -88,6 +89,7 @@ export async function upsertUser(user: {
   email?: string | null;
   loginMethod?: string | null;
   role?: string;
+  lastSignedIn?: string;
 }): Promise<void> {
   const role = user.openId === ENV.ownerOpenId ? "admin" : (user.role ?? "user");
   const now = new Date().toISOString();
@@ -97,7 +99,7 @@ export async function upsertUser(user: {
     email: user.email ?? null,
     login_method: user.loginMethod ?? null,
     role,
-    last_signed_in: now,
+    last_signed_in: user.lastSignedIn ?? now,
     updated_at: now,
   });
 }
@@ -214,12 +216,13 @@ export async function getLeadById(id: string) {
 }
 
 export async function createLead(data: {
-  name: string; email: string; phone?: string | null;
+  name: string; email: string; phone?: string | null; type?: string | null;
   vehicleId?: string | null; vehicleInfo?: Row | null;
   message?: string | null; notes?: string | null; status?: string;
 }) {
   const rows = (await sb("leads", "POST", "select=id", {
     name: data.name, email: data.email, phone: data.phone ?? null,
+    type: data.type ?? "Contacto",
     vehicle_id: data.vehicleId ?? null, vehicle_info: data.vehicleInfo ?? null,
     message: data.message ?? null, notes: data.notes ?? null,
     status: data.status ?? "Nuevo",
@@ -228,7 +231,7 @@ export async function createLead(data: {
 }
 
 export async function updateLead(id: string, data: Partial<{
-  name: string; email: string; phone: string | null;
+  name: string; email: string; phone: string | null; type: string | null;
   vehicleId: string | null; vehicleInfo: Row | null;
   message: string | null; notes: string | null; status: string;
 }>) {
@@ -236,6 +239,7 @@ export async function updateLead(id: string, data: Partial<{
   if (data.name !== undefined) update.name = data.name;
   if (data.email !== undefined) update.email = data.email;
   if (data.phone !== undefined) update.phone = data.phone;
+  if (data.type !== undefined) update.type = data.type;
   if (data.vehicleId !== undefined) update.vehicle_id = data.vehicleId;
   if (data.vehicleInfo !== undefined) update.vehicle_info = data.vehicleInfo;
   if (data.message !== undefined) update.message = data.message;

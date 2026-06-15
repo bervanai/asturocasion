@@ -88,13 +88,18 @@ export default function TradeIn() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const vehicleStr = [formData.brand, formData.model, formData.year, formData.km ? `${formData.km} km` : ""].filter(Boolean).join(" ");
+    const message = [
+      vehicleStr ? `Vehículo a tasar: ${vehicleStr}` : "",
+      formData.message,
+    ]
+      .filter(Boolean)
+      .join(" — ");
     createLead.mutate({
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
       type: "Tasación",
-      vehicle: vehicleStr || undefined,
-      message: formData.message || undefined,
+      message: message || undefined,
     });
   };
 

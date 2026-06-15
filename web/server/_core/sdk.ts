@@ -32,7 +32,7 @@ class OAuthService {
   constructor(private client: ReturnType<typeof axios.create>) {
     if (ENV.oAuthServerUrl) { console.log("[OAuth] Initialized:", ENV.oAuthServerUrl); }
     if (!ENV.oAuthServerUrl) {
-      console.error(
+      console.error("[OAuth] OAUTH_SERVER_URL not set — OAuth disabled");
     }
   }
 
