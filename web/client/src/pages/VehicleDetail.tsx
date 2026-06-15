@@ -3,7 +3,8 @@ import Footer from "@/components/Footer";
 import { useRoute } from "wouter";
 import { Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Calendar, Fuel } from "lucide-react";
 import { Link } from "wouter";
-import { trpc } from "@/lib/trpc";
+import { useQuery } from "@tanstack/react-query";
+import { fetchVehicleById } from "@/lib/supabase";
 
 const BRAND_IMAGES: Record<string, string> = {
   "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
@@ -19,17 +20,18 @@ export default function VehicleDetail() {
   const [, params] = useRoute("/vehiculo/:id");
 
   const vehicleId = params?.id ?? "";
-  const { data: vehicle, isLoading, isError } = trpc.vehicle.byId.useQuery(
-    { id: vehicleId },
-    { enabled: vehicleId.length > 0 }
-  );
+  const { data: vehicle, isLoading, isError } = useQuery({
+    queryKey: ["vehicle", vehicleId],
+    queryFn: () => fetchVehicleById(vehicleId),
+    enabled: vehicleId.length > 0,
+  });
 
   const specRows = vehicle ? [
     { label: "Marca", value: vehicle.brand, icon: null },
     { label: "Modelo", value: vehicle.model, icon: null },
     { label: "Año", value: String(vehicle.year), icon: <Calendar size={13} /> },
     { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
-    { label: "Combustible", value: vehicle.fuelType, icon: <Fuel size={13} /> },
+    { label: "Combustible", value: vehicle.fuel_type, icon: <Fuel size={13} /> },
     { label: "Cambio", value: vehicle.transmission, icon: null },
   ] : [];
 

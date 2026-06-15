@@ -1,7 +1,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
-import { trpc } from "@/lib/trpc";
+import { useMutation } from "@tanstack/react-query";
+import { insertLead } from "@/lib/supabase";
 import { useState } from "react";
 import { CheckCircle, ArrowRight, Phone, MessageCircle, Send, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -71,13 +72,15 @@ export default function TradeIn() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const createLead = trpc.lead.create.useMutation({
+  const createLead = useMutation({
+    mutationFn: (data: { name: string; email: string; phone?: string; type: "valuation"; message?: string }) =>
+      insertLead(data),
     onSuccess: () => {
       setSubmitted(true);
       setFormData({ brand: "", model: "", year: "", km: "", name: "", email: "", phone: "", message: "" });
       setTimeout(() => setSubmitted(false), 5000);
     },
-    onError: (err) => toast.error("Error al enviar: " + err.message),
+    onError: (err: Error) => toast.error("Error al enviar: " + err.message),
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -97,8 +100,8 @@ export default function TradeIn() {
     createLead.mutate({
       name: formData.name,
       email: formData.email,
-      phone: formData.phone,
-      type: "Tasación",
+      phone: formData.phone || undefined,
+      type: "valuation",
       message: message || undefined,
     });
   };

@@ -3,7 +3,8 @@ import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import { useState } from "react";
 import { Filter, X, ArrowRight, ChevronDown, Fuel, Gauge, Calendar, Settings2 } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { useQuery } from "@tanstack/react-query";
+import { fetchVehicles } from "@/lib/supabase";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
 
@@ -123,8 +124,15 @@ export default function Catalog() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
-  const { data: dbVehicles } = trpc.vehicle.list.useQuery({ status: "available" });
-  const vehicles = (dbVehicles ?? []).map(toCard);
+  const { data: dbVehicles } = useQuery({
+    queryKey: ["vehicles", "available"],
+    queryFn: () => fetchVehicles("available"),
+  });
+  const vehicles = (dbVehicles ?? []).map((v) => toCard({
+    id: v.id, brand: v.brand, model: v.model, year: v.year,
+    price: v.price, km: v.km, fuelType: v.fuel_type,
+    transmission: v.transmission, images: v.images,
+  }));
 
   const brands = Array.from(new Set(vehicles.map((v) => v.brand)));
   const fuels = Array.from(new Set(vehicles.map((v) => v.fuelType)));

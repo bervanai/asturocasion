@@ -1,7 +1,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
-import { trpc } from "@/lib/trpc";
+import { useMutation } from "@tanstack/react-query";
+import { insertLead } from "@/lib/supabase";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Clock, CheckCircle, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -43,13 +44,15 @@ export default function Contact() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const createLead = trpc.lead.create.useMutation({
+  const createLead = useMutation({
+    mutationFn: (data: { name: string; email: string; phone?: string; type: "contact"; message?: string }) =>
+      insertLead(data),
     onSuccess: () => {
       setSubmitted(true);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       setTimeout(() => setSubmitted(false), 5000);
     },
-    onError: (err) => toast.error("Error al enviar: " + err.message),
+    onError: (err: Error) => toast.error("Error al enviar: " + err.message),
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -62,9 +65,9 @@ export default function Contact() {
     createLead.mutate({
       name: formData.name,
       email: formData.email,
-      phone: formData.phone || "Sin teléfono",
-      type: "Contacto",
-      message: [formData.subject, formData.message].filter(Boolean).join(" — "),
+      phone: formData.phone || undefined,
+      type: "contact",
+      message: [formData.subject, formData.message].filter(Boolean).join(" — ") || undefined,
     });
   };
 
