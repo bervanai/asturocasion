@@ -3,6 +3,21 @@ import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import { useState } from "react";
 import { Filter, X, ArrowRight, ChevronDown, Fuel, Gauge, Calendar, Settings2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
+
+// Normaliza un vehículo de la base de datos al formato que usan las tarjetas
+function toCard(v: {
+  id: string; brand: string; model: string; year: number; price: string;
+  km: number; fuelType: string; transmission: string; images: string[] | null;
+}) {
+  return {
+    id: v.id, brand: v.brand, model: v.model, year: v.year,
+    price: v.price, km: v.km, fuelType: v.fuelType, transmission: v.transmission,
+    image: (v.images && v.images[0]) || FALLBACK_IMG,
+  };
+}
 
 // ─── Demo vehicles ────────────────────────────────────────────────────────────
 const DEMO_VEHICLES = [
@@ -51,6 +66,7 @@ function VehicleCard({ v }: { v: typeof DEMO_VEHICLES[0] }) {
               transform: hovered ? "scale(1.06)" : "scale(1)",
             }}
             loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMG; }}
           />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 100%)" }} />
           <div style={{
@@ -108,11 +124,14 @@ export default function Catalog() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
-  const brands = Array.from(new Set(DEMO_VEHICLES.map((v) => v.brand)));
-  const fuels = Array.from(new Set(DEMO_VEHICLES.map((v) => v.fuelType)));
-  const transmissions = Array.from(new Set(DEMO_VEHICLES.map((v) => v.transmission)));
+  const { data: dbVehicles } = trpc.vehicle.list.useQuery({ status: "available" });
+  const vehicles = dbVehicles && dbVehicles.length > 0 ? dbVehicles.map(toCard) : DEMO_VEHICLES;
 
-  const filtered = DEMO_VEHICLES.filter((v) => {
+  const brands = Array.from(new Set(vehicles.map((v) => v.brand)));
+  const fuels = Array.from(new Set(vehicles.map((v) => v.fuelType)));
+  const transmissions = Array.from(new Set(vehicles.map((v) => v.transmission)));
+
+  const filtered = vehicles.filter((v) => {
     if (filters.brand && v.brand !== filters.brand) return false;
     if (Number(v.price) > filters.priceMax) return false;
     if (filters.fuel && v.fuelType !== filters.fuel) return false;

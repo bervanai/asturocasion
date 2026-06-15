@@ -3,6 +3,21 @@ import Footer from "@/components/Footer";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search, Fuel, Gauge, Calendar } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
+
+// Normaliza un vehículo de la base de datos al formato que usan las tarjetas
+function toCard(v: {
+  id: string; brand: string; model: string; year: number; price: string;
+  km: number; fuelType: string; transmission: string; images: string[] | null;
+}) {
+  return {
+    id: v.id, brand: v.brand, model: v.model, year: v.year,
+    price: v.price, km: v.km, fuelType: v.fuelType, transmission: v.transmission,
+    image: (v.images && v.images[0]) || FALLBACK_IMG,
+  };
+}
 
 function useScrollReveal() {
   useEffect(() => {
@@ -239,6 +254,9 @@ export default function Home() {
   const [fuel, setFuel] = useState("");
   useScrollReveal();
 
+  const { data: dbVehicles } = trpc.vehicle.list.useQuery({ status: "available" });
+  const vehicles = dbVehicles && dbVehicles.length > 0 ? dbVehicles.map(toCard) : DEMO_VEHICLES;
+
   const handleSearch = () => navigate("/catalogo");
 
   const testimonials = [
@@ -444,7 +462,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
-            {DEMO_VEHICLES.map((v) => <VehicleCard key={v.id} v={v} />)}
+            {vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
           </div>
         </div>
       </section>
