@@ -1,4 +1,5 @@
-import { trpc } from "@/lib/trpc";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllVehicles, fetchAllLeads } from "@/lib/supabase";
 import { Link } from "wouter";
 import {
   Car,
@@ -128,26 +129,21 @@ function leadDotClass(status: string) {
 
 /* ── Dashboard ──────────────────────────────────────────────────────────────── */
 export default function AdminDashboard() {
-  const { data: vehicleStats } = trpc.vehicle.stats.useQuery();
-  const { data: leadStats }    = trpc.lead.stats.useQuery();
-  const { data: recentLeadsRaw }  = trpc.lead.list.useQuery({ status: "Nuevo" });
-  const { data: allLeadsRaw }     = trpc.lead.list.useQuery();
+  const { data: allVehicles = [] } = useQuery({ queryKey: ["vehicles"], queryFn: fetchAllVehicles });
+  const { data: allLeadsData = [] } = useQuery({ queryKey: ["leads"], queryFn: () => fetchAllLeads() });
+  const { data: newLeadsData = [] } = useQuery({ queryKey: ["leads", "new"], queryFn: () => fetchAllLeads("new") });
 
-  const DEMO_RECENT = [
-    { id: "dl-1", name: "Carlos Martínez", email: "carlos@email.com", phone: "654 321 098", vehicle: "BMW 325D GT", message: "Me interesa el BMW", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*30) },
-    { id: "dl-5", name: "Roberto Álvarez", email: "roberto.a@gmail.com", phone: "636 555 444", vehicle: "Jaguar XF", message: "Vi el Jaguar en la web", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*90) },
-  ];
-  const recentLeads = (recentLeadsRaw && recentLeadsRaw.length > 0) ? recentLeadsRaw : DEMO_RECENT as unknown as typeof recentLeadsRaw;
-  const allLeads = allLeadsRaw;
+  const recentLeads = newLeadsData.length > 0 ? newLeadsData : [];
+  const allLeads = allLeadsData.length > 0 ? allLeadsData : undefined;
 
-  const availableCount  = vehicleStats?.available ?? 4;
-  const totalVehicles   = vehicleStats?.total      ?? 6;
-  const soldCount       = vehicleStats?.sold       ?? 1;
-  const reservedCount   = vehicleStats?.reserved   ?? 1;
-  const newLeads        = leadStats?.new            ?? 2;
-  const totalLeads      = leadStats?.total          ?? 5;
-  const inProgress      = leadStats?.inProgress     ?? 2;
-  const completedLeads  = leadStats?.completed      ?? 1;
+  const availableCount  = allVehicles.filter((v) => v.status === "available").length;
+  const totalVehicles   = allVehicles.length;
+  const soldCount       = allVehicles.filter((v) => v.status === "sold").length;
+  const reservedCount   = allVehicles.filter((v) => v.status === "reserved").length;
+  const newLeads        = allLeadsData.filter((l) => l.status === "new").length;
+  const totalLeads      = allLeadsData.length;
+  const inProgress      = allLeadsData.filter((l) => l.status === "contacted").length;
+  const completedLeads  = allLeadsData.filter((l) => l.status === "closed").length;
 
   const kpis: KpiProps[] = [
     {

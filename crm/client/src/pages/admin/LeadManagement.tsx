@@ -1,70 +1,80 @@
-import { trpc } from "@/lib/trpc";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAllLeads, updateLead, deleteLead } from "@/lib/supabase";
 import { useState } from "react";
-import { Eye, Trash2, Search, X, Phone, MessageCircle, ChevronDown } from "lucide-react";
+import { Eye, Trash2, Search, X, Phone, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
-
-/* ── Vehicle image map ──────────────────────────────────────────────────────── */
-const VEHICLE_IMAGES: Record<string, string> = {
-  "BMW 325D GT":      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=200&q=70",
-  "Audi Q5 S-line":   "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=200&q=70",
-  "Jaguar XF R-Sport":"https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=200&q=70",
-  "Mercedes GLE":     "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=200&q=70",
-  "Peugeot 3008":     "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=200&q=70",
-  "Volvo XC60":       "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=200&q=70",
-  "Volkswagen Tiguan":"https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=200&q=70",
-};
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
 type Lead = {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  phone: string;
+  phone: string | null;
   type: string;
-  vehicle: string | null;
+  vehicle_info: Record<string, unknown> | null;
   message: string | null;
   status: string;
-  createdAt: Date;
+  created_at: string;
 };
 
-type Status = "Nuevo" | "En Proceso" | "Completado" | "Descartado";
-const ALL_STATUSES: Status[] = ["Nuevo", "En Proceso", "Completado", "Descartado"];
+type Status = "new" | "contacted" | "closed" | "discarded";
+const ALL_STATUSES: Status[] = ["new", "contacted", "closed", "discarded"];
+
+const STATUS_LABELS: Record<Status, string> = {
+  new: "Nuevo",
+  contacted: "En Proceso",
+  closed: "Completado",
+  discarded: "Descartado",
+};
 
 /* ── Badge helpers ──────────────────────────────────────────────────────────── */
 function statusBadgeClass(status: string) {
   const map: Record<string, string> = {
-    "Nuevo":       "badge badge-nuevo",
-    "En Proceso":  "badge badge-proceso",
-    "Completado":  "badge badge-completado",
-    "Descartado":  "badge badge-descartado",
+    new:       "badge badge-nuevo",
+    contacted: "badge badge-proceso",
+    closed:    "badge badge-completado",
+    discarded: "badge badge-descartado",
   };
   return map[status] ?? "badge badge-descartado";
 }
 
 function typeBadgeClass(type: string) {
   const map: Record<string, string> = {
-    "Tasación":    "badge badge-tasacion",
-    "Contacto":    "badge badge-contacto",
-    "Financiación":"badge badge-financiacion",
+    contact:          "badge badge-contacto",
+    valuation:        "badge badge-tasacion",
+    vehicle_inquiry:  "badge badge-financiacion",
   };
   return map[type] ?? "badge badge-contacto";
 }
 
+function typeLabel(type: string) {
+  const map: Record<string, string> = {
+    contact:         "Contacto",
+    valuation:       "Tasación",
+    vehicle_inquiry: "Interés vehículo",
+  };
+  return map[type] ?? type;
+}
+
 /* ── Kanban column ──────────────────────────────────────────────────────────── */
 const COLUMN_META: Record<Status, { color: string; dim: string }> = {
-  "Nuevo":      { color: "#3b82f6", dim: "rgba(59,130,246,0.12)"  },
-  "En Proceso": { color: "#e8a020", dim: "rgba(232,160,32,0.12)"  },
-  "Completado": { color: "#22c55e", dim: "rgba(34,197,94,0.12)"   },
-  "Descartado": { color: "#6b7280", dim: "rgba(107,114,128,0.12)" },
+  new:       { color: "#3b82f6", dim: "rgba(59,130,246,0.12)"  },
+  contacted: { color: "#e8a020", dim: "rgba(232,160,32,0.12)"  },
+  closed:    { color: "#22c55e", dim: "rgba(34,197,94,0.12)"   },
+  discarded: { color: "#6b7280", dim: "rgba(107,114,128,0.12)" },
 };
 
 type KanbanCardProps = {
   lead: Lead;
   onSelect: (l: Lead) => void;
-  onChangeStatus: (id: number, status: Status) => void;
+  onChangeStatus: (id: string, status: Status) => void;
 };
 
 function KanbanCard({ lead, onSelect, onChangeStatus }: KanbanCardProps) {
+  const vehicleName = lead.vehicle_info
+    ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
+    : null;
+
   return (
     <div
       onClick={() => onSelect(lead)}
@@ -93,14 +103,14 @@ function KanbanCard({ lead, onSelect, onChangeStatus }: KanbanCardProps) {
         {lead.phone}
       </p>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span className={typeBadgeClass(lead.type)}>{lead.type}</span>
+        <span className={typeBadgeClass(lead.type)}>{typeLabel(lead.type)}</span>
         <span style={{ fontSize: "0.625rem", color: "#3f3f46" }}>
-          {new Date(lead.createdAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
+          {new Date(lead.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
         </span>
       </div>
-      {lead.vehicle && (
+      {vehicleName && (
         <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.375rem", fontStyle: "italic" }}>
-          {lead.vehicle}
+          {vehicleName}
         </p>
       )}
     </div>
@@ -116,12 +126,11 @@ function KanbanColumn({
   status: Status;
   leads: Lead[];
   onSelect: (l: Lead) => void;
-  onChangeStatus: (id: number, s: Status) => void;
+  onChangeStatus: (id: string, s: Status) => void;
 }) {
   const meta = COLUMN_META[status];
   return (
     <div style={{ minWidth: "240px", flex: "1 1 240px" }}>
-      {/* Column header */}
       <div
         style={{
           display: "flex",
@@ -131,40 +140,20 @@ function KanbanColumn({
           background: meta.dim,
           border: `1px solid ${meta.color}25`,
           borderRadius: "8px 8px 0 0",
-          marginBottom: "0",
         }}
       >
-        <span
-          style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: meta.color,
-            flexShrink: 0,
-          }}
-        />
+        <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
         <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: meta.color, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-          {status}
+          {STATUS_LABELS[status]}
         </span>
-        <span
-          style={{
-            marginLeft: "auto",
-            background: meta.color,
-            color: "#0a0a0b",
-            borderRadius: "99px",
-            fontSize: "0.625rem",
-            fontWeight: 700,
-            padding: "0.1rem 0.45rem",
-          }}
-        >
+        <span style={{ marginLeft: "auto", background: meta.color, color: "#0a0a0b", borderRadius: "99px", fontSize: "0.625rem", fontWeight: 700, padding: "0.1rem 0.45rem" }}>
           {leads.length}
         </span>
       </div>
-      {/* Cards area */}
       <div
         style={{
           background: "rgba(20,20,22,0.5)",
-          border: `1px solid #1f1f23`,
+          border: "1px solid #1f1f23",
           borderTop: "none",
           borderRadius: "0 0 8px 8px",
           padding: "0.75rem",
@@ -172,17 +161,10 @@ function KanbanColumn({
         }}
       >
         {leads.length === 0 ? (
-          <p style={{ fontSize: "0.6875rem", color: "#3f3f46", textAlign: "center", padding: "1.5rem 0" }}>
-            Sin leads
-          </p>
+          <p style={{ fontSize: "0.6875rem", color: "#3f3f46", textAlign: "center", padding: "1.5rem 0" }}>Sin leads</p>
         ) : (
           leads.map((l) => (
-            <KanbanCard
-              key={l.id}
-              lead={l}
-              onSelect={onSelect}
-              onChangeStatus={onChangeStatus}
-            />
+            <KanbanCard key={l.id} lead={l} onSelect={onSelect} onChangeStatus={onChangeStatus} />
           ))
         )}
       </div>
@@ -192,34 +174,30 @@ function KanbanColumn({
 
 /* ── Main component ─────────────────────────────────────────────────────────── */
 export default function LeadManagement() {
-  const utils = trpc.useUtils();
-  const DEMO_LEADS = [
-    { id: "dl-1", name: "Carlos Martínez", email: "carlos@email.com", phone: "654 321 098", type: "Compra", vehicle: "BMW 325D GT", message: "Me interesa el BMW, ¿está disponible para verlo este fin de semana?", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*30) },
-    { id: "dl-2", name: "Laura Fernández", email: "laura.f@gmail.com", phone: "622 111 333", type: "Venta", vehicle: null, message: "Quiero tasar mi Volkswagen Golf 2018, 45.000 km.", status: "En Proceso", createdAt: new Date(Date.now() - 1000*60*60*3) },
-    { id: "dl-3", name: "Andrés Pérez", email: "andres.p@hotmail.com", phone: "699 876 543", type: "Compra", vehicle: "Audi Q5 S-line", message: "Busco un SUV automático, presupuesto hasta 25.000€.", status: "En Proceso", createdAt: new Date(Date.now() - 1000*60*60*24) },
-    { id: "dl-4", name: "María González", email: "mgonzalez@empresa.es", phone: "984 123 456", type: "Tasación", vehicle: null, message: "Necesito tasar un Mercedes Clase C 2017 para empresa.", status: "Completado", createdAt: new Date(Date.now() - 1000*60*60*48) },
-    { id: "dl-5", name: "Roberto Álvarez", email: "roberto.a@gmail.com", phone: "636 555 444", type: "Compra", vehicle: "Jaguar XF R-Sport", message: "Vi el Jaguar en la web, ¿cuánto es la entrada mínima?", status: "Nuevo", createdAt: new Date(Date.now() - 1000*60*90) },
-  ];
-  const { data: rawLeads = [], isLoading } = trpc.lead.list.useQuery();
-  const leads = rawLeads.length > 0 ? rawLeads : DEMO_LEADS as unknown as typeof rawLeads;
-
-  const updateMutation = trpc.lead.update.useMutation({
-    onSuccess: () => {
-      utils.lead.list.invalidate();
-      utils.lead.stats.invalidate();
-      toast.success("Lead actualizado");
-    },
-    onError: (err) => toast.error(err.message),
+  const queryClient = useQueryClient();
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ["leads"],
+    queryFn: () => fetchAllLeads(),
   });
 
-  const deleteMutation = trpc.lead.delete.useMutation({
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; status?: string; notes?: string | null }) =>
+      updateLead(id, data),
     onSuccess: () => {
-      utils.lead.list.invalidate();
-      utils.lead.stats.invalidate();
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast.success("Lead actualizado");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
       setSelectedLead(null);
       toast.success("Lead eliminado");
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -232,24 +210,20 @@ export default function LeadManagement() {
       !search ||
       l.name.toLowerCase().includes(search.toLowerCase()) ||
       l.email.toLowerCase().includes(search.toLowerCase()) ||
-      l.phone.includes(search);
+      (l.phone ?? "").includes(search);
     const matchStatus = statusFilter === "all" || l.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
-  const handleStatusChange = (leadId: number, newStatus: string) => {
-    updateMutation.mutate({
-      id: leadId,
-      status: newStatus as Status,
-    });
+  const handleStatusChange = (leadId: string, newStatus: string) => {
+    updateMutation.mutate({ id: leadId, status: newStatus });
     if (selectedLead?.id === leadId) {
       setSelectedLead((prev) => prev ? { ...prev, status: newStatus } : null);
     }
   };
 
-  /* Group leads by status for kanban */
   const grouped = ALL_STATUSES.reduce((acc, s) => {
-    acc[s] = filtered.filter((l) => l.status === s) as Lead[];
+    acc[s] = filtered.filter((l) => l.status === s);
     return acc;
   }, {} as Record<Status, Lead[]>);
 
@@ -263,7 +237,6 @@ export default function LeadManagement() {
             Seguimiento de clientes potenciales · {leads.length} en total
           </p>
         </div>
-        {/* View toggle */}
         <div style={{ display: "flex", gap: "0.375rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.25rem" }}>
           {(["table", "kanban"] as const).map((mode) => (
             <button
@@ -289,20 +262,8 @@ export default function LeadManagement() {
 
       {/* ── Filters */}
       <div style={{ display: "flex", gap: "0.625rem", flexWrap: "wrap" }}>
-        {/* Search */}
         <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
-          <Search
-            style={{
-              position: "absolute",
-              left: "0.75rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: "14px",
-              height: "14px",
-              color: "#6b7280",
-              pointerEvents: "none",
-            }}
-          />
+          <Search style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "14px", height: "14px", color: "#6b7280", pointerEvents: "none" }} />
           <input
             className="crm-input"
             style={{ paddingLeft: "2.25rem" }}
@@ -311,30 +272,13 @@ export default function LeadManagement() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* Status filter */}
         <div style={{ position: "relative", minWidth: "160px" }}>
-          <select
-            className="crm-select"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
+          <select className="crm-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="all">Todos los estados</option>
-            {ALL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            {ALL_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
           </select>
         </div>
-        {/* Count pill */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "0 0.875rem",
-          background: "#141416",
-          border: "1px solid #1f1f23",
-          borderRadius: "var(--radius)",
-          fontSize: "0.6875rem",
-          fontWeight: 600,
-          color: "#6b7280",
-          whiteSpace: "nowrap",
-        }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "0 0.875rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "var(--radius)", fontSize: "0.6875rem", fontWeight: 600, color: "#6b7280", whiteSpace: "nowrap" }}>
           {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
         </div>
       </div>
@@ -345,7 +289,9 @@ export default function LeadManagement() {
         {/* Table view */}
         {viewMode === "table" && (
           <div className="glass-card" style={{ overflow: "hidden" }}>
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>Cargando leads…</div>
+            ) : filtered.length === 0 ? (
               <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
                 No hay leads que coincidan con la búsqueda
               </div>
@@ -363,65 +309,53 @@ export default function LeadManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((lead) => (
-                      <tr
-                        key={lead.id}
-                        className={selectedLead?.id === lead.id ? "row-selected" : ""}
-                        onClick={() => setSelectedLead(lead as Lead)}
-                      >
-                        <td>
-                          <p style={{ fontWeight: 600, color: "#f0f0f0" }}>{lead.name}</p>
-                          <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.1rem" }}>{lead.email}</p>
-                        </td>
-                        <td>
-                          <span className={typeBadgeClass(lead.type)}>{lead.type}</span>
-                        </td>
-                        <td>
-                          <span className={statusBadgeClass(lead.status)}>{lead.status}</span>
-                        </td>
-                        <td>
-                          {lead.vehicle ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                              <div style={{ width: "52px", height: "36px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: "#1a1a1e", border: "1px solid #1f1f23" }}>
-                                <img
-                                  src={VEHICLE_IMAGES[lead.vehicle as string] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=70"}
-                                  alt={lead.vehicle as string}
-                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                              </div>
-                              <span style={{ fontSize: "0.75rem", color: "#f0f0f0", fontWeight: 500 }}>{lead.vehicle as string}</span>
+                    {filtered.map((lead) => {
+                      const vehicleName = lead.vehicle_info
+                        ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
+                        : null;
+                      return (
+                        <tr
+                          key={lead.id}
+                          className={selectedLead?.id === lead.id ? "row-selected" : ""}
+                          onClick={() => setSelectedLead(lead)}
+                        >
+                          <td>
+                            <p style={{ fontWeight: 600, color: "#f0f0f0" }}>{lead.name}</p>
+                            <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.1rem" }}>{lead.email}</p>
+                          </td>
+                          <td>
+                            <span className={typeBadgeClass(lead.type)}>{typeLabel(lead.type)}</span>
+                          </td>
+                          <td>
+                            <span className={statusBadgeClass(lead.status)}>{STATUS_LABELS[lead.status as Status] ?? lead.status}</span>
+                          </td>
+                          <td>
+                            {vehicleName ? (
+                              <span style={{ fontSize: "0.75rem", color: "#f0f0f0", fontWeight: 500 }}>{vehicleName}</span>
+                            ) : (
+                              <span style={{ color: "#3f3f46", fontStyle: "italic", fontSize: "0.75rem" }}>—</span>
+                            )}
+                          </td>
+                          <td style={{ color: "#6b7280", fontSize: "0.6875rem" }}>
+                            {new Date(lead.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" })}
+                          </td>
+                          <td onClick={(e) => e.stopPropagation()}>
+                            <div style={{ display: "flex", gap: "0.25rem" }}>
+                              <button className="btn-icon" onClick={() => setSelectedLead(lead)} title="Ver detalles">
+                                <Eye style={{ width: "14px", height: "14px" }} />
+                              </button>
+                              <button
+                                className="btn-icon danger"
+                                onClick={() => { if (confirm(`¿Eliminar lead de ${lead.name}?`)) deleteMutation.mutate(lead.id); }}
+                                title="Eliminar"
+                              >
+                                <Trash2 style={{ width: "14px", height: "14px" }} />
+                              </button>
                             </div>
-                          ) : (
-                            <span style={{ color: "#3f3f46", fontStyle: "italic", fontSize: "0.75rem" }}>—</span>
-                          )}
-                        </td>
-                        <td style={{ color: "#6b7280", fontSize: "0.6875rem" }}>
-                          {new Date(lead.createdAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" })}
-                        </td>
-                        <td onClick={(e) => e.stopPropagation()}>
-                          <div style={{ display: "flex", gap: "0.25rem" }}>
-                            <button
-                              className="btn-icon"
-                              onClick={() => setSelectedLead(lead as Lead)}
-                              title="Ver detalles"
-                            >
-                              <Eye style={{ width: "14px", height: "14px" }} />
-                            </button>
-                            <button
-                              className="btn-icon danger"
-                              onClick={() => {
-                                if (confirm(`¿Eliminar lead de ${lead.name}?`)) {
-                                  deleteMutation.mutate({ id: lead.id });
-                                }
-                              }}
-                              title="Eliminar"
-                            >
-                              <Trash2 style={{ width: "14px", height: "14px" }} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -448,112 +382,61 @@ export default function LeadManagement() {
 
         {/* ── Detail panel */}
         {selectedLead && (
-          <div
-            className="glass-card"
-            style={{ padding: "1.25rem", position: "sticky", top: "5rem" }}
-          >
-            {/* Header */}
+          <div className="glass-card" style={{ padding: "1.25rem", position: "sticky", top: "5rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-              <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.01em" }}>
-                Detalles del Lead
-              </p>
-              <button
-                className="btn-icon"
-                onClick={() => setSelectedLead(null)}
-              >
+              <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.01em" }}>Detalles del Lead</p>
+              <button className="btn-icon" onClick={() => setSelectedLead(null)}>
                 <X style={{ width: "14px", height: "14px" }} />
               </button>
             </div>
 
-            {/* Avatar + name */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1f1f23, #2a2a2e)",
-                  border: "1px solid #2f2f35",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "#e8a020",
-                  flexShrink: 0,
-                }}
-              >
+              <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, #1f1f23, #2a2a2e)", border: "1px solid #2f2f35", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#e8a020", flexShrink: 0 }}>
                 {selectedLead.name[0]?.toUpperCase()}
               </div>
               <div>
                 <p style={{ fontSize: "0.875rem", fontWeight: 700, color: "#f0f0f0" }}>{selectedLead.name}</p>
                 <span className={typeBadgeClass(selectedLead.type)} style={{ marginTop: "0.25rem" }}>
-                  {selectedLead.type}
+                  {typeLabel(selectedLead.type)}
                 </span>
               </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {/* Email */}
               <div>
                 <p className="crm-label">Email</p>
-                <a
-                  href={`mailto:${selectedLead.email}`}
-                  style={{ fontSize: "0.8125rem", color: "#e8a020", textDecoration: "none", fontWeight: 500 }}
-                  onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-                >
+                <a href={`mailto:${selectedLead.email}`} style={{ fontSize: "0.8125rem", color: "#e8a020", textDecoration: "none", fontWeight: 500 }}>
                   {selectedLead.email}
                 </a>
               </div>
 
-              {/* Phone */}
-              <div>
-                <p className="crm-label">Teléfono</p>
-                <a
-                  href={`tel:${selectedLead.phone}`}
-                  style={{ fontSize: "0.8125rem", color: "#e8a020", textDecoration: "none", fontWeight: 500 }}
-                >
-                  {selectedLead.phone}
-                </a>
-              </div>
-
-              {/* Vehicle */}
-              {selectedLead.vehicle && (
+              {selectedLead.phone && (
                 <div>
-                  <p className="crm-label">Vehículo de Interés</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.4rem" }}>
-                    <div style={{ width: "72px", height: "50px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, border: "1px solid #1f1f23" }}>
-                      <img
-                        src={VEHICLE_IMAGES[selectedLead.vehicle as string] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=70"}
-                        alt={selectedLead.vehicle as string}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </div>
-                    <p style={{ fontSize: "0.8125rem", color: "#f0f0f0", fontWeight: 600 }}>{selectedLead.vehicle as string}</p>
-                  </div>
+                  <p className="crm-label">Teléfono</p>
+                  <a href={`tel:${selectedLead.phone}`} style={{ fontSize: "0.8125rem", color: "#e8a020", textDecoration: "none", fontWeight: 500 }}>
+                    {selectedLead.phone}
+                  </a>
                 </div>
               )}
 
-              {/* Message */}
+              {selectedLead.vehicle_info && (
+                <div>
+                  <p className="crm-label">Vehículo de Interés</p>
+                  <p style={{ fontSize: "0.8125rem", color: "#f0f0f0", fontWeight: 600, marginTop: "0.25rem" }}>
+                    {`${selectedLead.vehicle_info.brand ?? ""} ${selectedLead.vehicle_info.model ?? ""}`.trim()}
+                  </p>
+                </div>
+              )}
+
               {selectedLead.message && (
                 <div>
                   <p className="crm-label">Mensaje</p>
-                  <p style={{
-                    fontSize: "0.8125rem",
-                    color: "#a1a1aa",
-                    background: "#1a1a1e",
-                    border: "1px solid #1f1f23",
-                    borderRadius: "8px",
-                    padding: "0.625rem 0.75rem",
-                    lineHeight: 1.6,
-                  }}>
+                  <p style={{ fontSize: "0.8125rem", color: "#a1a1aa", background: "#1a1a1e", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.625rem 0.75rem", lineHeight: 1.6 }}>
                     {selectedLead.message}
                   </p>
                 </div>
               )}
 
-              {/* Status change */}
               <div>
                 <p className="crm-label">Estado</p>
                 <select
@@ -561,61 +444,35 @@ export default function LeadManagement() {
                   value={selectedLead.status}
                   onChange={(e) => handleStatusChange(selectedLead.id, e.target.value)}
                 >
-                  {ALL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {ALL_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                 </select>
               </div>
 
               <div className="crm-divider" style={{ margin: "0.25rem 0" }} />
 
-              {/* CTA buttons */}
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <a href={`tel:${selectedLead.phone}`} style={{ flex: 1, textDecoration: "none" }}>
-                  <button className="btn-ghost" style={{ width: "100%", justifyContent: "center", gap: "0.375rem" }}>
-                    <Phone style={{ width: "13px", height: "13px" }} />
-                    Llamar
-                  </button>
-                </a>
-                <a
-                  href={`https://wa.me/34${selectedLead.phone.replace(/\D/g, "")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ flex: 1, textDecoration: "none" }}
-                >
-                  <button
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.375rem",
-                      padding: "0.5rem 0.75rem",
-                      background: "#25D366",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "var(--radius)",
-                      fontSize: "0.8125rem",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "#1fbd5a")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "#25D366")}
-                  >
-                    <MessageCircle style={{ width: "13px", height: "13px" }} />
-                    WhatsApp
-                  </button>
-                </a>
+                {selectedLead.phone && (
+                  <a href={`tel:${selectedLead.phone}`} style={{ flex: 1, textDecoration: "none" }}>
+                    <button className="btn-ghost" style={{ width: "100%", justifyContent: "center", gap: "0.375rem" }}>
+                      <Phone style={{ width: "13px", height: "13px" }} />
+                      Llamar
+                    </button>
+                  </a>
+                )}
+                {selectedLead.phone && (
+                  <a href={`https://wa.me/34${selectedLead.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" style={{ flex: 1, textDecoration: "none" }}>
+                    <button style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.375rem", padding: "0.5rem 0.75rem", background: "#25D366", color: "#fff", border: "none", borderRadius: "var(--radius)", fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer" }}>
+                      <MessageCircle style={{ width: "13px", height: "13px" }} />
+                      WhatsApp
+                    </button>
+                  </a>
+                )}
               </div>
 
-              {/* Delete */}
               <button
                 className="btn-icon danger"
                 style={{ width: "100%", height: "auto", padding: "0.4rem 0.75rem", fontSize: "0.75rem", gap: "0.375rem", borderRadius: "var(--radius)" }}
-                onClick={() => {
-                  if (confirm(`¿Eliminar lead de ${selectedLead.name}?`)) {
-                    deleteMutation.mutate({ id: selectedLead.id });
-                  }
-                }}
+                onClick={() => { if (confirm(`¿Eliminar lead de ${selectedLead.name}?`)) deleteMutation.mutate(selectedLead.id); }}
               >
                 <Trash2 style={{ width: "13px", height: "13px" }} />
                 Eliminar lead
