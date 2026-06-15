@@ -19,18 +19,17 @@ function toCard(v: {
   };
 }
 
-// ─── Demo vehicles ────────────────────────────────────────────────────────────
-const DEMO_VEHICLES = [
-  { id: "1", brand: "Mercedes-Benz", model: "GLE 250D 4Matic", year: 2016, price: "26900", km: 276000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=900&q=80" },
-  { id: "2", brand: "BMW", model: "325D GT Gran Turismo", year: 2017, price: "23500", km: 157000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=900&q=80" },
-  { id: "3", brand: "Audi", model: "Q5 2.0 TDI quattro S-line", year: 2015, price: "21500", km: 180000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=900&q=80" },
-  { id: "4", brand: "Jaguar", model: "XF R-Sport 2.0D AWD", year: 2017, price: "20900", km: 162000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=900&q=80" },
-  { id: "5", brand: "Peugeot", model: "3008 2.0 HDI Allure", year: 2014, price: "12900", km: 33000, fuelType: "Diésel", transmission: "Manual", image: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=900&q=80" },
-  { id: "6", brand: "Volvo", model: "XC60 D4 Inscription", year: 2019, price: "29900", km: 75000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=900&q=80" },
-  { id: "7", brand: "Mercedes-Benz", model: "SLK 300 AMG Line", year: 2010, price: "18500", km: 145000, fuelType: "Gasolina", transmission: "Automático", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&w=900&q=80" },
-  { id: "8", brand: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: 2018, price: "24900", km: 98000, fuelType: "Diésel", transmission: "Automático", image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=900&q=80" },
-  { id: "9", brand: "Ford", model: "Mustang GT 5.0 V8", year: 2019, price: "39900", km: 42000, fuelType: "Gasolina", transmission: "Manual", image: "https://images.unsplash.com/photo-1547744152-14d985cb937f?auto=format&fit=crop&w=900&q=80" },
-];
+type Vehicle = {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  price: string;
+  km: number;
+  fuelType: string;
+  transmission: string;
+  image: string;
+};
 
 const SELECT_STYLE: React.CSSProperties = {
   width: "100%", background: "transparent", border: "none",
@@ -39,7 +38,7 @@ const SELECT_STYLE: React.CSSProperties = {
   color: "#1D1D1F", outline: "none", appearance: "none", cursor: "pointer",
 };
 
-function VehicleCard({ v }: { v: typeof DEMO_VEHICLES[0] }) {
+function VehicleCard({ v }: { v: Vehicle }) {
   const [hovered, setHovered] = useState(false);
   return (
     <Link href={`/vehiculo/${v.id}`}>
@@ -125,7 +124,7 @@ export default function Catalog() {
   const [filters, setFilters] = useState({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
   const { data: dbVehicles } = trpc.vehicle.list.useQuery({ status: "available" });
-  const vehicles = dbVehicles && dbVehicles.length > 0 ? dbVehicles.map(toCard) : DEMO_VEHICLES;
+  const vehicles = (dbVehicles ?? []).map(toCard);
 
   const brands = Array.from(new Set(vehicles.map((v) => v.brand)));
   const fuels = Array.from(new Set(vehicles.map((v) => v.fuelType)));
