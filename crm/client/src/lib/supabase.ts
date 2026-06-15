@@ -56,7 +56,7 @@ export async function fetchAllVehicles(): Promise<Vehicle[]> {
 export async function createVehicle(v: {
   brand: string; model: string; year: number; price: string; km: number;
   fuel_type: string; transmission: string; status: string;
-  description?: string | null;
+  description?: string | null; images?: string[] | null;
 }) {
   const { error } = await supabase.from("vehicles").insert(v);
   if (error) throw error;
@@ -65,7 +65,7 @@ export async function createVehicle(v: {
 export async function updateVehicle(id: string, v: Partial<{
   brand: string; model: string; year: number; price: string; km: number;
   fuel_type: string; transmission: string; status: string;
-  description: string | null;
+  description: string | null; images: string[] | null;
 }>) {
   const { error } = await supabase
     .from("vehicles")
@@ -99,5 +99,35 @@ export async function updateLead(id: string, data: Partial<{
 
 export async function deleteLead(id: string) {
   const { error } = await supabase.from("leads").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/* ── Storage helpers ────────────────────────────────────────────────────────── */
+
+const BUCKET = "fotos";
+
+export function getPublicUrl(path: string): string {
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function uploadVehicleImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `vehicles/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (error) throw error;
+  return getPublicUrl(path);
+}
+
+export async function deleteVehicleImage(url: string): Promise<void> {
+  // Extract path after "/object/public/fotos/"
+  const marker = `/object/public/${BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return;
+  const path = url.slice(idx + marker.length);
+  const { error } = await supabase.storage.from(BUCKET).remove([path]);
   if (error) throw error;
 }

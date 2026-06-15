@@ -1,7 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchAllVehicles, createVehicle, updateVehicle, deleteVehicle } from "@/lib/supabase";
-import { useState } from "react";
-import { Plus, Edit2, Trash2, X, Check, Car, Search, Settings2 } from "lucide-react";
+import {
+  fetchAllVehicles,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+  uploadVehicleImage,
+  deleteVehicleImage,
+} from "@/lib/supabase";
+import { useRef, useState } from "react";
+import {
+  Plus, Edit2, Trash2, X, Check, Car, Search, Settings2,
+  ImagePlus, Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
@@ -15,6 +25,7 @@ type VehicleForm = {
   transmission: string;
   status: string;
   description: string;
+  images: string[];
 };
 
 const emptyForm: VehicleForm = {
@@ -27,6 +38,7 @@ const emptyForm: VehicleForm = {
   transmission: "Manual",
   status: "Disponible",
   description: "",
+  images: [],
 };
 
 const STATUS_TO_API: Record<string, string> = {
@@ -42,11 +54,11 @@ const STATUS_FROM_API: Record<string, string> = {
 
 /* ── Fuel badge ─────────────────────────────────────────────────────────────── */
 const FUEL_COLORS: Record<string, { bg: string; color: string; border: string }> = {
-  Gasolina:  { bg: "rgba(232,160,32,0.1)",   color: "#e8a020", border: "rgba(232,160,32,0.2)"  },
-  "Diésel":  { bg: "rgba(59,130,246,0.1)",   color: "#3b82f6", border: "rgba(59,130,246,0.2)"  },
-  "Híbrido": { bg: "rgba(34,197,94,0.1)",    color: "#22c55e", border: "rgba(34,197,94,0.2)"   },
-  Eléctrico: { bg: "rgba(168,85,247,0.1)",   color: "#a855f7", border: "rgba(168,85,247,0.2)"  },
-  GLP:       { bg: "rgba(245,158,11,0.1)",   color: "#f59e0b", border: "rgba(245,158,11,0.2)"  },
+  Gasolina:  { bg: "rgba(232,160,32,0.1)",  color: "#e8a020", border: "rgba(232,160,32,0.2)"  },
+  "Diésel":  { bg: "rgba(59,130,246,0.1)",  color: "#3b82f6", border: "rgba(59,130,246,0.2)"  },
+  "Híbrido": { bg: "rgba(34,197,94,0.1)",   color: "#22c55e", border: "rgba(34,197,94,0.2)"   },
+  Eléctrico: { bg: "rgba(168,85,247,0.1)",  color: "#a855f7", border: "rgba(168,85,247,0.2)"  },
+  GLP:       { bg: "rgba(245,158,11,0.1)",  color: "#f59e0b", border: "rgba(245,158,11,0.2)"  },
 };
 
 function FuelBadge({ fuel }: { fuel: string }) {
@@ -61,11 +73,9 @@ function FuelBadge({ fuel }: { fuel: string }) {
 function StatusBadge({ status }: { status: string }) {
   const label: Record<string, string> = {
     available: "Disponible", reserved: "Reservado", sold: "Vendido",
-    Disponible: "Disponible", Reservado: "Reservado", Vendido: "Vendido",
   };
   const cls: Record<string, string> = {
     available: "badge badge-disponible", reserved: "badge badge-reservado", sold: "badge badge-vendido",
-    Disponible: "badge badge-disponible", Reservado: "badge badge-reservado", Vendido: "badge badge-vendido",
   };
   return <span className={cls[status] ?? "badge badge-vendido"}>{label[status] ?? status}</span>;
 }
@@ -75,6 +85,171 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <label className="crm-label">{label}</label>
       {children}
+    </div>
+  );
+}
+
+/* ── Image uploader component ───────────────────────────────────────────────── */
+function ImageUploader({
+  images,
+  onChange,
+}: {
+  images: string[];
+  onChange: (imgs: string[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const uploads = await Promise.all(
+        Array.from(files).map((f) => uploadVehicleImage(f))
+      );
+      onChange([...images, ...uploads]);
+      toast.success(`${uploads.length} foto${uploads.length > 1 ? "s" : ""} subida${uploads.length > 1 ? "s" : ""}`);
+    } catch (err: unknown) {
+      toast.error((err as Error).message ?? "Error al subir fotos");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const handleRemove = async (url: string) => {
+    try {
+      await deleteVehicleImage(url);
+      onChange(images.filter((u) => u !== url));
+    } catch {
+      // Remove from UI anyway even if delete fails
+      onChange(images.filter((u) => u !== url));
+    }
+  };
+
+  return (
+    <div>
+      <label className="crm-label">Fotos del vehículo</label>
+
+      {/* Grid of images */}
+      {images.length > 0 && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          {images.map((url, i) => (
+            <div
+              key={url}
+              style={{
+                position: "relative",
+                borderRadius: "8px",
+                overflow: "hidden",
+                aspectRatio: "4/3",
+                background: "#1a1a1e",
+                border: i === 0 ? "2px solid #e8a020" : "1px solid #1f1f23",
+              }}
+            >
+              <img
+                src={url}
+                alt={`Foto ${i + 1}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              {/* Principal badge */}
+              {i === 0 && (
+                <div style={{ position: "absolute", top: "0.25rem", left: "0.25rem", background: "#e8a020", color: "#0a0a0b", fontSize: "0.5rem", fontWeight: 700, padding: "0.1rem 0.35rem", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Principal
+                </div>
+              )}
+              {/* Delete button */}
+              <button
+                type="button"
+                onClick={() => handleRemove(url)}
+                style={{
+                  position: "absolute",
+                  top: "0.25rem",
+                  right: "0.25rem",
+                  width: "22px",
+                  height: "22px",
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.7)",
+                  border: "none",
+                  color: "#f0f0f0",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.9)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.7)")}
+              >
+                <X style={{ width: "11px", height: "11px" }} />
+              </button>
+              {/* Move to first (if not already) */}
+              {i > 0 && (
+                <button
+                  type="button"
+                  title="Establecer como principal"
+                  onClick={() => {
+                    const reordered = [url, ...images.filter((u) => u !== url)];
+                    onChange(reordered);
+                  }}
+                  style={{
+                    position: "absolute",
+                    bottom: "0.25rem",
+                    right: "0.25rem",
+                    fontSize: "0.5rem",
+                    fontWeight: 700,
+                    padding: "0.1rem 0.35rem",
+                    borderRadius: "4px",
+                    background: "rgba(0,0,0,0.7)",
+                    border: "none",
+                    color: "#f0f0f0",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  ★ Principal
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload button */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => handleFiles(e.target.files)}
+      />
+      <button
+        type="button"
+        className="btn-ghost"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        style={{ gap: "0.5rem", opacity: uploading ? 0.6 : 1 }}
+      >
+        {uploading ? (
+          <Loader2 style={{ width: "14px", height: "14px", animation: "spin 1s linear infinite" }} />
+        ) : (
+          <ImagePlus style={{ width: "14px", height: "14px" }} />
+        )}
+        {uploading ? "Subiendo…" : "Añadir fotos"}
+      </button>
+      {images.length > 0 && (
+        <p style={{ fontSize: "0.6375rem", color: "#3f3f46", marginTop: "0.375rem" }}>
+          La primera foto es la imagen principal · {images.length} foto{images.length !== 1 ? "s" : ""}
+        </p>
+      )}
     </div>
   );
 }
@@ -143,6 +318,7 @@ export default function VehicleManagement() {
       transmission: v.transmission,
       status: STATUS_FROM_API[v.status] ?? "Disponible",
       description: v.description ?? "",
+      images: v.images ?? [],
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -160,6 +336,7 @@ export default function VehicleManagement() {
       transmission: formData.transmission,
       status: STATUS_TO_API[formData.status] ?? "available",
       description: formData.description || null,
+      images: formData.images.length > 0 ? formData.images : null,
     };
     if (editingId !== null) {
       updateMutation.mutate({ id: editingId, ...payload });
@@ -224,6 +401,7 @@ export default function VehicleManagement() {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {/* Fields grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
               <Field label="Marca *">
                 <input className="crm-input" name="brand" value={formData.brand} onChange={handleChange} placeholder="p.ej. Mercedes" required />
@@ -264,11 +442,29 @@ export default function VehicleManagement() {
               </Field>
             </div>
 
-            <Field label="Descripción / Extras">
-              <textarea className="crm-textarea" name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Equipamiento, extras, observaciones…" />
-            </Field>
+            <div style={{ marginBottom: "1rem" }}>
+              <Field label="Descripción / Extras">
+                <textarea
+                  className="crm-textarea"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder="Equipamiento, extras, observaciones…"
+                />
+              </Field>
+            </div>
 
-            <div style={{ display: "flex", gap: "0.625rem", marginTop: "1.25rem" }}>
+            {/* Image uploader */}
+            <div style={{ padding: "1.25rem", background: "#0e0e10", borderRadius: "8px", border: "1px solid #1f1f23", marginBottom: "1.25rem" }}>
+              <ImageUploader
+                images={formData.images}
+                onChange={(imgs) => setFormData((prev) => ({ ...prev, images: imgs }))}
+              />
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: "0.625rem" }}>
               <button type="submit" className="btn-primary" disabled={isPending} style={{ opacity: isPending ? 0.6 : 1 }}>
                 <Check style={{ width: "14px", height: "14px" }} />
                 {isPending ? "Guardando…" : editingId !== null ? "Actualizar" : "Guardar Vehículo"}
@@ -336,6 +532,7 @@ export default function VehicleManagement() {
                   <th>Km</th>
                   <th>Combustible</th>
                   <th>Cambio</th>
+                  <th>Fotos</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -379,6 +576,15 @@ export default function VehicleManagement() {
                       <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.6875rem", color: "#a1a1aa" }}>
                         <Settings2 style={{ width: "11px", height: "11px", flexShrink: 0 }} />
                         {v.transmission}
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                        color: v.images && v.images.length > 0 ? "#22c55e" : "#3f3f46",
+                      }}>
+                        {v.images?.length ?? 0} foto{(v.images?.length ?? 0) !== 1 ? "s" : ""}
                       </span>
                     </td>
                     <td><StatusBadge status={v.status} /></td>

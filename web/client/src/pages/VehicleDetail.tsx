@@ -1,10 +1,11 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useRoute } from "wouter";
-import { Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Calendar, Fuel } from "lucide-react";
+import { Phone, Mail, MessageCircle, CheckCircle, ArrowLeft, Shield, Gauge, Calendar, Fuel, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVehicleById } from "@/lib/supabase";
+import { useState } from "react";
 
 const BRAND_IMAGES: Record<string, string> = {
   "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
@@ -25,6 +26,8 @@ export default function VehicleDetail() {
     queryFn: () => fetchVehicleById(vehicleId),
     enabled: vehicleId.length > 0,
   });
+
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const specRows = vehicle ? [
     { label: "Marca", value: vehicle.brand, icon: null },
@@ -112,27 +115,85 @@ export default function VehicleDetail() {
           {/* Left column */}
           <div>
             {/* Gallery */}
-            <div
-              style={{
-                position: "relative",
-                borderRadius: "12px",
-                overflow: "hidden",
-                marginBottom: "1rem",
-                aspectRatio: "16/9",
-                background: "#F5F5F7",
-              }}
-            >
-              <img
-                src={(vehicle.images && vehicle.images.length > 0) ? vehicle.images[0] : (BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80")}
-                alt={`${vehicle.brand} ${vehicle.model}`}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
-              />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
-              <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "rgba(255,255,255,0.8)", fontWeight: "500" }}>
-                {vehicle.brand} {vehicle.model} · {vehicle.year}
-              </div>
-            </div>
+            {(() => {
+              const imgs = vehicle.images && vehicle.images.length > 0
+                ? vehicle.images
+                : [BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"];
+              const clampedIdx = Math.min(activeIdx, imgs.length - 1);
+              return (
+                <div style={{ marginBottom: "1rem" }}>
+                  {/* Main image */}
+                  <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", aspectRatio: "16/9", background: "#F5F5F7" }}>
+                    <img
+                      key={imgs[clampedIdx]}
+                      src={imgs[clampedIdx]}
+                      alt={`${vehicle.brand} ${vehicle.model}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.2s" }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
+                    />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
+                    <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "rgba(255,255,255,0.8)", fontWeight: "500" }}>
+                      {vehicle.brand} {vehicle.model} · {vehicle.year}
+                    </div>
+                    {/* Counter badge */}
+                    {imgs.length > 1 && (
+                      <div style={{ position: "absolute", bottom: "1rem", right: "1rem", background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", borderRadius: "99px", padding: "0.2rem 0.6rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontFamily: "'DM Sans', sans-serif" }}>
+                        {clampedIdx + 1} / {imgs.length}
+                      </div>
+                    )}
+                    {/* Prev/Next arrows */}
+                    {imgs.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setActiveIdx((i) => (i - 1 + imgs.length) % imgs.length)}
+                          style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "36px", height: "36px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          onClick={() => setActiveIdx((i) => (i + 1) % imgs.length)}
+                          style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "36px", height: "36px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Thumbnails */}
+                  {imgs.length > 1 && (
+                    <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.625rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
+                      {imgs.map((src, i) => (
+                        <button
+                          key={src}
+                          onClick={() => setActiveIdx(i)}
+                          style={{
+                            flexShrink: 0,
+                            width: "80px",
+                            height: "56px",
+                            borderRadius: "6px",
+                            overflow: "hidden",
+                            border: `2px solid ${i === clampedIdx ? "#e8a020" : "transparent"}`,
+                            cursor: "pointer",
+                            padding: 0,
+                            background: "#e8e4dc",
+                            transition: "border-color 0.15s",
+                            opacity: i === clampedIdx ? 1 : 0.6,
+                          }}
+                        >
+                          <img
+                            src={src}
+                            alt={`Vista ${i + 1}`}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=60"; }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Description */}
             <div
