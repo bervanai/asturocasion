@@ -2,15 +2,21 @@ import { ENV } from "./_core/env";
 
 const BASE = () => {
   // Acepta tanto los nombres manuales como los que crea la integración oficial de Supabase en Vercel
-  const url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+  let url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+  // Las API keys de Supabase (JWT o sb_*) nunca llevan espacios; quitamos cualquier
+  // espacio/salto de línea interno que se cuele al pegarlas en Vercel y rompa la cabecera HTTP.
   const key = (
     process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_SECRET_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     ""
-  ).trim();
+  ).replace(/\s/g, "");
   if (!url || !key) throw new Error("SUPABASE_URL / SUPABASE_SERVICE_KEY not set");
+  // Normaliza la URL: añade protocolo si falta y quita la barra final.
+  if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+  url = url.replace(/\/+$/, "");
   return { url, key };
 };
 
@@ -22,16 +28,24 @@ async function sb(
 ): Promise<unknown> {
   const { url, key } = BASE();
   const endpoint = `${url}/rest/v1/${table}${params ? `?${params}` : ""}`;
-  const res = await fetch(endpoint, {
-    method,
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-      Prefer: method === "POST" ? "return=representation" : "return=minimal",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(endpoint, {
+      method,
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: method === "POST" ? "return=representation" : "return=minimal",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Supabase fetch failed (${method} ${table}): ${detail} | host=${url.replace(/^https?:\/\//, "").slice(0, 32)} keyLen=${key.length}`
+    );
+  }
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Supabase ${method} ${table}: ${res.status} ${text}`);
