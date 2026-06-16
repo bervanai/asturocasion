@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Send, Car, Euro, Phone, ChevronRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Vehicle } from "@/lib/supabase";
 
 type Message = {
   id: number;
@@ -119,15 +121,64 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
   let msgId = useRef(1);
+
+  // Load real vehicle data once
+  useEffect(() => {
+    supabase
+      .from("vehicles")
+      .select("brand, model, year, price, fuel_type, status")
+      .eq("status", "available")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setVehicles(data as Vehicle[]);
+      });
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
+  const buildDynamicResponse = (key: string): { text: string; options?: { label: string; value: string }[] } => {
+    const base = BOT_RESPONSES[key];
+    if (!base) return { text: "¿En qué más puedo ayudarte?", options: INITIAL_MESSAGE.options };
+
+    if (key === "catalogo" && vehicles.length > 0) {
+      const list = vehicles
+        .slice(0, 6)
+        .map((v) => `• ${v.brand} ${v.model} (${v.year}) — ${Number(v.price).toLocaleString("es-ES")}€`)
+        .join("\n");
+      return {
+        text: `Tenemos **${vehicles.length} vehículos disponibles** ahora mismo:\n\n${list}${vehicles.length > 6 ? `\n…y ${vehicles.length - 6} más` : ""}\n\nTodos revisados, con ITV al día y garantía incluida.`,
+        options: base.options,
+      };
+    }
+
+    if (key === "precio" && vehicles.length > 0) {
+      const prices = vehicles.map((v) => Number(v.price)).filter(Boolean);
+      const min = Math.min(...prices).toLocaleString("es-ES");
+      const max = Math.max(...prices).toLocaleString("es-ES");
+      return {
+        text: `Tenemos vehículos desde **${min}€** hasta **${max}€**. Todos con garantía y transferencia incluida. ¿Quieres ver el catálogo completo?`,
+        options: base.options,
+      };
+    }
+
+    if (key === "combustible" && vehicles.length > 0) {
+      const fuelSet = [...new Set(vehicles.map((v) => v.fuel_type).filter(Boolean))];
+      return {
+        text: `Disponemos de vehículos en: **${fuelSet.join(", ")}**. ¿Tienes preferencia?`,
+        options: base.options,
+      };
+    }
+
+    return base;
+  };
+
   const addBotMessage = (key: string) => {
-    const resp = BOT_RESPONSES[key];
+    const resp = buildDynamicResponse(key);
     if (!resp) return;
 
     setTyping(true);
@@ -154,7 +205,10 @@ export default function ChatBot() {
       return;
     }
     if (value === "whatsapp") {
-      window.open("https://wa.me/34629574957", "_blank");
+      const summary = vehicles.length > 0
+        ? `Hola, vi que tenéis ${vehicles.length} vehículos disponibles (${vehicles.slice(0, 3).map(v => `${v.brand} ${v.model}`).join(", ")}…) y me gustaría obtener más información.`
+        : "Hola, me gustaría obtener información sobre vuestros vehículos de ocasión.";
+      window.open(`https://wa.me/34629574957?text=${encodeURIComponent(summary)}`, "_blank");
       return;
     }
 
@@ -378,7 +432,7 @@ export default function ChatBot() {
         </div>
 
         <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", color: "#C0C0C0", padding: "0.4rem 0 0.6rem" }}>
-          Asistente virtual demo · Astur Ocasión
+          Asistente virtual · Astur Ocasión
         </p>
       </div>
 
