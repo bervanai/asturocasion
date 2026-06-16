@@ -188,8 +188,8 @@ export default function Home() {
   useScrollReveal();
 
   const { data: dbVehicles } = useQuery({
-    queryKey: ["vehicles", "available"],
-    queryFn: () => fetchVehicles("available"),
+    queryKey: ["vehicles", "all"],
+    queryFn: () => fetchVehicles(),
   });
   const vehicles = (dbVehicles ?? []).map((v) => toCard({
     id: v.id, brand: v.brand, model: v.model, year: v.year,
