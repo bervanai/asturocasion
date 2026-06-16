@@ -13,6 +13,7 @@ export default function Footer() {
     >
       <div className="container" style={{ padding: "4rem 1.25rem 2rem" }}>
         <div
+          className="footer-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
@@ -237,6 +238,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div
+          className="footer-bottom"
           style={{
             borderTop: "1px solid rgba(255,255,255,0.07)",
             paddingTop: "2rem",
@@ -257,23 +259,14 @@ export default function Footer() {
             &copy; {currentYear} Astur Ocasión del Automóvil. Todos los derechos reservados.
           </p>
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-            {["Política de Privacidad", "Cookies"].map((item) => (
-              <a
-                key={item}
-                href="#"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.78rem",
-                  color: "rgba(245,245,247,0.25)",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.6)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.25)")}
-              >
-                {item}
-              </a>
-            ))}
+            <a
+              href="/politica-de-privacidad"
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(245,245,247,0.25)", textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.6)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(245,245,247,0.25)")}
+            >
+              Política de Privacidad
+            </a>
           </div>
         </div>
       </div>

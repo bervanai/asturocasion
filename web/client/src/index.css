@@ -875,3 +875,103 @@
   }
   .reveal { opacity: 1 !important; transform: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE MÓVIL — reglas globales
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tipografía y espaciados generales en móvil ─────────────────── */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Hero search — apila en vertical */
+  .hero-search {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+  }
+  .hero-search > div {
+    border-right: none !important;
+    border-bottom: 1px solid #E8E8ED;
+    padding: 0.4rem 0 !important;
+  }
+  .hero-search button {
+    margin-left: 0 !important;
+    justify-content: center;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  /* Stats bar — 2 columnas en móvil */
+  .container > div[style*="repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Split showroom — apila en vertical */
+  .lux-split {
+    grid-template-columns: 1fr !important;
+  }
+  .lux-split > div:first-child {
+    min-height: 260px !important;
+  }
+
+  /* About two-col */
+  .about-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  /* Contact & TradeIn grids */
+  .contact-grid,
+  .tradein-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form two-col */
+  .form-two-col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  .footer-bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Navigation — reducir padding */
+  nav .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Catálogo filtros */
+  .catalog-filters {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Pills del hero — scroll horizontal si hay muchas */
+  .lux-pills {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+}
+
+/* ── Tablet (640-1023px) ────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .lux-split {
+    grid-template-columns: 1fr !important;
+  }
+  .contact-grid,
+  .tradein-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

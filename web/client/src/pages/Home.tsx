@@ -365,6 +365,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── SERVICIOS ───────────────────────────────────────────────────────────── */}
+      <section style={{ background: "#FFFFFF", padding: "5rem 0" }}>
+        <div className="container">
+          <div style={{ textAlign: "center", maxWidth: "720px", margin: "0 auto 3.5rem" }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.75rem" }}>Astur Ocasión del Automóvil</p>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", fontWeight: "500", color: "#1D1D1F", margin: "0 0 1.25rem", letterSpacing: "-0.015em" }}>
+              Vehículos de Segunda Mano y Ocasión 100% Revisados
+            </h2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.97rem", color: "#6E6E73", lineHeight: 1.75, margin: 0 }}>
+              Todos nuestros vehículos se entregan con la <strong style={{ color: "#1D1D1F" }}>ITV al día</strong> y el <strong style={{ color: "#1D1D1F" }}>cambio de propietario incluido</strong> en el precio. Recogemos su vehículo como parte del pago y le ofrecemos financiación a su medida.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.25rem" }}>
+            {[
+              { icon: "🚗", title: "Variedad de Vehículos", desc: "Le ofrecemos vehículos de todos los segmentos: compactos, SUV, berlinas, familiares, deportivos y más." },
+              { icon: "🔍", title: "Vehículos por Encargo", desc: "Asesoramiento personalizado y búsqueda de vehículos por encargo. Encontramos el coche que busca." },
+              { icon: "💰", title: "Compra a Particulares", desc: "Le compramos su vehículo con la mejor tasación del mercado asturiano. Pago inmediato." },
+              { icon: "📋", title: "Financiación", desc: "Le ofrecemos la financiación que mejor se adapte a sus necesidades. Condiciones a medida." },
+            ].map((s) => (
+              <div key={s.title} style={{ background: "#F5F5F7", borderRadius: "18px", padding: "1.75rem", border: "1px solid #E8E8ED", transition: "box-shadow 0.2s" }}>
+                <div style={{ fontSize: "2rem", marginBottom: "0.85rem" }}>{s.icon}</div>
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "700", color: "#1D1D1F", margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>{s.title}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "#6E6E73", lineHeight: 1.6, margin: 0 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── BRAND MARQUEE ───────────────────────────────────────────────────────── */}
       <section style={{ background: "#FFFFFF", padding: "2.75rem 0", borderBottom: "1px solid #F0F0F5" }}>
         <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: "600", letterSpacing: "0.2em", textTransform: "uppercase", color: "#86868B", margin: "0 0 1.75rem" }}>
