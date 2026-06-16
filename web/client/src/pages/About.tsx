@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import { CheckCircle, ArrowRight } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
 
 const VALUES = [
   {
@@ -45,6 +46,12 @@ const TIMELINE = [
 ];
 
 export default function About() {
+  useSEO({
+    title: "Quiénes Somos — Concesionario de Ocasión en Oviedo",
+    description: "Conoce Astur Ocasión: concesionario familiar en Oviedo especializado en vehículos de ocasión premium. Transparencia, garantía y atención personalizada desde el primer día.",
+    path: "/sobre-nosotros",
+  });
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
       <Navigation />

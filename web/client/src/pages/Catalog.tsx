@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Filter, X, ArrowRight, ChevronDown, Fuel, Gauge, Calendar, Settings2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVehicles } from "@/lib/supabase";
+import { useSEO } from "@/hooks/useSEO";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
 
@@ -121,6 +122,12 @@ function VehicleCard({ v }: { v: Vehicle }) {
 }
 
 export default function Catalog() {
+  useSEO({
+    title: "Catálogo de Coches de Ocasión en Oviedo",
+    description: "Explora nuestro catálogo de vehículos de ocasión en Oviedo: Mercedes, BMW, Audi, Jaguar, Land Rover, Lexus y más. Filtros por marca, precio y combustible. Todos con garantía incluida.",
+    path: "/catalogo",
+  });
+
   const [showFilters, setShowFilters] = useState(false);
 
   // Pre-populate filters from URL query params (e.g. from home page search)

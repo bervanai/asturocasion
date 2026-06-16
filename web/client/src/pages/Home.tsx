@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search, Fuel, Gauge, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVehicles } from "@/lib/supabase";
+import { useSEO } from "@/hooks/useSEO";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
 
@@ -169,6 +170,12 @@ function VehicleCard({ v }: { v: Vehicle }) {
 }
 
 export default function Home() {
+  useSEO({
+    title: "Coches de Ocasión Premium en Oviedo, Asturias",
+    description: "Astur Ocasión — Concesionario de vehículos de ocasión en Oviedo. Mercedes, BMW, Audi, Jaguar, Land Rover y más. Todos revisados, con garantía y transferencia incluidas. Sin letra pequeña.",
+    path: "/",
+  });
+
   const [, navigate] = useLocation();
   const [brand, setBrand] = useState("");
   const [price, setPrice] = useState("");

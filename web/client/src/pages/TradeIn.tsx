@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { insertLead } from "@/lib/supabase";
+import { useSEO } from "@/hooks/useSEO";
 import { useState } from "react";
 import { CheckCircle, ArrowRight, Phone, MessageCircle, Send, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -59,6 +60,12 @@ const PROCESS_STEPS = [
 ];
 
 export default function TradeIn() {
+  useSEO({
+    title: "Compramos Tu Coche — Tasación Gratuita en Oviedo",
+    description: "¿Quieres vender tu coche en Oviedo? En Astur Ocasión te lo compramos al mejor precio. Tasación gratuita, respuesta en menos de 24h y pago inmediato. Sin complicaciones.",
+    path: "/compramos-tu-coche",
+  });
+
   const [formData, setFormData] = useState({
     brand: "",
     model: "",

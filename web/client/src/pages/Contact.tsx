@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { insertLead } from "@/lib/supabase";
+import { useSEO } from "@/hooks/useSEO";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Clock, CheckCircle, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -34,6 +35,12 @@ const TEXTAREA_STYLE: React.CSSProperties = {
 };
 
 export default function Contact() {
+  useSEO({
+    title: "Contacto — Astur Ocasión Oviedo",
+    description: "Contacta con Astur Ocasión en Oviedo. Llámanos al 984 180 450 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00.",
+    path: "/contacto",
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

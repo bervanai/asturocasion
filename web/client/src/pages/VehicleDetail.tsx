@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVehicleById } from "@/lib/supabase";
 import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 
 const BRAND_IMAGES: Record<string, string> = {
   "Mercedes": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
@@ -28,6 +29,54 @@ export default function VehicleDetail() {
   });
 
   const [activeIdx, setActiveIdx] = useState(0);
+
+  // Dynamic SEO per vehicle
+  useSEO({
+    title: vehicle
+      ? `${vehicle.brand} ${vehicle.model} ${vehicle.year} — ${Number(vehicle.price).toLocaleString("es-ES")}€`
+      : "Detalle de Vehículo",
+    description: vehicle
+      ? `${vehicle.brand} ${vehicle.model} (${vehicle.year}) en venta en Oviedo, Asturias. ${vehicle.km.toLocaleString("es-ES")} km · ${vehicle.fuel_type} · ${vehicle.transmission}. Precio: ${Number(vehicle.price).toLocaleString("es-ES")}€. Garantía y transferencia incluidas.`
+      : "Ficha de vehículo de ocasión en Astur Ocasión, Oviedo.",
+    image: vehicle?.images?.[0] ?? undefined,
+    path: `/vehiculo/${vehicleId}`,
+    type: "product",
+    jsonLd: vehicle
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Car",
+          "name": `${vehicle.brand} ${vehicle.model}`,
+          "brand": { "@type": "Brand", "name": vehicle.brand },
+          "model": vehicle.model,
+          "vehicleModelDate": String(vehicle.year),
+          "mileageFromOdometer": {
+            "@type": "QuantitativeValue",
+            "value": vehicle.km,
+            "unitCode": "KMT",
+          },
+          "fuelType": vehicle.fuel_type,
+          "vehicleTransmission": vehicle.transmission,
+          ...(vehicle.power_cv ? { "vehicleEngine": { "@type": "EngineSpecification", "enginePower": { "@type": "QuantitativeValue", "value": vehicle.power_cv, "unitCode": "BHP" } } } : {}),
+          "color": vehicle.color ?? undefined,
+          "description": vehicle.description ?? undefined,
+          "image": vehicle.images?.[0] ?? undefined,
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "EUR",
+            "price": vehicle.price,
+            "availability": vehicle.status === "available"
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            "seller": {
+              "@type": "AutoDealer",
+              "name": "Astur Ocasión",
+              "url": "https://asturocasion.es",
+            },
+          },
+          "url": `https://asturocasion.es/vehiculo/${vehicleId}`,
+        }
+      : undefined,
+  });
 
   const specRows = vehicle ? [
     { label: "Marca", value: vehicle.brand, icon: null },
