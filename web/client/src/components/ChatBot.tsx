@@ -167,7 +167,7 @@ export default function ChatBot() {
     }
 
     if (key === "combustible" && vehicles.length > 0) {
-      const fuelSet = [...new Set(vehicles.map((v) => v.fuel_type).filter(Boolean))];
+      const fuelSet = Array.from(new Set(vehicles.map((v) => v.fuel_type).filter(Boolean)));
       return {
         text: `Disponemos de vehículos en: **${fuelSet.join(", ")}**. ¿Tienes preferencia?`,
         options: base.options,
