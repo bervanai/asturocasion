@@ -164,7 +164,7 @@ export default function TradeIn() {
               maxWidth: "520px",
             }}
           >
-            Tasación gratuita, pago inmediato, cambio de titularidad incluido. Sin intermediarios, sin esperas.
+            Vende tu coche de segunda mano en Oviedo con tasación gratuita, pago inmediato y cambio de titularidad incluido. Sin intermediarios, sin esperas en Asturias.
           </p>
         </div>
       </section>
@@ -422,7 +422,7 @@ export default function TradeIn() {
               </h3>
               {[
                 "Tasación gratuita y sin compromiso",
-                "Mejor precio del mercado asturiano",
+                "Mejor precio de ocasión en Asturias",
                 "Pago inmediato al cerrar el trato",
                 "Cambio de titularidad incluido",
                 "Sin comisiones ni intermediarios",
@@ -525,7 +525,7 @@ export default function TradeIn() {
                   lineHeight: 1.5,
                 }}
               >
-                ¿Prefieres comprar un coche antes? Explora nuestro catálogo de vehículos disponibles.
+                ¿Prefieres comprar un coche de ocasión en Oviedo? Explora nuestro catálogo de vehículos de segunda mano disponibles.
               </p>
               <a
                 href="/catalogo"

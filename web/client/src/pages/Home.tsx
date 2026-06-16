@@ -254,7 +254,7 @@ export default function Home() {
               color: "rgba(255,255,255,0.7)", lineHeight: 1.7, margin: "0 0 2.75rem",
               maxWidth: "480px", fontWeight: 300,
             }}>
-              Vehículos de ocasión seleccionados a mano. Garantía, ITV al día y transferencia incluida — con la atención de un trato cercano.
+              Coches de ocasión y segunda mano seleccionados a mano en Oviedo, Asturias. Garantía, ITV al día y transferencia incluida — con la atención de un trato cercano.
             </p>
 
             {/* Search widget */}
@@ -383,7 +383,7 @@ export default function Home() {
             <div>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem", display: "flex", alignItems: "center" }}><span className="lux-hairline" style={{ color: "#0071E3" }} />Stock actual</p>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.8vw, 2.9rem)", fontWeight: "500", color: "#1D1D1F", margin: 0, letterSpacing: "-0.015em" }}>
-                Nuestro Showroom
+                Coches de Ocasión en Oviedo
               </h2>
             </div>
             <Link href="/catalogo">
@@ -430,7 +430,7 @@ export default function Home() {
               Una exposición<br /><em style={{ fontStyle: "italic", color: "#4DA3FF" }}>a tu disposición</em>
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1.02rem", fontWeight: 300, color: "rgba(255,255,255,0.7)", lineHeight: 1.7, margin: "0 0 2.25rem", maxWidth: "440px" }}>
-              Nuestras instalaciones en Oviedo reúnen una selección permanente de vehículos revisados. Ven a verlos, pruébalos y déjate asesorar sin compromiso.
+              Nuestro concesionario de ocasión en Oviedo, Asturias, reúne una selección permanente de vehículos revisados. Ven a verlos, pruébalos y déjate asesorar sin compromiso.
             </p>
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
               <a href="https://maps.google.com/?q=Astur+Ocasion+Oviedo" target="_blank" rel="noopener noreferrer" style={{
@@ -457,7 +457,7 @@ export default function Home() {
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem" }}>¿Por qué elegirnos?</p>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.8vw, 2.7rem)", fontWeight: "500", color: "#1D1D1F", margin: 0, letterSpacing: "-0.015em" }}>Compra con total seguridad</h2>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.8vw, 2.7rem)", fontWeight: "500", color: "#1D1D1F", margin: 0, letterSpacing: "-0.015em" }}>Compra un Coche de Ocasión con Total Seguridad</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
             {[
@@ -518,10 +518,10 @@ export default function Home() {
           <div style={{ maxWidth: "560px" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginBottom: "0.75rem" }}>¿Quieres vender tu coche?</p>
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: "800", color: "#FFFFFF", margin: "0 0 1rem", letterSpacing: "-0.03em" }}>
-              Compramos tu coche<br />al mejor precio
+              Vendemos tu coche de segunda mano<br />al mejor precio en Asturias
             </h2>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.65, margin: "0 0 2.5rem" }}>
-              Tasación gratuita en 24h, pago inmediato y gestión de cambio de titularidad incluida sin coste.
+              Tasación gratuita en 24h, pago inmediato y gestión de cambio de titularidad incluida sin coste. El concesionario de ocasión en Oviedo que compra tu coche sin complicaciones.
             </p>
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
               <Link href="/compramos-tu-coche">

@@ -182,7 +182,7 @@ export default function Contact() {
               maxWidth: "480px",
             }}
           >
-            Tanto si quieres comprar, vender o simplemente hacernos una pregunta, responderemos en menos de 24 horas.
+            Tanto si quieres comprar un coche de ocasión, vender tu vehículo de segunda mano en Asturias, o simplemente hacernos una consulta, responderemos en menos de 24 horas.
           </p>
         </div>
       </section>

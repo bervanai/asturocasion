@@ -111,7 +111,7 @@ export default function About() {
               letterSpacing: "-0.015em",
             }}
           >
-            Más de 15 Años Conectando Personas con el <em style={{ fontStyle: "italic", color: "#4DA3FF" }}>Coche Perfecto</em>
+            Más de 15 Años de Concesionario de Ocasión en <em style={{ fontStyle: "italic", color: "#4DA3FF" }}>Oviedo, Asturias</em>
           </h1>
           <p
             style={{
@@ -123,7 +123,7 @@ export default function About() {
               margin: 0,
             }}
           >
-            En Astur Ocasión del Automóvil somos algo más que un concesionario. Somos un equipo apasionado por el automóvil que lleva más de 15 años ayudando a las familias asturianas a encontrar el vehículo que necesitan, al precio que merecen.
+            En Astur Ocasión somos algo más que un concesionario de coches de segunda mano. Somos un equipo apasionado por el automóvil que lleva más de 15 años ayudando a familias de Oviedo y toda Asturias a encontrar el vehículo de ocasión que necesitan, al precio que merecen.
           </p>
         </div>
       </section>
@@ -165,7 +165,7 @@ export default function About() {
                   marginBottom: "1.25rem",
                 }}
               >
-                Fundamos Astur Ocasión en 2008 con una idea simple: vender coches de segunda mano con el mismo rigor y la misma honestidad que uno esperaría de un concesionario oficial, pero a precios de particular.
+                Fundamos Astur Ocasión en 2008 con una idea simple: vender coches de ocasión y segunda mano en Oviedo con el mismo rigor y la misma honestidad que uno esperaría de un concesionario oficial, pero a precios de particular.
               </p>
               <p
                 style={{
@@ -351,7 +351,7 @@ export default function About() {
                   letterSpacing: "-0.02em",
                 }}
               >
-                Compramos sin Complicaciones, Vendemos sin Sorpresas
+                Compramos tu Coche de Segunda Mano, Vendemos sin Sorpresas
               </h2>
               <p
                 style={{
