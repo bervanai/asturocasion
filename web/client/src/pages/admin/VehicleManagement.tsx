@@ -12,7 +12,7 @@ type VehicleForm = {
   year: string;
   price: string;
   km: string;
-  fuel: string;
+  fuelType: string;
   transmission: string;
   status: string;
   description: string;
@@ -24,7 +24,7 @@ const emptyForm: VehicleForm = {
   year: "",
   price: "",
   km: "",
-  fuel: "Gasolina",
+  fuelType: "Gasolina",
   transmission: "Manual",
   status: "Disponible",
   description: "",
@@ -73,7 +73,7 @@ export default function VehicleManagement() {
   });
 
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<VehicleForm>(emptyForm);
 
   const handleChange = (
@@ -93,7 +93,7 @@ export default function VehicleManagement() {
       year: String(v.year),
       price: String(v.price),
       km: String(v.km),
-      fuel: v.fuel,
+      fuelType: (v as unknown as { fuelType: string }).fuelType ?? "",
       transmission: v.transmission,
       status: v.status,
       description: v.description ?? "",
@@ -107,18 +107,20 @@ export default function VehicleManagement() {
       brand: formData.brand,
       model: formData.model,
       year: Number(formData.year),
-      price: Number(formData.price),
+      price: formData.price,
       km: Number(formData.km),
-      fuel: formData.fuel as "Gasolina" | "Diésel" | "Híbrido" | "Eléctrico" | "GLP",
+      fuelType: formData.fuelType as "Gasolina" | "Diésel" | "Híbrido" | "Eléctrico" | "GLP",
       transmission: formData.transmission as "Manual" | "Automático",
       status: formData.status as "Disponible" | "Reservado" | "Vendido",
       description: formData.description || undefined,
     };
 
     if (editingId !== null) {
-      updateMutation.mutate({ id: editingId, ...payload });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateMutation.mutate({ id: editingId, ...payload } as any);
     } else {
-      createMutation.mutate(payload);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      createMutation.mutate(payload as any);
     }
   };
 
@@ -180,7 +182,7 @@ export default function VehicleManagement() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Combustible *</label>
-                <select name="fuel" value={formData.fuel} onChange={handleChange} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground" required>
+                <select name="fuelType" value={formData.fuelType} onChange={handleChange} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground" required>
                   <option value="Gasolina">Gasolina</option>
                   <option value="Diésel">Diésel</option>
                   <option value="Híbrido">Híbrido</option>
@@ -260,12 +262,12 @@ export default function VehicleManagement() {
                     </td>
                     <td className="px-6 py-4 text-foreground">{v.year}</td>
                     <td className="px-6 py-4 text-foreground font-medium">
-                      {v.price.toLocaleString("es-ES")}€
+                      {Number(v.price).toLocaleString("es-ES")}€
                     </td>
                     <td className="px-6 py-4 text-foreground">
                       {v.km.toLocaleString("es-ES")} km
                     </td>
-                    <td className="px-6 py-4 text-foreground">{v.fuel}</td>
+                    <td className="px-6 py-4 text-foreground">{(v as unknown as {fuelType:string}).fuelType}</td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[v.status] ?? "bg-gray-100 text-gray-600"}`}>
                         {v.status}

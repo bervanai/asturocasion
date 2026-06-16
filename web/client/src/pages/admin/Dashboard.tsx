@@ -155,7 +155,6 @@ function AdminHome() {
                   <p className="text-foreground font-medium">{lead.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {lead.phone} · {lead.type}
-                    {lead.vehicle ? ` · ${lead.vehicle}` : ""}
                   </p>
                 </div>
                 <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">

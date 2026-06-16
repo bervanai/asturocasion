@@ -330,7 +330,7 @@ export default function VehicleDetail() {
                   marginBottom: "0.5rem",
                 }}
               >
-                {vehicle.price.toLocaleString("es-ES")} €
+                {Number(vehicle.price).toLocaleString("es-ES")} €
               </div>
               <p
                 style={{

@@ -23,9 +23,10 @@ type Lead = {
   id: number;
   name: string;
   email: string;
-  phone: string;
+  phone: string | null;
   type: string;
-  vehicle: string | null;
+  vehicleId: string | null;
+  vehicleInfo: Record<string, unknown> | null;
   message: string | null;
   status: string;
   createdAt: Date;
@@ -63,14 +64,14 @@ export default function LeadManagement() {
       !search ||
       l.name.toLowerCase().includes(search.toLowerCase()) ||
       l.email.toLowerCase().includes(search.toLowerCase()) ||
-      l.phone.includes(search);
+      (l.phone ?? "").includes(search);
     const matchStatus = statusFilter === "all" || l.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
   const handleStatusChange = (leadId: number, newStatus: string) => {
     updateMutation.mutate({
-      id: leadId,
+      id: leadId as unknown as string,
       status: newStatus as "Nuevo" | "En Proceso" | "Completado" | "Descartado",
     });
     if (selectedLead?.id === leadId) {
@@ -138,9 +139,9 @@ export default function LeadManagement() {
                       <tr
                         key={lead.id}
                         className={`border-b border-border hover:bg-muted/50 transition-colors cursor-pointer ${
-                          selectedLead?.id === lead.id ? "bg-muted/70" : ""
+                          selectedLead?.id === (lead.id as unknown as number) ? "bg-muted/70" : ""
                         }`}
-                        onClick={() => setSelectedLead(lead as Lead)}
+                        onClick={() => setSelectedLead(lead as unknown as Lead)}
                       >
                         <td className="px-6 py-4">
                           <p className="font-medium text-foreground">{lead.name}</p>
@@ -162,7 +163,7 @@ export default function LeadManagement() {
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => setSelectedLead(lead as Lead)}
+                              onClick={() => setSelectedLead(lead as unknown as Lead)}
                               className="p-2 hover:bg-muted rounded-lg transition-colors"
                             >
                               <Eye className="w-4 h-4 text-muted-foreground" />
@@ -221,10 +222,12 @@ export default function LeadManagement() {
                     {selectedLead.type}
                   </span>
                 </div>
-                {selectedLead.vehicle && (
+                {selectedLead.vehicleInfo && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-0.5">Vehículo</p>
-                    <p className="font-medium text-foreground text-sm">{selectedLead.vehicle}</p>
+                    <p className="font-medium text-foreground text-sm">
+                      {String((selectedLead.vehicleInfo as Record<string,unknown>)?.brand ?? "")} {String((selectedLead.vehicleInfo as Record<string,unknown>)?.model ?? "")}
+                    </p>
                   </div>
                 )}
                 {selectedLead.message && (
@@ -250,7 +253,7 @@ export default function LeadManagement() {
                   <a href={`tel:${selectedLead.phone}`} className="flex-1">
                     <Button variant="outline" className="w-full text-sm">Llamar</Button>
                   </a>
-                  <a href={`https://wa.me/34${selectedLead.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="flex-1">
+                  <a href={`https://wa.me/34${(selectedLead.phone ?? "").replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="flex-1">
                     <Button className="w-full text-sm bg-[#25D366] hover:bg-[#1fbd5a] text-white border-0">WhatsApp</Button>
                   </a>
                 </div>
