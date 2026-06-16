@@ -12,12 +12,13 @@ const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9
 // Normaliza un vehículo de la base de datos al formato que usan las tarjetas
 function toCard(v: {
   id: string; brand: string; model: string; year: number; price: string;
-  km: number; fuelType: string; transmission: string; images: string[] | null;
+  km: number; fuelType: string; transmission: string; images: string[] | null; status: string;
 }) {
   return {
     id: v.id, brand: v.brand, model: v.model, year: v.year,
     price: v.price, km: v.km, fuelType: v.fuelType, transmission: v.transmission,
     image: (v.images && v.images[0]) || FALLBACK_IMG,
+    status: v.status,
   };
 }
 
@@ -31,6 +32,7 @@ type Vehicle = {
   fuelType: string;
   transmission: string;
   image: string;
+  status: string;
 };
 
 const SELECT_STYLE: React.CSSProperties = {
@@ -78,16 +80,19 @@ function VehicleCard({ v }: { v: Vehicle }) {
           }}>
             {Number(v.price).toLocaleString("es-ES")} €
           </div>
-          <div style={{
-            position: "absolute", top: "12px", right: "12px",
-            background: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)",
-            color: "#1a8a4a", fontFamily: "'DM Sans', sans-serif",
-            fontSize: "0.65rem", fontWeight: "800",
-            padding: "4px 10px", borderRadius: "50px",
-            letterSpacing: "0.06em", textTransform: "uppercase",
-          }}>
-            Disponible
-          </div>
+          {v.status !== "Disponible" && (
+            <div style={{
+              position: "absolute", top: "12px", right: "12px",
+              background: v.status === "Vendido" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
+              backdropFilter: "blur(8px)",
+              color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.65rem", fontWeight: "800",
+              padding: "4px 10px", borderRadius: "50px",
+              letterSpacing: "0.06em", textTransform: "uppercase",
+            }}>
+              {v.status}
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -148,7 +153,7 @@ export default function Catalog() {
   const vehicles = (dbVehicles ?? []).map((v) => toCard({
     id: v.id, brand: v.brand, model: v.model, year: v.year,
     price: v.price, km: v.km, fuelType: v.fuel_type,
-    transmission: v.transmission, images: v.images,
+    transmission: v.transmission, images: v.images, status: v.status,
   }));
 
   const brands = Array.from(new Set(vehicles.map((v) => v.brand)));

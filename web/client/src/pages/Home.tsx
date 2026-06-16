@@ -12,12 +12,13 @@ const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9
 // Normaliza un vehículo de la base de datos al formato que usan las tarjetas
 function toCard(v: {
   id: string; brand: string; model: string; year: number; price: string;
-  km: number; fuelType: string; transmission: string; images: string[] | null;
+  km: number; fuelType: string; transmission: string; images: string[] | null; status: string;
 }) {
   return {
     id: v.id, brand: v.brand, model: v.model, year: v.year,
     price: v.price, km: v.km, fuelType: v.fuelType, transmission: v.transmission,
     image: (v.images && v.images[0]) || FALLBACK_IMG,
+    status: v.status,
   };
 }
 
@@ -54,6 +55,7 @@ type Vehicle = {
   fuelType: string;
   transmission: string;
   image: string;
+  status: string;
 };
 
 const BRANDS = ["Mercedes-Benz", "BMW", "Audi", "Peugeot", "Jaguar", "Ford", "Volvo", "Lexus", "Toyota", "Volkswagen", "Seat", "Renault", "Opel", "Hyundai", "Kia"];
@@ -124,17 +126,20 @@ function VehicleCard({ v }: { v: Vehicle }) {
           }}>
             {Number(v.price).toLocaleString("es-ES")} €
           </div>
-          {/* Disponible badge */}
-          <div style={{
-            position: "absolute", top: "12px", right: "12px",
-            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)",
-            color: "#1a8a4a", fontFamily: "'DM Sans', sans-serif",
-            fontSize: "0.7rem", fontWeight: "700",
-            padding: "4px 10px", borderRadius: "50px",
-            letterSpacing: "0.05em", textTransform: "uppercase",
-          }}>
-            Disponible
-          </div>
+          {/* Estado badge — solo si Reservado o Vendido */}
+          {v.status !== "Disponible" && (
+            <div style={{
+              position: "absolute", top: "12px", right: "12px",
+              background: v.status === "Vendido" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
+              backdropFilter: "blur(8px)",
+              color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.7rem", fontWeight: "700",
+              padding: "4px 10px", borderRadius: "50px",
+              letterSpacing: "0.05em", textTransform: "uppercase",
+            }}>
+              {v.status}
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -189,7 +194,7 @@ export default function Home() {
   const vehicles = (dbVehicles ?? []).map((v) => toCard({
     id: v.id, brand: v.brand, model: v.model, year: v.year,
     price: v.price, km: v.km, fuelType: v.fuel_type,
-    transmission: v.transmission, images: v.images,
+    transmission: v.transmission, images: v.images, status: v.status,
   }));
 
   const handleSearch = () => {
