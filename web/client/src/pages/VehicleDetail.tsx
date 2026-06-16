@@ -36,6 +36,7 @@ export default function VehicleDetail() {
     { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
     { label: "Combustible", value: vehicle.fuel_type, icon: <Fuel size={13} /> },
     { label: "Cambio", value: vehicle.transmission, icon: null },
+    ...(vehicle.power_cv ? [{ label: "Potencia", value: `${vehicle.power_cv} CV`, icon: null }] : []),
   ] : [];
 
   if (isLoading) {

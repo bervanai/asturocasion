@@ -119,11 +119,18 @@ function BarChart({ rows }: BarChartProps) {
   );
 }
 
-/* ── Lead status dot color ──────────────────────────────────────────────────── */
+/* ── Lead status helpers ────────────────────────────────────────────────────── */
+const LEAD_STATUS_LABEL: Record<string, string> = {
+  new:       "Nuevo",
+  contacted: "En Proceso",
+  closed:    "Completado",
+  discarded: "Descartado",
+};
+
 function leadDotClass(status: string) {
-  if (status === "Completado") return "green";
-  if (status === "En Proceso") return "orange";
-  if (status === "Descartado") return "gray";
+  if (status === "closed")    return "green";
+  if (status === "contacted") return "orange";
+  if (status === "discarded") return "gray";
   return "blue";
 }
 
@@ -321,7 +328,6 @@ export default function AdminDashboard() {
                     <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.1rem" }}>
                       {lead.phone}
                       {lead.type ? ` · ${lead.type}` : ""}
-                      {lead.vehicle ? ` · ${lead.vehicle}` : ""}
                     </p>
                   </div>
                 </div>
@@ -339,11 +345,11 @@ export default function AdminDashboard() {
                       border: "1px solid rgba(232,160,32,0.2)",
                     }}
                   >
-                    {lead.status}
+                    {LEAD_STATUS_LABEL[lead.status] ?? lead.status}
                   </span>
                   <span style={{ fontSize: "0.6875rem", color: "#3f3f46", display: "flex", alignItems: "center", gap: "0.25rem" }}>
                     <Clock style={{ width: "11px", height: "11px" }} />
-                    {new Date(lead.createdAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
+                    {new Date(lead.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
                   </span>
                 </div>
               </div>
