@@ -37,7 +37,7 @@ const TEXTAREA_STYLE: React.CSSProperties = {
 export default function Contact() {
   useSEO({
     title: "Contacto — Astur Ocasión Oviedo",
-    description: "Contacta con Astur Ocasión en Oviedo. Llámanos al 984 180 450 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00.",
+    description: "Contacta con Astur Ocasión en Oviedo. Llámanos al 984 180 450 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00. Sábados de 10:00 a 13:30.",
     path: "/contacto",
   });
 
@@ -98,22 +98,23 @@ export default function Contact() {
       icon: <Mail size={18} />,
       label: "Email",
       lines: [
-        <a key="1" href="mailto:info@asturocasion.es" style={{ color: "#0071E3", textDecoration: "none" }}>info@asturocasion.es</a>,
+        <a key="1" href="mailto:asturocasion@gmail.com" style={{ color: "#0071E3", textDecoration: "none" }}>asturocasion@gmail.com</a>,
       ],
     },
     {
       icon: <MapPin size={18} />,
       label: "Ubicación",
       lines: [
-        <span key="1" style={{ color: "#6E6E73" }}>Oviedo, Asturias</span>,
+        <span key="1" style={{ color: "#6E6E73" }}>José Manuel Fuente, 2</span>,
+        <span key="2" style={{ color: "#6E6E73" }}>33002 Oviedo, Asturias</span>,
       ],
     },
     {
       icon: <Clock size={18} />,
       label: "Horario",
       lines: [
-        <span key="1" style={{ color: "#6E6E73" }}>Lunes – Viernes</span>,
-        <span key="2" style={{ color: "#6E6E73" }}>10:00 – 13:30 y 16:00 – 20:00</span>,
+        <span key="1" style={{ color: "#6E6E73" }}>Lunes – Viernes: 10:00 – 13:30 y 16:00 – 20:00</span>,
+        <span key="2" style={{ color: "#6E6E73" }}>Sábados: 10:00 – 13:30</span>,
       ],
     },
   ];

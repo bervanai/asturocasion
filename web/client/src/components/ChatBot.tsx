@@ -60,7 +60,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   ubicacion: {
-    text: "Estamos en **Oviedo, Asturias**. Puedes visitarnos en nuestras instalaciones de lunes a viernes.",
+    text: "Estamos en **José Manuel Fuente, 2 · 33002 Oviedo, Asturias**. Puedes visitarnos de lunes a viernes y también los sábados por la mañana.",
     options: [
       { label: "⏰ Ver horario", value: "horario" },
       { label: "📞 Contactar", value: "asesor" },
@@ -68,7 +68,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   horario: {
-    text: "Nuestro horario de atención es:\n\n🕙 Lunes a Viernes\n10:00 – 13:30 y 16:00 – 20:00\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
+    text: "Nuestro horario de atención es:\n\n🕙 Lunes a Viernes\n10:00 – 13:30 y 16:00 – 20:00\n\n🕙 Sábados\n10:00 – 13:30\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
     options: [
       { label: "📞 Llamar ahora", value: "llamar" },
       { label: "💬 WhatsApp", value: "whatsapp" },
@@ -76,7 +76,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   asesor: {
-    text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados. Nuestro horario es de lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00.",
+    text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados. Nuestro horario es de lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00, y los sábados de 10:00 a 13:30.",
     options: [
       { label: "📞 Llamar: 984 180 450", value: "llamar" },
       { label: "💬 WhatsApp: 629 574 957", value: "whatsapp" },

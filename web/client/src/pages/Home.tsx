@@ -558,9 +558,9 @@ export default function Home() {
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.5rem" }}>Dónde estamos</p>
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: "800", color: "#1D1D1F", margin: "0 0 1rem", letterSpacing: "-0.03em" }}>Encuéntranos en Oviedo</h2>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#6E6E73" }}>
-              <span>📍 Oviedo, Asturias</span>
+              <span>📍 José Manuel Fuente, 2 · 33002 Oviedo, Asturias</span>
               <a href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "600" }}>📞 984 180 450</a>
-              <span>⏰ Lun–Vie: 10:00–13:30 / 16:00–20:00</span>
+              <span>⏰ Lun–Vie: 10:00–13:30 / 16:00–20:00 · Sáb: 10:00–13:30</span>
             </div>
           </div>
         </div>

@@ -191,11 +191,11 @@ export default function Footer() {
               </li>
               <li>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Email</p>
-                <a href="mailto:info@asturocasion.es" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)", textDecoration: "none" }}>info@asturocasion.es</a>
+                <a href="mailto:asturocasion@gmail.com" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)", textDecoration: "none" }}>asturocasion@gmail.com</a>
               </li>
               <li>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Ubicación</p>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)" }}>Oviedo, Asturias</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(245,245,247,0.55)" }}>José Manuel Fuente, 2<br />33002 Oviedo, Asturias</span>
                 <br />
                 <a
                   href="https://maps.google.com/?q=Astur+Ocasion+Oviedo"
@@ -229,6 +229,10 @@ export default function Footer() {
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "600", color: "rgba(245,245,247,0.7)", marginBottom: "2px" }}>Lunes — Viernes</p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(245,245,247,0.4)" }}>10:00 – 13:30</p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(245,245,247,0.4)" }}>16:00 – 20:00</p>
+              </div>
+              <div>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "600", color: "rgba(245,245,247,0.7)", marginBottom: "2px" }}>Sábados</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "rgba(245,245,247,0.4)" }}>10:00 – 13:30</p>
               </div>
               <div style={{ marginTop: "0.5rem" }}>
                 <div

@@ -419,7 +419,7 @@ export default function About() {
               margin: "0 auto 2.5rem",
             }}
           >
-            Lunes a Viernes, de 10:00 a 13:30 y de 16:00 a 20:00. Te esperamos sin cita previa.
+            Lunes a Viernes de 10:00 a 13:30 y de 16:00 a 20:00. Sábados de 10:00 a 13:30. José Manuel Fuente, 2 · 33002 Oviedo. Te esperamos sin cita previa.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
             <Link href="/catalogo">

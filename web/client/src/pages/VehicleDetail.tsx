@@ -375,7 +375,7 @@ export default function VehicleDetail() {
                 WhatsApp
               </a>
               <a
-                href="mailto:info@asturocasion.es"
+                href="mailto:asturocasion@gmail.com"
                 style={{
                   width: "100%",
                   display: "flex",
