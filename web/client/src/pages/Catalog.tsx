@@ -122,7 +122,17 @@ function VehicleCard({ v }: { v: Vehicle }) {
 
 export default function Catalog() {
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
+
+  // Pre-populate filters from URL query params (e.g. from home page search)
+  const [filters, setFilters] = useState(() => {
+    const p = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+    return {
+      brand:        p.get("marca")       ?? "",
+      priceMax:     p.get("precio")      ? parseInt(p.get("precio")!) : 50000,
+      fuel:         p.get("combustible") ?? "",
+      transmission: p.get("cambio")      ?? "",
+    };
+  });
 
   const { data: dbVehicles } = useQuery({
     queryKey: ["vehicles", "available"],

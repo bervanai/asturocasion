@@ -185,7 +185,14 @@ export default function Home() {
     transmission: v.transmission, images: v.images,
   }));
 
-  const handleSearch = () => navigate("/catalogo");
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (brand) params.set("marca", brand);
+    if (price) params.set("precio", price);
+    if (fuel)  params.set("combustible", fuel);
+    const qs = params.toString();
+    navigate(qs ? `/catalogo?${qs}` : "/catalogo");
+  };
 
   const testimonials = [
     { name: "Carlos M.", location: "Oviedo", text: "Compré un BMW 325D hace seis meses y no puedo estar más satisfecho. El equipo fue transparente desde el primer momento, sin letra pequeña ni sorpresas.", rating: 5, photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" },
