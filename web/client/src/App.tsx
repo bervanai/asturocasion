@@ -11,7 +11,6 @@ import TradeIn from "./pages/TradeIn";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import { useAuth } from "./_core/hooks/useAuth";
 import ChatBot from "./components/ChatBot";
 
 function Router() {
