@@ -10,6 +10,7 @@ import {
   Clock,
   CheckCircle2,
   Circle,
+  CalendarDays,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -107,7 +108,7 @@ function BarChart({ rows }: BarChartProps) {
             <div
               className="bar-chart-fill"
               style={{
-                width: mounted ? `${(r.value / r.max) * 100}%` : "0%",
+                width: mounted ? `${r.max > 0 ? (r.value / r.max) * 100 : 0}%` : "0%",
                 background: r.color,
               }}
             />
@@ -141,16 +142,42 @@ export default function AdminDashboard() {
   const { data: newLeadsData = [] } = useQuery({ queryKey: ["leads", "new"], queryFn: () => fetchAllLeads("new") });
 
   const recentLeads = newLeadsData.length > 0 ? newLeadsData : [];
-  const allLeads = allLeadsData.length > 0 ? allLeadsData : undefined;
 
+  // Vehicle counts
   const availableCount  = allVehicles.filter((v) => v.status === "available").length;
   const totalVehicles   = allVehicles.length;
   const soldCount       = allVehicles.filter((v) => v.status === "sold").length;
   const reservedCount   = allVehicles.filter((v) => v.status === "reserved").length;
+
+  // Lead counts
   const newLeads        = allLeadsData.filter((l) => l.status === "new").length;
   const totalLeads      = allLeadsData.length;
   const inProgress      = allLeadsData.filter((l) => l.status === "contacted").length;
   const completedLeads  = allLeadsData.filter((l) => l.status === "closed").length;
+
+  // Stats by time period (this month)
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const soldThisMonth = allVehicles.filter((v) => {
+    return v.status === "sold" && new Date(v.created_at) >= startOfMonth;
+  }).length;
+  const leadsThisMonth = allLeadsData.filter((l) => new Date(l.created_at) >= startOfMonth).length;
+
+  // Fuel distribution (real data)
+  const fuelCounts: Record<string, number> = {};
+  allVehicles.forEach((v) => {
+    const key = v.fuel_type || "Otro";
+    fuelCounts[key] = (fuelCounts[key] ?? 0) + 1;
+  });
+  const fuelMax = Math.max(...Object.values(fuelCounts), 1);
+  const FUEL_BASE = ["Gasolina", "Diésel", "Híbrido", "Eléctrico"];
+  const fuelRows = [
+    { label: "Gasolina",  value: fuelCounts["Gasolina"]  ?? 0, max: fuelMax, color: "#e8a020" },
+    { label: "Diésel",    value: fuelCounts["Diésel"]    ?? 0, max: fuelMax, color: "#3b82f6" },
+    { label: "Híbrido",   value: fuelCounts["Híbrido"]   ?? 0, max: fuelMax, color: "#22c55e" },
+    { label: "Eléctrico", value: fuelCounts["Eléctrico"] ?? 0, max: fuelMax, color: "#a855f7" },
+    { label: "GLP",       value: fuelCounts["GLP"]       ?? 0, max: fuelMax, color: "#f59e0b" },
+  ].filter((r) => r.value > 0 || FUEL_BASE.includes(r.label));
 
   const kpis: KpiProps[] = [
     {
@@ -181,18 +208,10 @@ export default function AdminDashboard() {
       icon:       Users,
       label:      "Reservados / Vendidos",
       value:      reservedCount + soldCount,
-      sub:        `${soldCount} vendidos este período`,
+      sub:        `${soldCount} vendidos total`,
       accent:     "#a855f7",
       accentDim:  "rgba(168,85,247,0.12)",
     },
-  ];
-
-  /* Fuel distribution (from vehicles if available) */
-  const fuelRows = [
-    { label: "Gasolina", value: 0, max: 1, color: "#e8a020" },
-    { label: "Diésel",   value: 0, max: 1, color: "#3b82f6" },
-    { label: "Híbrido",  value: 0, max: 1, color: "#22c55e" },
-    { label: "Eléctrico",value: 0, max: 1, color: "#a855f7" },
   ];
 
   /* Lead funnel chart data */
@@ -240,14 +259,53 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* ── Stats this month */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "1rem",
+        }}
+      >
+        <div className="glass-card" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <CalendarDays style={{ width: "16px", height: "16px", color: "#22c55e" }} />
+          </div>
+          <div>
+            <p style={{ fontSize: "0.625rem", color: "#6b7280", fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Vendidos este mes</p>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.1, letterSpacing: "-0.04em" }}>{soldThisMonth}</p>
+          </div>
+        </div>
+        <div className="glass-card" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(232,160,32,0.12)", border: "1px solid rgba(232,160,32,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <FileText style={{ width: "16px", height: "16px", color: "#e8a020" }} />
+          </div>
+          <div>
+            <p style={{ fontSize: "0.625rem", color: "#6b7280", fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Leads este mes</p>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.1, letterSpacing: "-0.04em" }}>{leadsThisMonth}</p>
+          </div>
+        </div>
+        <div className="glass-card" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <TrendingUp style={{ width: "16px", height: "16px", color: "#3b82f6" }} />
+          </div>
+          <div>
+            <p style={{ fontSize: "0.625rem", color: "#6b7280", fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Tasa de cierre</p>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.5rem", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.1, letterSpacing: "-0.04em" }}>
+              {totalLeads > 0 ? Math.round((completedLeads / totalLeads) * 100) : 0}%
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* ── Charts + recent leads row */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr",
           gap: "1rem",
         }}
-        className="lg:grid-cols-2 grid-cols-1"
+        className="lg:grid-cols-3 grid-cols-1"
       >
         {/* Lead funnel */}
         <div className="glass-card" style={{ padding: "1.25rem 1.5rem" }}>
@@ -258,7 +316,7 @@ export default function AdminDashboard() {
           <div className="crm-divider" />
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6875rem", color: "#6b7280" }}>
             <span>Total: <strong style={{ color: "#f0f0f0" }}>{totalLeads}</strong></span>
-            <span>Tasa cierre: <strong style={{ color: "#22c55e" }}>
+            <span>Cierre: <strong style={{ color: "#22c55e" }}>
               {totalLeads > 0 ? Math.round((completedLeads / totalLeads) * 100) : 0}%
             </strong></span>
           </div>
@@ -278,10 +336,26 @@ export default function AdminDashboard() {
           />
           <div className="crm-divider" />
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6875rem", color: "#6b7280" }}>
-            <span>Total stock: <strong style={{ color: "#f0f0f0" }}>{totalVehicles}</strong></span>
-            <span>Ocupación: <strong style={{ color: "#e8a020" }}>
+            <span>Total: <strong style={{ color: "#f0f0f0" }}>{totalVehicles}</strong></span>
+            <span>Vendido: <strong style={{ color: "#e8a020" }}>
               {totalVehicles > 0 ? Math.round(((reservedCount + soldCount) / totalVehicles) * 100) : 0}%
             </strong></span>
+          </div>
+        </div>
+
+        {/* Fuel distribution */}
+        <div className="glass-card" style={{ padding: "1.25rem 1.5rem" }}>
+          <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "#f0f0f0", marginBottom: "1rem", letterSpacing: "-0.01em" }}>
+            Combustible en Stock
+          </p>
+          {totalVehicles === 0 ? (
+            <p style={{ fontSize: "0.75rem", color: "#3f3f46", textAlign: "center", padding: "1.5rem 0" }}>Sin datos</p>
+          ) : (
+            <BarChart rows={fuelRows.filter(r => r.value > 0)} />
+          )}
+          <div className="crm-divider" />
+          <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>
+            <span>{Object.keys(fuelCounts).length} tipo{Object.keys(fuelCounts).length !== 1 ? "s" : ""} de combustible</span>
           </div>
         </div>
       </div>
@@ -387,3 +461,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

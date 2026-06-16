@@ -38,6 +38,15 @@ export type Lead = {
   vehicle_info: Record<string, unknown> | null;
   status: string;
   notes: string | null;
+  next_contact_date: string | null;
+  created_at: string;
+};
+
+export type LeadActivity = {
+  id: string;
+  lead_id: string;
+  type: string;
+  description: string;
   created_at: string;
 };
 
@@ -63,6 +72,8 @@ export async function createVehicle(v: {
   brand: string; model: string; year: number; price: string; km: number;
   fuel_type: string; transmission: string; status: string;
   description?: string | null; images?: string[] | null;
+  color?: string | null; doors?: number | null; power_cv?: number | null;
+  is_featured?: boolean;
 }) {
   const { error } = await supabase.from("vehicles").insert({
     ...v,
@@ -75,6 +86,8 @@ export async function updateVehicle(id: string, v: Partial<{
   brand: string; model: string; year: number; price: string; km: number;
   fuel_type: string; transmission: string; status: string;
   description: string | null; images: string[] | null;
+  color: string | null; doors: number | null; power_cv: number | null;
+  is_featured: boolean;
 }>) {
   const patch = {
     ...v,
@@ -104,7 +117,7 @@ export async function fetchAllLeads(status?: string): Promise<Lead[]> {
 
 export async function updateLead(id: string, data: Partial<{
   status: string; notes: string | null; name: string; email: string;
-  phone: string | null; message: string | null;
+  phone: string | null; message: string | null; next_contact_date: string | null;
 }>) {
   const { error } = await supabase.from("leads").update(data).eq("id", id);
   if (error) throw error;
@@ -123,6 +136,27 @@ export async function insertLead(data: {
   message?: string;
 }) {
   const { error } = await supabase.from("leads").insert({ ...data, status: "new" });
+  if (error) throw error;
+}
+
+/* ── Lead Activities ────────────────────────────────────────────────────────── */
+
+export async function fetchLeadActivities(leadId: string): Promise<LeadActivity[]> {
+  const { data, error } = await supabase
+    .from("lead_activities")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as LeadActivity[];
+}
+
+export async function insertLeadActivity(leadId: string, type: string, description: string): Promise<void> {
+  const { error } = await supabase.from("lead_activities").insert({
+    lead_id: leadId,
+    type,
+    description,
+  });
   if (error) throw error;
 }
 

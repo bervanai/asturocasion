@@ -10,7 +10,7 @@ import {
 import { useRef, useState } from "react";
 import {
   Plus, Edit2, Trash2, X, Check, Car, Search, Settings2,
-  ImagePlus, Loader2,
+  ImagePlus, Loader2, ChevronLeft, ChevronRight, SlidersHorizontal, Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -308,6 +308,15 @@ export default function VehicleManagement() {
   const [formData, setFormData] = useState<VehicleForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minKm, setMinKm] = useState("");
+  const [maxKm, setMaxKm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [detailVehicle, setDetailVehicle] = useState<(typeof vehicles)[0] | null>(null);
+
+  const PAGE_SIZE_V = 15;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -380,8 +389,15 @@ export default function VehicleManagement() {
       v.model.toLowerCase().includes(q) ||
       String(v.year).includes(q);
     const matchStatus = statusFilter === "all" || v.status === statusFilter;
-    return matchSearch && matchStatus;
+    const price = Number(v.price);
+    const matchMinPrice = !minPrice || price >= Number(minPrice);
+    const matchMaxPrice = !maxPrice || price <= Number(maxPrice);
+    const matchMinKm = !minKm || v.km >= Number(minKm);
+    const matchMaxKm = !maxKm || v.km <= Number(maxKm);
+    return matchSearch && matchStatus && matchMinPrice && matchMaxPrice && matchMinKm && matchMaxKm;
   });
+
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE_V, page * PAGE_SIZE_V);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -529,14 +545,22 @@ export default function VehicleManagement() {
       <div style={{ display: "flex", gap: "0.625rem", flexWrap: "wrap" }}>
         <div style={{ position: "relative", flex: "1", minWidth: "200px" }}>
           <Search style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "14px", height: "14px", color: "#6b7280", pointerEvents: "none" }} />
-          <input className="crm-input" style={{ paddingLeft: "2.25rem" }} placeholder="Buscar por marca, modelo o año…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input className="crm-input" style={{ paddingLeft: "2.25rem" }} placeholder="Buscar por marca, modelo o año…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
-        <select className="crm-select" style={{ minWidth: "160px" }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className="crm-select" style={{ minWidth: "160px" }} value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
           <option value="all">Todos los estados</option>
           <option value="available">Disponible</option>
           <option value="reserved">Reservado</option>
           <option value="sold">Vendido</option>
         </select>
+        <button
+          className="btn-ghost"
+          onClick={() => setShowFilters((p) => !p)}
+          style={{ gap: "0.375rem", background: showFilters ? "rgba(232,160,32,0.1)" : undefined, borderColor: showFilters ? "rgba(232,160,32,0.4)" : undefined, color: showFilters ? "#e8a020" : undefined }}
+        >
+          <SlidersHorizontal style={{ width: "13px", height: "13px" }} />
+          Filtros
+        </button>
         {(["available", "reserved", "sold"] as const).map((s) => {
           const count = vehicles.filter((v) => v.status === s).length;
           const label = s === "available" ? "Disponible" : s === "reserved" ? "Reservado" : "Vendido";
@@ -544,7 +568,7 @@ export default function VehicleManagement() {
           return (
             <button
               key={s}
-              onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+              onClick={() => { setStatusFilter(statusFilter === s ? "all" : s); setPage(1); }}
               style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0 0.875rem", height: "36px", background: statusFilter === s ? "rgba(232,160,32,0.1)" : "#141416", border: `1px solid ${statusFilter === s ? "rgba(232,160,32,0.3)" : "#1f1f23"}`, borderRadius: "var(--radius)", fontSize: "0.6875rem", fontWeight: 600, color: statusFilter === s ? "#e8a020" : "#6b7280", cursor: "pointer", whiteSpace: "nowrap" }}
             >
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: dotColor, flexShrink: 0 }} />
@@ -553,6 +577,41 @@ export default function VehicleManagement() {
           );
         })}
       </div>
+
+      {/* ── Extended filters (price + km) */}
+      {showFilters && (
+        <div className="glass-card" style={{ padding: "1rem 1.25rem" }}>
+          <p style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.75rem" }}>Filtros avanzados</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem" }}>
+            <div>
+              <label className="crm-label">Precio mínimo (€)</label>
+              <input className="crm-input" type="number" placeholder="0" min="0" value={minPrice} onChange={(e) => { setMinPrice(e.target.value); setPage(1); }} />
+            </div>
+            <div>
+              <label className="crm-label">Precio máximo (€)</label>
+              <input className="crm-input" type="number" placeholder="Sin límite" min="0" value={maxPrice} onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }} />
+            </div>
+            <div>
+              <label className="crm-label">Km mínimos</label>
+              <input className="crm-input" type="number" placeholder="0" min="0" value={minKm} onChange={(e) => { setMinKm(e.target.value); setPage(1); }} />
+            </div>
+            <div>
+              <label className="crm-label">Km máximos</label>
+              <input className="crm-input" type="number" placeholder="Sin límite" min="0" value={maxKm} onChange={(e) => { setMaxKm(e.target.value); setPage(1); }} />
+            </div>
+          </div>
+          {(minPrice || maxPrice || minKm || maxKm) && (
+            <button
+              className="btn-ghost"
+              style={{ marginTop: "0.75rem", fontSize: "0.75rem" }}
+              onClick={() => { setMinPrice(""); setMaxPrice(""); setMinKm(""); setMaxKm(""); setPage(1); }}
+            >
+              <X style={{ width: "12px", height: "12px" }} />
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ── Table */}
       <div className="glass-card" style={{ overflow: "hidden" }}>
@@ -588,7 +647,7 @@ export default function VehicleManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((v) => (
+                {paginated.map((v) => (
                   <tr key={v.id}>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
@@ -640,6 +699,9 @@ export default function VehicleManagement() {
                     <td><StatusBadge status={v.status} /></td>
                     <td>
                       <div style={{ display: "flex", gap: "0.25rem" }}>
+                        <button className="btn-icon" onClick={() => setDetailVehicle(v)} title="Ver detalle">
+                          <Eye style={{ width: "13px", height: "13px" }} />
+                        </button>
                         <button className="btn-icon" onClick={() => handleEdit(v)} title="Editar">
                           <Edit2 style={{ width: "13px", height: "13px" }} />
                         </button>
@@ -661,9 +723,136 @@ export default function VehicleManagement() {
       </div>
 
       {filtered.length > 0 && (
-        <p style={{ fontSize: "0.6875rem", color: "#3f3f46", textAlign: "right" }}>
-          Mostrando {filtered.length} de {vehicles.length} vehículo{vehicles.length !== 1 ? "s" : ""}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+          <p style={{ fontSize: "0.6875rem", color: "#3f3f46" }}>
+            Mostrando {Math.min((page - 1) * PAGE_SIZE_V + 1, filtered.length)}–{Math.min(page * PAGE_SIZE_V, filtered.length)} de {filtered.length} vehículo{filtered.length !== 1 ? "s" : ""}
+          </p>
+          {/* Pagination */}
+          {Math.ceil(filtered.length / PAGE_SIZE_V) > 1 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+              <button className="btn-icon" disabled={page === 1} onClick={() => setPage(page - 1)}>
+                <ChevronLeft style={{ width: "14px", height: "14px" }} />
+              </button>
+              {Array.from({ length: Math.ceil(filtered.length / PAGE_SIZE_V) }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  style={{
+                    width: "28px", height: "28px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 600,
+                    border: "1px solid", cursor: "pointer",
+                    background: p === page ? "#e8a020" : "#141416",
+                    color: p === page ? "#0a0a0b" : "#6b7280",
+                    borderColor: p === page ? "#e8a020" : "#1f1f23",
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+              <button className="btn-icon" disabled={page === Math.ceil(filtered.length / PAGE_SIZE_V)} onClick={() => setPage(page + 1)}>
+                <ChevronRight style={{ width: "14px", height: "14px" }} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Vehicle detail modal */}
+      {detailVehicle && (
+        <div
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 50,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setDetailVehicle(null); }}
+        >
+          <div className="glass-card" style={{ width: "100%", maxWidth: "680px", maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.25rem 1.5rem", borderBottom: "1px solid #1f1f23" }}>
+              <div>
+                <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.0625rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.03em" }}>
+                  {detailVehicle.brand} {detailVehicle.model}
+                </p>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem", alignItems: "center" }}>
+                  <StatusBadge status={detailVehicle.status} />
+                  <FuelBadge fuel={detailVehicle.fuel_type} />
+                  <span style={{ fontSize: "0.6875rem", color: "#6b7280" }}>{detailVehicle.year}</span>
+                </div>
+              </div>
+              <button className="btn-icon" onClick={() => setDetailVehicle(null)}>
+                <X style={{ width: "15px", height: "15px" }} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div style={{ overflowY: "auto", flex: 1, padding: "1.25rem 1.5rem" }}>
+              {/* Photo gallery */}
+              {detailVehicle.images && detailVehicle.images.length > 0 ? (
+                <div>
+                  {/* Main image */}
+                  <div style={{ borderRadius: "10px", overflow: "hidden", aspectRatio: "16/9", background: "#1a1a1e", marginBottom: "0.625rem", border: "1px solid #1f1f23" }}>
+                    <img
+                      src={detailVehicle.images[0]}
+                      alt={`${detailVehicle.brand} ${detailVehicle.model}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                  {/* Thumbnails */}
+                  {detailVehicle.images.length > 1 && (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                      {detailVehicle.images.slice(1).map((url, i) => (
+                        <div key={url} style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "4/3", background: "#1a1a1e", border: "1px solid #1f1f23" }}>
+                          <img src={url} alt={`Foto ${i + 2}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ borderRadius: "10px", background: "#1a1a1e", border: "1px solid #1f1f23", aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
+                  <Car style={{ width: "48px", height: "48px", color: "#2a2a2e" }} />
+                </div>
+              )}
+
+              {/* Details grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", marginBottom: "1.25rem" }}>
+                {[
+                  { label: "Precio", value: `${Number(detailVehicle.price).toLocaleString("es-ES")} €` },
+                  { label: "Kilómetros", value: `${detailVehicle.km.toLocaleString("es-ES")} km` },
+                  { label: "Combustible", value: detailVehicle.fuel_type },
+                  { label: "Cambio", value: detailVehicle.transmission },
+                  { label: "Color", value: detailVehicle.color ?? "—" },
+                  { label: "Puertas", value: detailVehicle.doors ? String(detailVehicle.doors) : "—" },
+                  { label: "Potencia", value: detailVehicle.power_cv ? `${detailVehicle.power_cv} CV` : "—" },
+                  { label: "Destacado", value: detailVehicle.is_featured ? "Sí" : "No" },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ background: "#141416", borderRadius: "8px", padding: "0.75rem", border: "1px solid #1f1f23" }}>
+                    <p style={{ fontSize: "0.625rem", color: "#6b7280", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.25rem" }}>{label}</p>
+                    <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#f0f0f0" }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Description */}
+              {detailVehicle.description && (
+                <div>
+                  <p className="crm-label">Descripción</p>
+                  <p style={{ fontSize: "0.8125rem", color: "#a1a1aa", background: "#141416", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.875rem 1rem", lineHeight: 1.7 }}>
+                    {detailVehicle.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer actions */}
+            <div style={{ padding: "1rem 1.5rem", borderTop: "1px solid #1f1f23", display: "flex", gap: "0.625rem" }}>
+              <button className="btn-primary" onClick={() => { handleEdit(detailVehicle); setDetailVehicle(null); }}>
+                <Edit2 style={{ width: "13px", height: "13px" }} />
+                Editar vehículo
+              </button>
+              <button className="btn-ghost" onClick={() => setDetailVehicle(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

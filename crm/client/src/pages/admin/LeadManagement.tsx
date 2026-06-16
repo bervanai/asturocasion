@@ -1,7 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchAllLeads, updateLead, deleteLead, insertLead } from "@/lib/supabase";
+import {
+  fetchAllLeads,
+  updateLead,
+  deleteLead,
+  insertLead,
+  fetchLeadActivities,
+  insertLeadActivity,
+} from "@/lib/supabase";
 import { useState } from "react";
-import { Eye, Trash2, Search, X, Phone, MessageCircle, Plus } from "lucide-react";
+import {
+  Eye, Trash2, Search, X, Phone, MessageCircle, Plus,
+  Download, ChevronLeft, ChevronRight, Phone as PhoneIcon,
+  Mail, FileText, Activity,
+} from "lucide-react";
 import { toast } from "sonner";
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
@@ -15,6 +26,15 @@ type Lead = {
   message: string | null;
   status: string;
   notes: string | null;
+  next_contact_date: string | null;
+  created_at: string;
+};
+
+type LeadActivity = {
+  id: string;
+  lead_id: string;
+  type: string;
+  description: string;
   created_at: string;
 };
 
@@ -27,6 +47,13 @@ const STATUS_LABELS: Record<Status, string> = {
   closed: "Completado",
   discarded: "Descartado",
 };
+
+const ACTIVITY_TYPES = [
+  { value: "call",   label: "Llamada",   icon: "📞" },
+  { value: "email",  label: "Email",     icon: "📧" },
+  { value: "note",   label: "Nota",      icon: "📝" },
+  { value: "status_change", label: "Cambio de estado", icon: "🔄" },
+];
 
 /* ── Badge helpers ──────────────────────────────────────────────────────────── */
 function statusBadgeClass(status: string) {
@@ -44,6 +71,7 @@ function typeBadgeClass(type: string) {
     contact:          "badge badge-contacto",
     valuation:        "badge badge-tasacion",
     vehicle_inquiry:  "badge badge-financiacion",
+    purchase:         "badge badge-completado",
   };
   return map[type] ?? "badge badge-contacto";
 }
@@ -53,8 +81,43 @@ function typeLabel(type: string) {
     contact:         "Contacto",
     valuation:       "Tasación",
     vehicle_inquiry: "Interés vehículo",
+    purchase:        "Compra",
   };
   return map[type] ?? type;
+}
+
+function activityIcon(type: string) {
+  const found = ACTIVITY_TYPES.find((a) => a.value === type);
+  return found?.icon ?? "📝";
+}
+
+/* ── CSV Export ─────────────────────────────────────────────────────────────── */
+function exportLeadsCSV(leads: Lead[]) {
+  const headers = ["Nombre", "Email", "Teléfono", "Tipo", "Estado", "Vehículo", "Mensaje", "Próximo Contacto", "Fecha"];
+  const rows = leads.map((l) => {
+    const vehicleName = l.vehicle_info
+      ? `${l.vehicle_info.brand ?? ""} ${l.vehicle_info.model ?? ""}`.trim()
+      : "";
+    return [
+      l.name,
+      l.email,
+      l.phone ?? "",
+      typeLabel(l.type),
+      STATUS_LABELS[l.status as Status] ?? l.status,
+      vehicleName,
+      (l.message ?? "").replace(/"/g, '""'),
+      l.next_contact_date ?? "",
+      new Date(l.created_at).toLocaleDateString("es-ES"),
+    ].map((v) => `"${v}"`).join(",");
+  });
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `leads_asturocasion_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /* ── Kanban column ──────────────────────────────────────────────────────────── */
@@ -71,7 +134,7 @@ type KanbanCardProps = {
   onChangeStatus: (id: string, status: Status) => void;
 };
 
-function KanbanCard({ lead, onSelect, onChangeStatus }: KanbanCardProps) {
+function KanbanCard({ lead, onSelect }: KanbanCardProps) {
   const vehicleName = lead.vehicle_info
     ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
     : null;
@@ -112,6 +175,11 @@ function KanbanCard({ lead, onSelect, onChangeStatus }: KanbanCardProps) {
       {vehicleName && (
         <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.375rem", fontStyle: "italic" }}>
           {vehicleName}
+        </p>
+      )}
+      {lead.next_contact_date && (
+        <p style={{ fontSize: "0.6875rem", color: "#e8a020", marginTop: "0.375rem" }}>
+          📅 {new Date(lead.next_contact_date + "T00:00:00").toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
         </p>
       )}
     </div>
@@ -173,6 +241,150 @@ function KanbanColumn({
   );
 }
 
+/* ── Pagination ─────────────────────────────────────────────────────────────── */
+const PAGE_SIZE = 20;
+
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  const pages = Math.ceil(total / PAGE_SIZE);
+  if (pages <= 1) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "0.375rem", marginTop: "0.5rem" }}>
+      <button className="btn-icon" disabled={page === 1} onClick={() => onChange(page - 1)}>
+        <ChevronLeft style={{ width: "14px", height: "14px" }} />
+      </button>
+      {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          style={{
+            width: "28px", height: "28px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 600,
+            border: "1px solid", cursor: "pointer",
+            background: p === page ? "#e8a020" : "#141416",
+            color: p === page ? "#0a0a0b" : "#6b7280",
+            borderColor: p === page ? "#e8a020" : "#1f1f23",
+          }}
+        >
+          {p}
+        </button>
+      ))}
+      <button className="btn-icon" disabled={page === pages} onClick={() => onChange(page + 1)}>
+        <ChevronRight style={{ width: "14px", height: "14px" }} />
+      </button>
+    </div>
+  );
+}
+
+/* ── Activity Panel ─────────────────────────────────────────────────────────── */
+function ActivityPanel({ lead, onClose }: { lead: Lead; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [actType, setActType] = useState("call");
+  const [actDesc, setActDesc] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const { data: activities = [], isLoading } = useQuery({
+    queryKey: ["lead_activities", lead.id],
+    queryFn: () => fetchLeadActivities(lead.id),
+  });
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!actDesc.trim()) return;
+    setSaving(true);
+    try {
+      await insertLeadActivity(lead.id, actType, actDesc.trim());
+      queryClient.invalidateQueries({ queryKey: ["lead_activities", lead.id] });
+      setActDesc("");
+      toast.success("Actividad registrada");
+    } catch (err: unknown) {
+      toast.error((err as Error).message ?? "Error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 50,
+        display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="glass-card" style={{ width: "100%", maxWidth: "520px", padding: "1.5rem", maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+          <div>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.02em" }}>
+              Historial — {lead.name}
+            </p>
+            <p style={{ fontSize: "0.6875rem", color: "#6b7280" }}>Registro de actividades</p>
+          </div>
+          <button className="btn-icon" onClick={onClose}>
+            <X style={{ width: "15px", height: "15px" }} />
+          </button>
+        </div>
+
+        {/* Add activity form */}
+        <form onSubmit={handleAdd} style={{ marginBottom: "1.25rem", display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            {ACTIVITY_TYPES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setActType(t.value)}
+                style={{
+                  flex: 1, padding: "0.35rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 600,
+                  border: "1px solid", cursor: "pointer", transition: "all 0.15s",
+                  background: actType === t.value ? "rgba(232,160,32,0.15)" : "#141416",
+                  color: actType === t.value ? "#e8a020" : "#6b7280",
+                  borderColor: actType === t.value ? "rgba(232,160,32,0.4)" : "#1f1f23",
+                }}
+              >
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <input
+              className="crm-input"
+              style={{ flex: 1 }}
+              placeholder="Describe la actividad..."
+              value={actDesc}
+              onChange={(e) => setActDesc(e.target.value)}
+              required
+            />
+            <button type="submit" className="btn-primary" disabled={saving} style={{ flexShrink: 0 }}>
+              {saving ? "…" : "Añadir"}
+            </button>
+          </div>
+        </form>
+
+        {/* Activity list */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          {isLoading ? (
+            <p style={{ color: "#6b7280", fontSize: "0.8125rem", textAlign: "center", padding: "2rem 0" }}>Cargando…</p>
+          ) : activities.length === 0 ? (
+            <p style={{ color: "#3f3f46", fontSize: "0.8125rem", textAlign: "center", padding: "2rem 0" }}>Sin actividades registradas</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {activities.map((a) => (
+                <div key={a.id} style={{ display: "flex", gap: "0.75rem", padding: "0.75rem", background: "#141416", borderRadius: "8px", border: "1px solid #1f1f23" }}>
+                  <span style={{ fontSize: "1rem", flexShrink: 0 }}>{activityIcon(a.type)}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "0.8125rem", color: "#f0f0f0" }}>{a.description}</p>
+                    <p style={{ fontSize: "0.625rem", color: "#3f3f46", marginTop: "0.25rem" }}>
+                      {new Date(a.created_at).toLocaleString("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main component ─────────────────────────────────────────────────────────── */
 export default function LeadManagement() {
   const queryClient = useQueryClient();
@@ -182,7 +394,7 @@ export default function LeadManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: string; status?: string; notes?: string | null }) =>
+    mutationFn: ({ id, ...data }: { id: string; status?: string; notes?: string | null; next_contact_date?: string | null }) =>
       updateLead(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
@@ -204,18 +416,29 @@ export default function LeadManagement() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
+  const [page, setPage] = useState(1);
+  const [showActivityPanel, setShowActivityPanel] = useState(false);
 
   // Notes state
   const [notesValue, setNotesValue] = useState<string>("");
+  const [nextContactDate, setNextContactDate] = useState<string>("");
+
   const handleSelectLead = (lead: Lead) => {
     setSelectedLead(lead);
     setNotesValue(lead.notes ?? "");
+    setNextContactDate(lead.next_contact_date ?? "");
   };
+
   const handleSaveNotes = () => {
     if (!selectedLead) return;
-    updateMutation.mutate({ id: selectedLead.id, notes: notesValue });
-    setSelectedLead((prev) => prev ? { ...prev, notes: notesValue } : null);
+    updateMutation.mutate({
+      id: selectedLead.id,
+      notes: notesValue,
+      next_contact_date: nextContactDate || null,
+    });
+    setSelectedLead((prev) => prev ? { ...prev, notes: notesValue, next_contact_date: nextContactDate || null } : null);
   };
 
   // New lead modal state
@@ -257,8 +480,11 @@ export default function LeadManagement() {
       l.email.toLowerCase().includes(search.toLowerCase()) ||
       (l.phone ?? "").includes(search);
     const matchStatus = statusFilter === "all" || l.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchType = typeFilter === "all" || l.type === typeFilter;
+    return matchSearch && matchStatus && matchType;
   });
+
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleStatusChange = (leadId: string, newStatus: string) => {
     updateMutation.mutate({ id: leadId, status: newStatus });
@@ -272,6 +498,11 @@ export default function LeadManagement() {
     return acc;
   }, {} as Record<Status, Lead[]>);
 
+  // Reset page when filters change
+  const handleSearch = (v: string) => { setSearch(v); setPage(1); };
+  const handleStatusFilter = (v: string) => { setStatusFilter(v); setPage(1); };
+  const handleTypeFilter = (v: string) => { setTypeFilter(v); setPage(1); };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       {/* ── Header */}
@@ -282,32 +513,41 @@ export default function LeadManagement() {
             Seguimiento de clientes potenciales · {leads.length} en total
           </p>
         </div>
-        <div style={{ display: "flex", gap: "0.625rem", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "0.625rem", alignItems: "center", flexWrap: "wrap" }}>
+          <button
+            className="btn-ghost"
+            onClick={() => exportLeadsCSV(filtered)}
+            title="Exportar a CSV"
+            style={{ gap: "0.375rem" }}
+          >
+            <Download style={{ width: "14px", height: "14px" }} />
+            Exportar CSV
+          </button>
           <button className="btn-primary" onClick={() => setShowNewLead(true)}>
             <Plus style={{ width: "15px", height: "15px" }} />
             Nuevo Lead
           </button>
-        <div style={{ display: "flex", gap: "0.375rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.25rem" }}>
-          {(["table", "kanban"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              style={{
-                padding: "0.35rem 0.875rem",
-                borderRadius: "6px",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                border: "none",
-                cursor: "pointer",
-                transition: "background 0.15s, color 0.15s",
-                background: viewMode === mode ? "#e8a020" : "transparent",
-                color: viewMode === mode ? "#0a0a0b" : "#6b7280",
-              }}
-            >
-              {mode === "table" ? "Tabla" : "Kanban"}
-            </button>
-          ))}
-        </div>
+          <div style={{ display: "flex", gap: "0.375rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.25rem" }}>
+            {(["table", "kanban"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                style={{
+                  padding: "0.35rem 0.875rem",
+                  borderRadius: "6px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background 0.15s, color 0.15s",
+                  background: viewMode === mode ? "#e8a020" : "transparent",
+                  color: viewMode === mode ? "#0a0a0b" : "#6b7280",
+                }}
+              >
+                {mode === "table" ? "Tabla" : "Kanban"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -320,13 +560,22 @@ export default function LeadManagement() {
             style={{ paddingLeft: "2.25rem" }}
             placeholder="Buscar por nombre, email o teléfono..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
         <div style={{ position: "relative", minWidth: "160px" }}>
-          <select className="crm-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <select className="crm-select" value={statusFilter} onChange={(e) => handleStatusFilter(e.target.value)}>
             <option value="all">Todos los estados</option>
             {ALL_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          </select>
+        </div>
+        <div style={{ position: "relative", minWidth: "160px" }}>
+          <select className="crm-select" value={typeFilter} onChange={(e) => handleTypeFilter(e.target.value)}>
+            <option value="all">Todos los tipos</option>
+            <option value="contact">Contacto</option>
+            <option value="valuation">Tasación</option>
+            <option value="vehicle_inquiry">Interés vehículo</option>
+            <option value="purchase">Compra</option>
           </select>
         </div>
         <div style={{ display: "flex", alignItems: "center", padding: "0 0.875rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "var(--radius)", fontSize: "0.6875rem", fontWeight: 600, color: "#6b7280", whiteSpace: "nowrap" }}>
@@ -339,78 +588,94 @@ export default function LeadManagement() {
 
         {/* Table view */}
         {viewMode === "table" && (
-          <div className="glass-card" style={{ overflow: "hidden" }}>
-            {isLoading ? (
-              <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>Cargando leads…</div>
-            ) : filtered.length === 0 ? (
-              <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
-                No hay leads que coincidan con la búsqueda
-              </div>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table className="crm-table">
-                  <thead>
-                    <tr>
-                      <th>Cliente</th>
-                      <th>Tipo</th>
-                      <th>Estado</th>
-                      <th>Vehículo</th>
-                      <th>Fecha</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((lead) => {
-                      const vehicleName = lead.vehicle_info
-                        ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
-                        : null;
-                      return (
-                        <tr
-                          key={lead.id}
-                          className={selectedLead?.id === lead.id ? "row-selected" : ""}
-                          onClick={() => handleSelectLead(lead)}
-                        >
-                          <td>
-                            <p style={{ fontWeight: 600, color: "#f0f0f0" }}>{lead.name}</p>
-                            <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.1rem" }}>{lead.email}</p>
-                          </td>
-                          <td>
-                            <span className={typeBadgeClass(lead.type)}>{typeLabel(lead.type)}</span>
-                          </td>
-                          <td>
-                            <span className={statusBadgeClass(lead.status)}>{STATUS_LABELS[lead.status as Status] ?? lead.status}</span>
-                          </td>
-                          <td>
-                            {vehicleName ? (
-                              <span style={{ fontSize: "0.75rem", color: "#f0f0f0", fontWeight: 500 }}>{vehicleName}</span>
-                            ) : (
-                              <span style={{ color: "#3f3f46", fontStyle: "italic", fontSize: "0.75rem" }}>—</span>
-                            )}
-                          </td>
-                          <td style={{ color: "#6b7280", fontSize: "0.6875rem" }}>
-                            {new Date(lead.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" })}
-                          </td>
-                          <td onClick={(e) => e.stopPropagation()}>
-                            <div style={{ display: "flex", gap: "0.25rem" }}>
-                              <button className="btn-icon" onClick={() => handleSelectLead(lead)} title="Ver detalles">
-                                <Eye style={{ width: "14px", height: "14px" }} />
-                              </button>
-                              <button
-                                className="btn-icon danger"
-                                onClick={() => { if (confirm(`¿Eliminar lead de ${lead.name}?`)) deleteMutation.mutate(lead.id); }}
-                                title="Eliminar"
-                              >
-                                <Trash2 style={{ width: "14px", height: "14px" }} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+          <div>
+            <div className="glass-card" style={{ overflow: "hidden" }}>
+              {isLoading ? (
+                <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>Cargando leads…</div>
+              ) : filtered.length === 0 ? (
+                <div style={{ padding: "3rem", textAlign: "center", color: "#6b7280", fontSize: "0.8125rem" }}>
+                  No hay leads que coincidan con la búsqueda
+                </div>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table className="crm-table">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Vehículo</th>
+                        <th>Próx. Contacto</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginated.map((lead) => {
+                        const vehicleName = lead.vehicle_info
+                          ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
+                          : null;
+                        return (
+                          <tr
+                            key={lead.id}
+                            className={selectedLead?.id === lead.id ? "row-selected" : ""}
+                            onClick={() => handleSelectLead(lead)}
+                          >
+                            <td>
+                              <p style={{ fontWeight: 600, color: "#f0f0f0" }}>{lead.name}</p>
+                              <p style={{ fontSize: "0.6875rem", color: "#6b7280", marginTop: "0.1rem" }}>{lead.email}</p>
+                            </td>
+                            <td>
+                              <span className={typeBadgeClass(lead.type)}>{typeLabel(lead.type)}</span>
+                            </td>
+                            <td>
+                              <span className={statusBadgeClass(lead.status)}>{STATUS_LABELS[lead.status as Status] ?? lead.status}</span>
+                            </td>
+                            <td>
+                              {vehicleName ? (
+                                <span style={{ fontSize: "0.75rem", color: "#f0f0f0", fontWeight: 500 }}>{vehicleName}</span>
+                              ) : (
+                                <span style={{ color: "#3f3f46", fontStyle: "italic", fontSize: "0.75rem" }}>—</span>
+                              )}
+                            </td>
+                            <td style={{ color: "#e8a020", fontSize: "0.6875rem" }}>
+                              {lead.next_contact_date
+                                ? new Date(lead.next_contact_date + "T00:00:00").toLocaleDateString("es-ES", { day: "2-digit", month: "short" })
+                                : <span style={{ color: "#3f3f46" }}>—</span>}
+                            </td>
+                            <td style={{ color: "#6b7280", fontSize: "0.6875rem" }}>
+                              {new Date(lead.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" })}
+                            </td>
+                            <td onClick={(e) => e.stopPropagation()}>
+                              <div style={{ display: "flex", gap: "0.25rem" }}>
+                                <button className="btn-icon" onClick={() => handleSelectLead(lead)} title="Ver detalles">
+                                  <Eye style={{ width: "14px", height: "14px" }} />
+                                </button>
+                                <button
+                                  className="btn-icon"
+                                  onClick={() => { handleSelectLead(lead); setShowActivityPanel(true); }}
+                                  title="Historial de actividad"
+                                >
+                                  <Activity style={{ width: "14px", height: "14px" }} />
+                                </button>
+                                <button
+                                  className="btn-icon danger"
+                                  onClick={() => { if (confirm(`¿Eliminar lead de ${lead.name}?`)) deleteMutation.mutate(lead.id); }}
+                                  title="Eliminar"
+                                >
+                                  <Trash2 style={{ width: "14px", height: "14px" }} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <Pagination page={page} total={filtered.length} onChange={setPage} />
           </div>
         )}
 
@@ -499,6 +764,17 @@ export default function LeadManagement() {
                 </select>
               </div>
 
+              {/* Next contact date */}
+              <div>
+                <p className="crm-label">Próximo Contacto</p>
+                <input
+                  type="date"
+                  className="crm-input"
+                  value={nextContactDate}
+                  onChange={(e) => setNextContactDate(e.target.value)}
+                />
+              </div>
+
               <div className="crm-divider" style={{ margin: "0.25rem 0" }} />
 
               <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -520,6 +796,16 @@ export default function LeadManagement() {
                 )}
               </div>
 
+              {/* Activity button */}
+              <button
+                className="btn-ghost"
+                style={{ width: "100%", justifyContent: "center", gap: "0.375rem", fontSize: "0.75rem" }}
+                onClick={() => setShowActivityPanel(true)}
+              >
+                <Activity style={{ width: "13px", height: "13px" }} />
+                Ver historial de actividad
+              </button>
+
               {/* Notes */}
               <div>
                 <p className="crm-label">Notas internas</p>
@@ -537,7 +823,7 @@ export default function LeadManagement() {
                   onClick={handleSaveNotes}
                   disabled={updateMutation.isPending}
                 >
-                  {updateMutation.isPending ? "Guardando…" : "Guardar nota"}
+                  {updateMutation.isPending ? "Guardando…" : "Guardar"}
                 </button>
               </div>
 
@@ -592,6 +878,7 @@ export default function LeadManagement() {
                 <select className="crm-select" name="type" value={newLeadForm.type} onChange={handleNewLeadChange}>
                   <option value="contact">Contacto</option>
                   <option value="valuation">Tasación</option>
+                  <option value="vehicle_inquiry">Interés vehículo</option>
                   <option value="purchase">Compra</option>
                 </select>
               </div>
@@ -608,6 +895,11 @@ export default function LeadManagement() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ── Activity Panel */}
+      {showActivityPanel && selectedLead && (
+        <ActivityPanel lead={selectedLead} onClose={() => setShowActivityPanel(false)} />
       )}
     </div>
   );
