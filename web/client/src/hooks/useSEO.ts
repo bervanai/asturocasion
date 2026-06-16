@@ -5,7 +5,7 @@ const BASE_URL = "https://asturocasion.es";
 const DEFAULT_DESCRIPTION =
   "Concesionario de vehículos de ocasión premium en Oviedo, Asturias. Mercedes, BMW, Audi, Jaguar y más. Todos revisados, con garantía y transferencia incluidas.";
 const DEFAULT_IMAGE =
-  "https://asturocasion.es/wp-content/uploads/2024/07/mercedes-gle-250d-876x535.jpg";
+  "https://ctouvshwrvijrkrxblrk.supabase.co/storage/v1/object/public/fotos/vehicles/3b4b5a6e-e4a1-4329-ba4a-439164bd9bf9.jpg";
 
 interface SEOOptions {
   title?: string;
