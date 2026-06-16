@@ -53,12 +53,22 @@ export async function fetchAllVehicles(): Promise<Vehicle[]> {
   return (data ?? []) as Vehicle[];
 }
 
+/** Filtra URLs que no pertenezcan al bucket de Supabase */
+function onlyBucketImages(images?: string[] | null): string[] | null {
+  if (!images || images.length === 0) return null;
+  const clean = images.filter((url) => url.includes("supabase.co"));
+  return clean.length > 0 ? clean : null;
+}
+
 export async function createVehicle(v: {
   brand: string; model: string; year: number; price: string; km: number;
   fuel_type: string; transmission: string; status: string;
   description?: string | null; images?: string[] | null;
 }) {
-  const { error } = await supabase.from("vehicles").insert(v);
+  const { error } = await supabase.from("vehicles").insert({
+    ...v,
+    images: onlyBucketImages(v.images),
+  });
   if (error) throw error;
 }
 
@@ -67,9 +77,14 @@ export async function updateVehicle(id: string, v: Partial<{
   fuel_type: string; transmission: string; status: string;
   description: string | null; images: string[] | null;
 }>) {
+  const patch = {
+    ...v,
+    ...(v.images !== undefined ? { images: onlyBucketImages(v.images) } : {}),
+    updated_at: new Date().toISOString(),
+  };
   const { error } = await supabase
     .from("vehicles")
-    .update({ ...v, updated_at: new Date().toISOString() })
+    .update(patch)
     .eq("id", id);
   if (error) throw error;
 }
