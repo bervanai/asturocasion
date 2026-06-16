@@ -127,17 +127,17 @@ function VehicleCard({ v }: { v: Vehicle }) {
             {Number(v.price).toLocaleString("es-ES")} €
           </div>
           {/* Estado badge — solo si Reservado o Vendido */}
-          {v.status !== "Disponible" && (
+          {v.status !== "available" && (
             <div style={{
               position: "absolute", top: "12px", right: "12px",
-              background: v.status === "Vendido" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
+              background: v.status === "sold" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
               backdropFilter: "blur(8px)",
               color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.7rem", fontWeight: "700",
               padding: "4px 10px", borderRadius: "50px",
               letterSpacing: "0.05em", textTransform: "uppercase",
             }}>
-              {v.status}
+              {v.status === "sold" ? "Vendido" : "Reservado"}
             </div>
           )}
         </div>
@@ -187,7 +187,7 @@ export default function Home() {
   const [fuel, setFuel] = useState("");
   useScrollReveal();
 
-  const { data: dbVehicles } = useQuery({
+  const { data: dbVehicles, isLoading } = useQuery({
     queryKey: ["vehicles", "all"],
     queryFn: () => fetchVehicles(),
   });
@@ -438,7 +438,16 @@ export default function Home() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
-            {vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
+            {isLoading ? (
+              Array.from({length: 6}).map((_, i) => (
+                <div key={i} style={{ borderRadius: "20px", overflow: "hidden", background: "#F5F5F7", aspectRatio: "4/3", animation: "pulse 1.5s ease-in-out infinite" }} />
+              ))
+            ) : vehicles.length === 0 ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "3rem", color: "#6E6E73", fontFamily: "'DM Sans', sans-serif" }}>
+                <p style={{ fontSize: "1.1rem", fontWeight: "600" }}>Stock en actualización</p>
+                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>Contacta con nosotros para conocer la disponibilidad actual.</p>
+              </div>
+            ) : vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
           </div>
         </div>
       </section>
@@ -594,7 +603,7 @@ export default function Home() {
           </div>
         </div>
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2908.2!2d-5.8448!3d43.3614!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDIxJzQxLjAiTiA1wrA1MCc0MS4zIlc!5e0!3m2!1ses!2ses!4v1"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2906.3!2d-5.846!3d43.362!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd368fcbe5a9f6d7%3A0x8c6e1c4d5b5a1c2!2sCalle%20Jos%C3%A9%20Manuel%20Fuente%2C%202%2C%2033002%20Oviedo%2C%20Asturias!5e0!3m2!1ses!2ses!4v1718500000000!5m2!1ses!2ses"
           width="100%" height="400"
           style={{ border: 0, display: "block" }}
           allowFullScreen loading="lazy"
@@ -606,6 +615,7 @@ export default function Home() {
       <Footer />
 
       <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
         @media (max-width: 680px) {
           .hero-search { grid-template-columns: 1fr !important; }
           .hero-search > div { border-right: none !important; border-bottom: 1px solid #E8E8ED; padding: 0.25rem 0 !important; }

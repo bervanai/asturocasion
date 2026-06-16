@@ -361,6 +361,7 @@ export default function VehicleManagement() {
       fuel_type: formData.fuel,
       transmission: formData.transmission,
       status: STATUS_TO_API[formData.status] ?? "available",
+      ...(STATUS_TO_API[formData.status] === "sold" ? { sold_at: new Date().toISOString() } : {}),
       description: formData.description || null,
       images: formData.images.length > 0 ? formData.images : null,
       color: formData.color || null,

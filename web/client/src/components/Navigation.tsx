@@ -6,6 +6,7 @@ import { Link, useLocation } from "wouter";
 export default function Navigation() {
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
 
   useEffect(() => {
@@ -13,6 +14,11 @@ export default function Navigation() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
 
   const navLinks = [
     { href: "/", label: "Inicio" },
@@ -77,26 +83,6 @@ export default function Navigation() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             {user ? (
               <>
-                {user.role === "admin" && (
-                  <Link href="/admin">
-                    <a
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.8rem",
-                        fontWeight: "500",
-                        color: "#6E6E73",
-                        textDecoration: "none",
-                        padding: "6px 12px",
-                        border: "1px solid #D2D2D7",
-                        borderRadius: "980px",
-                        transition: "border-color 0.2s, color 0.2s",
-                      }}
-                      className="hidden md:inline-flex"
-                    >
-                      Admin
-                    </a>
-                  </Link>
-                )}
                 <button
                   onClick={() => logout()}
                   style={{
@@ -120,9 +106,86 @@ export default function Navigation() {
               </Link>
             )}
 
+            {/* Hamburger button — mobile only */}
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+              style={{
+                display: "none",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "6px",
+                color: "#1D1D1F",
+                fontSize: "1.4rem",
+                lineHeight: 1,
+              }}
+              className="block md:hidden"
+            >
+              {mobileOpen ? "✕" : "☰"}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile overlay menu */}
+      {mobileOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 49,
+            background: "rgba(255,255,255,0.97)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            display: "flex",
+            flexDirection: "column",
+            paddingTop: "80px",
+            paddingLeft: "2rem",
+            paddingRight: "2rem",
+          }}
+        >
+          <nav style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <a
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "1.4rem",
+                    fontWeight: "600",
+                    color: isActive(link.href) ? "#0071E3" : "#1D1D1F",
+                    textDecoration: "none",
+                    padding: "0.75rem 0",
+                    borderBottom: "1px solid rgba(0,0,0,0.06)",
+                    display: "block",
+                  }}
+                >
+                  {link.label}
+                </a>
+              </Link>
+            ))}
+          </nav>
+          {user && (
+            <button
+              onClick={() => { logout(); setMobileOpen(false); }}
+              style={{
+                marginTop: "1.5rem",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.95rem",
+                color: "#86868B",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                padding: "0.5rem 0",
+              }}
+            >
+              Salir
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 }

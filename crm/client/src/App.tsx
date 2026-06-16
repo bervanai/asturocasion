@@ -20,14 +20,37 @@ import LeadManagement from "./pages/admin/LeadManagement";
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
 const AUTH_KEY = "astur_crm_auth";
+const AUTH_TS_KEY = "astur_crm_auth_ts";
 
 function useSimpleAuth() {
-  const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_KEY) === "1");
+  const [authed, setAuthed] = useState(() => {
+    if (localStorage.getItem(AUTH_KEY) !== "1") return false;
+    const ts = Number(localStorage.getItem(AUTH_TS_KEY) ?? "0");
+    const EIGHT_HOURS = 8 * 60 * 60 * 1000;
+    if (Date.now() - ts > EIGHT_HOURS) {
+      localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(AUTH_TS_KEY);
+      return false;
+    }
+    return true;
+  });
+
   const login = (pwd: string) => {
-    if (pwd === ADMIN_PASSWORD) { localStorage.setItem(AUTH_KEY, "1"); setAuthed(true); return true; }
+    if (pwd === ADMIN_PASSWORD) {
+      localStorage.setItem(AUTH_KEY, "1");
+      localStorage.setItem(AUTH_TS_KEY, String(Date.now()));
+      setAuthed(true);
+      return true;
+    }
     return false;
   };
-  const logout = () => { localStorage.removeItem(AUTH_KEY); setAuthed(false); };
+
+  const logout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_TS_KEY);
+    setAuthed(false);
+  };
+
   return { authed, login, logout };
 }
 

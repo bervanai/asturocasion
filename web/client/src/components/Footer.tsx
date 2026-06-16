@@ -50,7 +50,7 @@ export default function Footer() {
             <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
               {/* Facebook */}
               <a
-                href="https://facebook.com/asturocasion"
+                href="https://www.facebook.com/search/top?q=astur%20ocasi%C3%B3n%20oviedo"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -73,7 +73,7 @@ export default function Footer() {
               </a>
               {/* Instagram */}
               <a
-                href="https://instagram.com/asturocasion"
+                href="https://www.instagram.com/explore/search/keyword/?q=asturocasion"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"

@@ -11,14 +11,10 @@ import TradeIn from "./pages/TradeIn";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import AdminDashboard from "./pages/admin/Dashboard";
 import { useAuth } from "./_core/hooks/useAuth";
 import ChatBot from "./components/ChatBot";
 
 function Router() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
-  
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -28,7 +24,6 @@ function Router() {
       <Route path={"/contacto"} component={Contact} />
       <Route path={"/sobre-nosotros"} component={About} />
       <Route path={"/politica-de-privacidad"} component={PrivacyPolicy} />
-      {isAdmin && <Route path={"/admin/*"} component={AdminDashboard} />}
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -80,17 +80,17 @@ function VehicleCard({ v }: { v: Vehicle }) {
           }}>
             {Number(v.price).toLocaleString("es-ES")} €
           </div>
-          {v.status !== "Disponible" && (
+          {v.status !== "available" && (
             <div style={{
               position: "absolute", top: "12px", right: "12px",
-              background: v.status === "Vendido" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
+              background: v.status === "sold" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
               backdropFilter: "blur(8px)",
               color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.65rem", fontWeight: "800",
               padding: "4px 10px", borderRadius: "50px",
               letterSpacing: "0.06em", textTransform: "uppercase",
             }}>
-              {v.status}
+              {v.status === "sold" ? "Vendido" : "Reservado"}
             </div>
           )}
         </div>
@@ -146,7 +146,7 @@ export default function Catalog() {
     };
   });
 
-  const { data: dbVehicles } = useQuery({
+  const { data: dbVehicles, isLoading } = useQuery({
     queryKey: ["vehicles", "all"],
     queryFn: () => fetchVehicles(),
   });
@@ -287,9 +287,20 @@ export default function Catalog() {
               </button>
             </div>
 
-            {filtered.length > 0 ? (
+            {isLoading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
+                {Array.from({length: 6}).map((_, i) => (
+                  <div key={i} style={{ borderRadius: "20px", overflow: "hidden", background: "#E8E8ED", aspectRatio: "4/3", animation: "pulse 1.5s ease-in-out infinite" }} />
+                ))}
+              </div>
+            ) : filtered.length > 0 ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
                 {filtered.map((v) => <VehicleCard key={v.id} v={v} />)}
+              </div>
+            ) : vehicles.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px", fontFamily: "'DM Sans', sans-serif" }}>
+                <p style={{ fontSize: "1.1rem", fontWeight: "600", color: "#6E6E73" }}>Stock en actualización</p>
+                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem", color: "#6E6E73" }}>Contacta con nosotros para conocer la disponibilidad actual.</p>
               </div>
             ) : (
               <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px" }}>
@@ -315,6 +326,7 @@ export default function Catalog() {
 
 
       <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
         @media (max-width: 1023px) {
           .catalog-grid { grid-template-columns: 1fr !important; }
           .sidebar-closed { display: none; }

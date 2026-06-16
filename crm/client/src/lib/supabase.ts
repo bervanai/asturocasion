@@ -25,6 +25,7 @@ export type Vehicle = {
   status: string;
   is_featured: boolean;
   created_at: string;
+  sold_at?: string | null;
 };
 
 export type Lead = {
@@ -87,7 +88,7 @@ export async function updateVehicle(id: string, v: Partial<{
   fuel_type: string; transmission: string; status: string;
   description: string | null; images: string[] | null;
   color: string | null; doors: number | null; power_cv: number | null;
-  is_featured: boolean;
+  is_featured: boolean; sold_at?: string | null;
 }>) {
   const patch = {
     ...v,

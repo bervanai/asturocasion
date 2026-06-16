@@ -134,7 +134,7 @@ type KanbanCardProps = {
   onChangeStatus: (id: string, status: Status) => void;
 };
 
-function KanbanCard({ lead, onSelect }: KanbanCardProps) {
+function KanbanCard({ lead, onSelect, onChangeStatus }: KanbanCardProps) {
   const vehicleName = lead.vehicle_info
     ? `${lead.vehicle_info.brand ?? ""} ${lead.vehicle_info.model ?? ""}`.trim()
     : null;
@@ -182,6 +182,22 @@ function KanbanCard({ lead, onSelect }: KanbanCardProps) {
           📅 {new Date(lead.next_contact_date + "T00:00:00").toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
         </p>
       )}
+      <select
+        value={lead.status}
+        onChange={(e) => { e.stopPropagation(); onChangeStatus(lead.id, e.target.value as Status); }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          marginTop: "0.5rem", width: "100%", background: "#0e0e10",
+          border: "1px solid #2a2a2e", borderRadius: "6px",
+          padding: "0.25rem 0.5rem", fontSize: "0.625rem", fontWeight: 600,
+          color: "#6b7280", cursor: "pointer", outline: "none",
+        }}
+      >
+        <option value="new">Nuevo</option>
+        <option value="contacted">En Proceso</option>
+        <option value="closed">Completado</option>
+        <option value="discarded">Descartado</option>
+      </select>
     </div>
   );
 }

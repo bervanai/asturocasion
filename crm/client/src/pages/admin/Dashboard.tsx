@@ -159,7 +159,9 @@ export default function AdminDashboard() {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const soldThisMonth = allVehicles.filter((v) => {
-    return v.status === "sold" && new Date(v.created_at) >= startOfMonth;
+    if (v.status !== "sold") return false;
+    const dateToCheck = v.sold_at ? new Date(v.sold_at) : new Date(v.created_at);
+    return dateToCheck >= startOfMonth;
   }).length;
   const leadsThisMonth = allLeadsData.filter((l) => new Date(l.created_at) >= startOfMonth).length;
 
