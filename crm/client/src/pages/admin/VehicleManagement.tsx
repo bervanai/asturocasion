@@ -26,6 +26,10 @@ type VehicleForm = {
   status: string;
   description: string;
   images: string[];
+  color: string;
+  doors: string;
+  powerCv: string;
+  isFeatured: boolean;
 };
 
 const emptyForm: VehicleForm = {
@@ -39,6 +43,10 @@ const emptyForm: VehicleForm = {
   status: "Disponible",
   description: "",
   images: [],
+  color: "",
+  doors: "5",
+  powerCv: "",
+  isFeatured: false,
 };
 
 const STATUS_TO_API: Record<string, string> = {
@@ -302,8 +310,13 @@ export default function VehicleManagement() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleEdit = (v: (typeof vehicles)[0]) => {
@@ -319,6 +332,10 @@ export default function VehicleManagement() {
       status: STATUS_FROM_API[v.status] ?? "Disponible",
       description: v.description ?? "",
       images: v.images ?? [],
+      color: v.color ?? "",
+      doors: v.doors != null ? String(v.doors) : "5",
+      powerCv: v.power_cv != null ? String(v.power_cv) : "",
+      isFeatured: v.is_featured ?? false,
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -337,11 +354,15 @@ export default function VehicleManagement() {
       status: STATUS_TO_API[formData.status] ?? "available",
       description: formData.description || null,
       images: formData.images.length > 0 ? formData.images : null,
+      color: formData.color || null,
+      doors: formData.doors ? Number(formData.doors) : null,
+      power_cv: formData.powerCv ? Number(formData.powerCv) : null,
+      is_featured: formData.isFeatured,
     };
     if (editingId !== null) {
-      updateMutation.mutate({ id: editingId, ...payload });
+      updateMutation.mutate({ id: editingId, ...(payload as any) });
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(payload as any);
     }
   };
 
@@ -440,6 +461,35 @@ export default function VehicleManagement() {
                   <option value="Vendido">Vendido</option>
                 </select>
               </Field>
+              <Field label="Color">
+                <input className="crm-input" name="color" value={formData.color} onChange={handleChange} placeholder="Ej: Negro, Blanco, Gris..." />
+              </Field>
+              <Field label="Puertas">
+                <select className="crm-select" name="doors" value={formData.doors} onChange={handleChange}>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </Field>
+              <Field label="Potencia (CV)">
+                <input className="crm-input" type="number" name="powerCv" value={formData.powerCv} onChange={handleChange} placeholder="Ej: 150" min="0" />
+              </Field>
+            </div>
+
+            {/* Destacar en portada */}
+            <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.625rem" }}>
+              <input
+                type="checkbox"
+                id="isFeatured"
+                name="isFeatured"
+                checked={formData.isFeatured}
+                onChange={handleChange}
+                style={{ width: "16px", height: "16px", accentColor: "#e8a020", cursor: "pointer" }}
+              />
+              <label htmlFor="isFeatured" style={{ fontSize: "0.8125rem", color: "#f0f0f0", cursor: "pointer", fontWeight: 500 }}>
+                Destacar en portada
+              </label>
             </div>
 
             <div style={{ marginBottom: "1rem" }}>

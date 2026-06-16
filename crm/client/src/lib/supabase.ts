@@ -80,7 +80,6 @@ export async function updateVehicle(id: string, v: Partial<{
   const patch = {
     ...v,
     ...(v.images !== undefined ? { images: onlyBucketImages(v.images) } : {}),
-    updated_at: new Date().toISOString(),
   };
   const { error } = await supabase
     .from("vehicles")
@@ -114,6 +113,17 @@ export async function updateLead(id: string, data: Partial<{
 
 export async function deleteLead(id: string) {
   const { error } = await supabase.from("leads").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function insertLead(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  type: string;
+  message?: string;
+}) {
+  const { error } = await supabase.from("leads").insert({ ...data, status: "new" });
   if (error) throw error;
 }
 

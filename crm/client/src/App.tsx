@@ -18,7 +18,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import VehicleManagement from "./pages/admin/VehicleManagement";
 import LeadManagement from "./pages/admin/LeadManagement";
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "astur2024";
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
 const AUTH_KEY = "astur_crm_auth";
 
 function useSimpleAuth() {
@@ -55,6 +55,11 @@ function LoginScreen({ onLogin }: { onLogin: (pwd: string) => boolean }) {
           <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.375rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.03em" }}>Astur Ocasión CRM</h1>
           <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "0.25rem" }}>Introduce la contraseña de administrador</p>
         </div>
+        {ADMIN_PASSWORD === "" && (
+          <p style={{ fontSize: "0.75rem", color: "#f59e0b", background: "#1c1a10", border: "1px solid #92400e", borderRadius: "8px", padding: "0.625rem 0.875rem", marginBottom: "1rem", textAlign: "center" }}>
+            Configura VITE_ADMIN_PASSWORD en las variables de entorno de Vercel.
+          </p>
+        )}
         <form onSubmit={handleSubmit} style={{ background: "#141416", border: "1px solid #1f1f23", borderRadius: "12px", padding: "1.75rem" }}>
           <div style={{ position: "relative", marginBottom: "1rem" }}>
             <input

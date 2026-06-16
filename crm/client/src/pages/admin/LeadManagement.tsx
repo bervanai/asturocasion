@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchAllLeads, updateLead, deleteLead } from "@/lib/supabase";
+import { fetchAllLeads, updateLead, deleteLead, insertLead } from "@/lib/supabase";
 import { useState } from "react";
-import { Eye, Trash2, Search, X, Phone, MessageCircle } from "lucide-react";
+import { Eye, Trash2, Search, X, Phone, MessageCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
@@ -14,6 +14,7 @@ type Lead = {
   vehicle_info: Record<string, unknown> | null;
   message: string | null;
   status: string;
+  notes: string | null;
   created_at: string;
 };
 
@@ -205,6 +206,50 @@ export default function LeadManagement() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
 
+  // Notes state
+  const [notesValue, setNotesValue] = useState<string>("");
+  const handleSelectLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setNotesValue(lead.notes ?? "");
+  };
+  const handleSaveNotes = () => {
+    if (!selectedLead) return;
+    updateMutation.mutate({ id: selectedLead.id, notes: notesValue });
+    setSelectedLead((prev) => prev ? { ...prev, notes: notesValue } : null);
+  };
+
+  // New lead modal state
+  const [showNewLead, setShowNewLead] = useState(false);
+  const [newLeadForm, setNewLeadForm] = useState({ name: "", email: "", phone: "", type: "contact", message: "" });
+  const [newLeadPending, setNewLeadPending] = useState(false);
+
+  const handleNewLeadChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewLeadForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleNewLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNewLeadPending(true);
+    try {
+      await insertLead({
+        name: newLeadForm.name,
+        email: newLeadForm.email,
+        phone: newLeadForm.phone || undefined,
+        type: newLeadForm.type,
+        message: newLeadForm.message || undefined,
+      });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast.success("Lead creado correctamente");
+      setShowNewLead(false);
+      setNewLeadForm({ name: "", email: "", phone: "", type: "contact", message: "" });
+    } catch (err: unknown) {
+      toast.error((err as Error).message ?? "Error al crear lead");
+    } finally {
+      setNewLeadPending(false);
+    }
+  };
+
   const filtered = leads.filter((l) => {
     const matchSearch =
       !search ||
@@ -237,6 +282,11 @@ export default function LeadManagement() {
             Seguimiento de clientes potenciales · {leads.length} en total
           </p>
         </div>
+        <div style={{ display: "flex", gap: "0.625rem", alignItems: "center" }}>
+          <button className="btn-primary" onClick={() => setShowNewLead(true)}>
+            <Plus style={{ width: "15px", height: "15px" }} />
+            Nuevo Lead
+          </button>
         <div style={{ display: "flex", gap: "0.375rem", background: "#141416", border: "1px solid #1f1f23", borderRadius: "8px", padding: "0.25rem" }}>
           {(["table", "kanban"] as const).map((mode) => (
             <button
@@ -257,6 +307,7 @@ export default function LeadManagement() {
               {mode === "table" ? "Tabla" : "Kanban"}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
@@ -317,7 +368,7 @@ export default function LeadManagement() {
                         <tr
                           key={lead.id}
                           className={selectedLead?.id === lead.id ? "row-selected" : ""}
-                          onClick={() => setSelectedLead(lead)}
+                          onClick={() => handleSelectLead(lead)}
                         >
                           <td>
                             <p style={{ fontWeight: 600, color: "#f0f0f0" }}>{lead.name}</p>
@@ -341,7 +392,7 @@ export default function LeadManagement() {
                           </td>
                           <td onClick={(e) => e.stopPropagation()}>
                             <div style={{ display: "flex", gap: "0.25rem" }}>
-                              <button className="btn-icon" onClick={() => setSelectedLead(lead)} title="Ver detalles">
+                              <button className="btn-icon" onClick={() => handleSelectLead(lead)} title="Ver detalles">
                                 <Eye style={{ width: "14px", height: "14px" }} />
                               </button>
                               <button
@@ -372,7 +423,7 @@ export default function LeadManagement() {
                   key={status}
                   status={status}
                   leads={grouped[status]}
-                  onSelect={(l) => setSelectedLead(l)}
+                  onSelect={(l) => handleSelectLead(l)}
                   onChangeStatus={handleStatusChange}
                 />
               ))}
@@ -469,6 +520,29 @@ export default function LeadManagement() {
                 )}
               </div>
 
+              {/* Notes */}
+              <div>
+                <p className="crm-label">Notas internas</p>
+                <textarea
+                  className="crm-textarea"
+                  rows={3}
+                  value={notesValue}
+                  onChange={(e) => setNotesValue(e.target.value)}
+                  placeholder="Añade notas internas sobre este lead..."
+                  style={{ marginBottom: "0.375rem" }}
+                />
+                <button
+                  className="btn-ghost"
+                  style={{ fontSize: "0.75rem", padding: "0.35rem 0.75rem" }}
+                  onClick={handleSaveNotes}
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending ? "Guardando…" : "Guardar nota"}
+                </button>
+              </div>
+
+              <div className="crm-divider" style={{ margin: "0.25rem 0" }} />
+
               <button
                 className="btn-icon danger"
                 style={{ width: "100%", height: "auto", padding: "0.4rem 0.75rem", fontSize: "0.75rem", gap: "0.375rem", borderRadius: "var(--radius)" }}
@@ -481,6 +555,60 @@ export default function LeadManagement() {
           </div>
         )}
       </div>
+
+      {/* ── New Lead Modal */}
+      {showNewLead && (
+        <div
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 50,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowNewLead(false); }}
+        >
+          <div className="glass-card" style={{ width: "100%", maxWidth: "480px", padding: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+              <p style={{ fontFamily: "'Syne', sans-serif", fontSize: "1rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.02em" }}>
+                Nuevo Lead
+              </p>
+              <button className="btn-icon" onClick={() => setShowNewLead(false)}>
+                <X style={{ width: "15px", height: "15px" }} />
+              </button>
+            </div>
+            <form onSubmit={handleNewLeadSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+              <div>
+                <label className="crm-label">Nombre *</label>
+                <input className="crm-input" name="name" value={newLeadForm.name} onChange={handleNewLeadChange} placeholder="Nombre completo" required />
+              </div>
+              <div>
+                <label className="crm-label">Email *</label>
+                <input className="crm-input" type="email" name="email" value={newLeadForm.email} onChange={handleNewLeadChange} placeholder="correo@ejemplo.com" required />
+              </div>
+              <div>
+                <label className="crm-label">Teléfono</label>
+                <input className="crm-input" name="phone" value={newLeadForm.phone} onChange={handleNewLeadChange} placeholder="600 000 000" />
+              </div>
+              <div>
+                <label className="crm-label">Tipo</label>
+                <select className="crm-select" name="type" value={newLeadForm.type} onChange={handleNewLeadChange}>
+                  <option value="contact">Contacto</option>
+                  <option value="valuation">Tasación</option>
+                  <option value="purchase">Compra</option>
+                </select>
+              </div>
+              <div>
+                <label className="crm-label">Mensaje / Descripción</label>
+                <textarea className="crm-textarea" name="message" value={newLeadForm.message} onChange={handleNewLeadChange} rows={3} placeholder="Información adicional..." />
+              </div>
+              <div style={{ display: "flex", gap: "0.625rem", paddingTop: "0.25rem" }}>
+                <button type="submit" className="btn-primary" disabled={newLeadPending} style={{ opacity: newLeadPending ? 0.6 : 1 }}>
+                  {newLeadPending ? "Guardando…" : "Crear Lead"}
+                </button>
+                <button type="button" className="btn-ghost" onClick={() => setShowNewLead(false)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
