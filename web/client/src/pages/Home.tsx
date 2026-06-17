@@ -174,6 +174,62 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
+const MAP_SRC = "https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es";
+const MAP_THUMB = `https://maps.googleapis.com/maps/api/staticmap?center=43.3614,-5.8434&zoom=15&size=1200x400&scale=2&style=feature:poi|visibility:off&markers=color:blue%7C43.3614,-5.8434`;
+
+function MapFacade() {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div
+      style={{ position: "relative", width: "100%", height: "400px", background: "#E8E8ED", cursor: loaded ? "default" : "pointer", overflow: "hidden" }}
+      onClick={() => !loaded && setLoaded(true)}
+    >
+      {/* Fondo estático OpenStreetMap — sin API key, carga instantánea */}
+      {!loaded && (
+        <>
+          <img
+            src={`https://staticmap.openstreetmap.de/staticmap.php?center=43.3614,-5.8434&zoom=15&size=1200x400&markers=43.3614,-5.8434,red-pushpin`}
+            alt="Mapa Astur Ocasión"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+          {/* Overlay con CTA */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: "0.75rem",
+          }}>
+            <div style={{
+              background: "#FFFFFF", borderRadius: "50px",
+              padding: "0.75rem 2rem",
+              fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "700",
+              color: "#0071E3", display: "flex", alignItems: "center", gap: "8px",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+            }}>
+              <MapPin size={16} /> Ver mapa interactivo
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", margin: 0 }}>
+              Haz clic para cargar Google Maps
+            </p>
+          </div>
+        </>
+      )}
+      {loaded && (
+        <iframe
+          src={MAP_SRC}
+          width="100%" height="400"
+          style={{ border: 0, display: "block", position: "absolute", inset: 0 }}
+          allowFullScreen
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Ubicación Astur Ocasión"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   useSEO({
     title: "Coches de Ocasión Premium en Oviedo, Asturias",
@@ -207,9 +263,9 @@ export default function Home() {
   };
 
   const testimonials = [
-    { name: "Carlos M.", location: "Oviedo", text: "Compré un BMW 325D hace seis meses y no puedo estar más satisfecho. El equipo fue transparente desde el primer momento, sin letra pequeña ni sorpresas.", rating: 5, photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" },
-    { name: "Laura F.", location: "Gijón", text: "Vendí mi coche en menos de 48 horas. Me hicieron la mejor tasación que encontré en Asturias y gestionaron todo el papeleo ellos. Profesionalidad total.", rating: 5, photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face" },
-    { name: "Andrés P.", location: "Avilés", text: "Buscaba un SUV por encargo y lo encontraron en dos semanas. Precio justo, ITV al día, transferencia incluida. No voy a comprar en ningún otro sitio.", rating: 5, photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" },
+    { name: "Jose Ulpiano Antón González", location: "Oviedo", text: "Un concesionario de vehículos de ocasión muy recomendable, buén asesoramiento y un trato muy amable por parte de Tito y de su hijo Pelayo, es la primera vez que les compro un vehiculo y estoy muy satisfecho tanto con el vehiculo como con el trato y asesoramiento recibido, cien por cien recomendable.", rating: 5, initials: "JA" },
+    { name: "Manu", location: "Oviedo", text: "Cuando encuentras una persona que hace lo imposible en su negocio para que uno quede satisfecho con su compra hay que decirlo, esa persona es Tito, me ha dejado el coche impoluto, además de ser un tío agradable y cumplidor. No puedo estar más contento con el coche. Gracias Tito.", rating: 5, initials: "M" },
+    { name: "Jose Luis Maseda Monterrubio", location: "Oviedo", text: "Compré dos coches en cosa de 4 meses, los dos decir que Tito es una gran persona y muy transparente, estoy contentísimo con los dos coches. Aconsejo a quien quiera comprase un coche que pase por allí, el trato excelente.", rating: 5, initials: "JL" },
   ];
 
   return (
@@ -353,7 +409,7 @@ export default function Home() {
             {[
               { num: "+200", label: "Coches vendidos" },
               { num: "+200", label: "Familias satisfechas" },
-              { num: "4.9/5", label: "Valoración media" },
+              { num: "4.6/5", label: "107 reseñas Google" },
               { num: "48h", label: "Tasación express" },
             ].map((s, i) => (
               <div key={s.num} style={{ borderRight: i < 3 ? "1px solid rgba(255,255,255,0.08)" : "none" }}>
@@ -534,17 +590,23 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "1.5rem" }}>
             {testimonials.map((t, i) => (
               <div key={i} style={{ background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px", padding: "2rem" }}>
-                <div style={{ display: "flex", gap: "2px", marginBottom: "1rem" }}>
-                  {Array.from({length: t.rating}).map((_, i) => <Star key={i} size={14} fill="#F5A623" color="#F5A623" />)}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", gap: "2px" }}>
+                    {Array.from({length: t.rating}).map((_, j) => <Star key={j} size={14} fill="#F5A623" color="#F5A623" />)}
+                  </div>
+                  {/* Google logo */}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                 </div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.92rem", color: "#3D3D3F", lineHeight: 1.75, margin: "0 0 1.5rem", fontStyle: "italic" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#3D3D3F", lineHeight: 1.75, margin: "0 0 1.5rem", fontStyle: "italic" }}>
                   "{t.text}"
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", borderTop: "1px solid #F0F0F5", paddingTop: "1.25rem" }}>
-                  <img src={t.photo} alt={t.name} style={{ width: "44px", height: "44px", borderRadius: "50%", objectFit: "cover" }} />
+                  <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#0071E3", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", fontWeight: "700", fontSize: "0.85rem", color: "#fff", flexShrink: 0 }}>
+                    {t.initials}
+                  </div>
                   <div>
                     <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "700", color: "#1D1D1F", margin: 0 }}>{t.name}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#86868B", margin: "2px 0 0" }}>{t.location}</p>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#86868B", margin: "2px 0 0" }}>Reseña en Google</p>
                   </div>
                 </div>
               </div>
@@ -604,14 +666,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <iframe
-          src="https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es"
-          width="100%" height="400"
-          style={{ border: 0, display: "block" }}
-          allowFullScreen loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title="Ubicación Astur Ocasión"
-        />
+        <MapFacade />
       </section>
 
       <Footer />

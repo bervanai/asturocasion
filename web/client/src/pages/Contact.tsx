@@ -34,6 +34,38 @@ const TEXTAREA_STYLE: React.CSSProperties = {
   transition: "border-color 0.2s",
 };
 
+function ContactMap() {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div
+      style={{ height: "200px", overflow: "hidden", position: "relative", background: "#E8E8ED", cursor: loaded ? "default" : "pointer" }}
+      onClick={() => !loaded && setLoaded(true)}
+    >
+      {!loaded && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F0F5" }}>
+          <div style={{ textAlign: "center" }}>
+            <MapPin size={24} color="#0071E3" style={{ marginBottom: "6px" }} />
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "#0071E3", fontWeight: "600", margin: 0 }}>
+              Clic para ver el mapa
+            </p>
+          </div>
+        </div>
+      )}
+      {loaded && (
+        <iframe
+          width="100%" height="200"
+          frameBorder="0"
+          src="https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es"
+          allowFullScreen
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Ubicación Astur Ocasión Oviedo"
+          style={{ filter: "grayscale(20%)", display: "block" }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function Contact() {
   useSEO({
     title: "Contacto — Astur Ocasión Oviedo",
@@ -366,19 +398,7 @@ export default function Contact() {
                   Como llegar
                 </p>
               </div>
-              <div style={{ height: "200px", overflow: "hidden" }}>
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  src="https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es"
-                  allowFullScreen={true}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Ubicación Astur Ocasión Oviedo"
-                  style={{ filter: "grayscale(20%)" }}
-                />
-              </div>
+              <ContactMap />
             </div>
           </div>
         </div>
