@@ -174,62 +174,6 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
-const MAP_SRC = "https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es";
-const MAP_THUMB = `https://maps.googleapis.com/maps/api/staticmap?center=43.3614,-5.8434&zoom=15&size=1200x400&scale=2&style=feature:poi|visibility:off&markers=color:blue%7C43.3614,-5.8434`;
-
-function MapFacade() {
-  const [loaded, setLoaded] = useState(false);
-  return (
-    <div
-      style={{ position: "relative", width: "100%", height: "400px", background: "#E8E8ED", cursor: loaded ? "default" : "pointer", overflow: "hidden" }}
-      onClick={() => !loaded && setLoaded(true)}
-    >
-      {/* Fondo estático OpenStreetMap — sin API key, carga instantánea */}
-      {!loaded && (
-        <>
-          <img
-            src={`https://staticmap.openstreetmap.de/staticmap.php?center=43.3614,-5.8434&zoom=15&size=1200x400&markers=43.3614,-5.8434,red-pushpin`}
-            alt="Mapa Astur Ocasión"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            loading="lazy"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-          />
-          {/* Overlay con CTA */}
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "rgba(0,0,0,0.35)",
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center", gap: "0.75rem",
-          }}>
-            <div style={{
-              background: "#FFFFFF", borderRadius: "50px",
-              padding: "0.75rem 2rem",
-              fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "700",
-              color: "#0071E3", display: "flex", alignItems: "center", gap: "8px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-            }}>
-              <MapPin size={16} /> Ver mapa interactivo
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", margin: 0 }}>
-              Haz clic para cargar Google Maps
-            </p>
-          </div>
-        </>
-      )}
-      {loaded && (
-        <iframe
-          src={MAP_SRC}
-          width="100%" height="400"
-          style={{ border: 0, display: "block", position: "absolute", inset: 0 }}
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-          title="Ubicación Astur Ocasión"
-        />
-      )}
-    </div>
-  );
-}
-
 export default function Home() {
   useSEO({
     title: "Coches de Ocasión Premium en Oviedo, Asturias",
@@ -666,7 +610,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <MapFacade />
+        <iframe
+          src="https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es"
+          width="100%" height="400"
+          style={{ border: 0, display: "block" }}
+          allowFullScreen loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Ubicación Astur Ocasión"
+        />
       </section>
 
       <Footer />
