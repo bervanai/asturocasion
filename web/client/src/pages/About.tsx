@@ -39,9 +39,9 @@ const FEATURES = [
 ];
 
 const TIMELINE = [
-  { year: "2008", event: "Apertura del concesionario en Oviedo con una selección inicial de vehículos premium." },
-  { year: "2012", event: "Ampliamos nuestro stock e incorporamos el servicio de vehículos por encargo." },
-  { year: "2017", event: "Lanzamos la tasación online y el servicio de compra directa a particulares." },
+  { year: "Inicio", event: "Apertura del concesionario en Oviedo con una selección inicial de vehículos premium." },
+  { year: "Crecimiento", event: "Ampliamos nuestro stock e incorporamos el servicio de vehículos por encargo." },
+  { year: "Innovación", event: "Lanzamos la tasación online y el servicio de compra directa a particulares." },
   { year: "Hoy", event: "Más de 200 vehículos vendidos, +200 familias asturianas satisfechas cada año." },
 ];
 
@@ -123,7 +123,7 @@ export default function About() {
               margin: 0,
             }}
           >
-            En Astur Ocasión somos algo más que un concesionario de coches de segunda mano. Somos un equipo apasionado por el automóvil que lleva más de 15 años ayudando a familias de Oviedo y toda Asturias a encontrar el vehículo de ocasión que necesitan, al precio que merecen.
+            En Astur Ocasión somos algo más que un concesionario de coches de segunda mano. Somos un equipo apasionado por el automóvil comprometido con ayudar a familias de Oviedo y toda Asturias a encontrar el vehículo de ocasión que necesitan, al precio que merecen.
           </p>
         </div>
       </section>
@@ -165,7 +165,7 @@ export default function About() {
                   marginBottom: "1.25rem",
                 }}
               >
-                Fundamos Astur Ocasión en 2008 con una idea simple: vender coches de ocasión y segunda mano en Oviedo con el mismo rigor y la misma honestidad que uno esperaría de un concesionario oficial, pero a precios de particular.
+                Astur Ocasión nació con una idea simple: vender coches de ocasión y segunda mano en Oviedo con el mismo rigor y la misma honestidad que uno esperaría de un concesionario oficial, pero a precios de particular.
               </p>
               <p
                 style={{

@@ -240,7 +240,7 @@ export default function Home() {
               marginBottom: "1.5rem", display: "flex", alignItems: "center",
             }}>
               <span className="lux-hairline" style={{ color: "#4DA3FF" }} />
-              Oviedo, Asturias — Desde 2010
+              Oviedo, Asturias
             </p>
             <h1 className="lux-fade-up lux-delay-1" style={{
               fontFamily: "'Playfair Display', serif",
@@ -352,7 +352,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", textAlign: "center" }}>
             {[
               { num: "+200", label: "Coches vendidos" },
-              { num: "+15 años", label: "De experiencia" },
+              { num: "+200", label: "Familias satisfechas" },
               { num: "4.9★", label: "Valoración media" },
               { num: "48h", label: "Tasación express" },
             ].map((s, i) => (
@@ -603,7 +603,7 @@ export default function Home() {
           </div>
         </div>
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2906.3!2d-5.846!3d43.362!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd368fcbe5a9f6d7%3A0x8c6e1c4d5b5a1c2!2sCalle%20Jos%C3%A9%20Manuel%20Fuente%2C%202%2C%2033002%20Oviedo%2C%20Asturias!5e0!3m2!1ses!2ses!4v1718500000000!5m2!1ses!2ses"
+          src="https://maps.google.com/maps?q=Astur+Ocasi%C3%B3n+del+Autom%C3%B3vil+Oviedo&output=embed&hl=es"
           width="100%" height="400"
           style={{ border: 0, display: "block" }}
           allowFullScreen loading="lazy"

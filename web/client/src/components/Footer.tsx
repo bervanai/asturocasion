@@ -45,7 +45,7 @@ export default function Footer() {
                 marginBottom: "1.5rem",
               }}
             >
-              Concesionario de vehículos de ocasión premium en Oviedo. Calidad, transparencia y trato personal desde hace más de 15 años.
+              Concesionario de vehículos de ocasión premium en Oviedo. Calidad, transparencia y trato personal.
             </p>
             <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
               {/* WhatsApp */}
