@@ -171,7 +171,7 @@ export default function Catalog() {
   const resetFilters = () => setFilters({ brand: "", priceMax: 50000, fuel: "", transmission: "" });
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7", overflowX: "hidden" }}>
       <Navigation />
 
       {/* Header */}
@@ -189,7 +189,7 @@ export default function Catalog() {
         </div>
       </section>
 
-      <div className="container" style={{ flex: 1, padding: "2.5rem 1.25rem 4rem" }}>
+      <div className="container catalog-container" style={{ flex: 1, padding: "2.5rem 1.25rem 4rem" }}>
         <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "2rem", alignItems: "start" }} className="catalog-grid">
 
           {/* Sidebar */}
@@ -288,13 +288,13 @@ export default function Catalog() {
             </div>
 
             {isLoading ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
+              <div className="catalog-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
                 {Array.from({length: 6}).map((_, i) => (
                   <div key={i} style={{ borderRadius: "20px", overflow: "hidden", background: "#E8E8ED", aspectRatio: "4/3", animation: "pulse 1.5s ease-in-out infinite" }} />
                 ))}
               </div>
             ) : filtered.length > 0 ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
+              <div className="catalog-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "1.5rem" }}>
                 {filtered.map((v) => <VehicleCard key={v.id} v={v} />)}
               </div>
             ) : vehicles.length === 0 ? (
@@ -337,6 +337,25 @@ export default function Catalog() {
         @media (min-width: 1024px) {
           .sidebar-closed { display: block; }
           .sidebar-close { display: none !important; }
+        }
+        /* ── Mobile fixes ── */
+        @media (max-width: 640px) {
+          .catalog-cards-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .catalog-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .catalog-card-meta {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.4rem !important;
+          }
+          .catalog-card-meta span {
+            font-size: 0.68rem !important;
+          }
         }
       `}</style>
     </div>
