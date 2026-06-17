@@ -365,6 +365,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── SHOWROOM ────────────────────────────────────────────────────────────── */}
+      <section className="reveal" style={{ background: "#F5F5F7", padding: "5rem 0" }}>
+        <div className="container">
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2.5rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem", display: "flex", alignItems: "center" }}><span className="lux-hairline" style={{ color: "#0071E3" }} />Stock actual</p>
+              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.8vw, 2.9rem)", fontWeight: "500", color: "#1D1D1F", margin: 0, letterSpacing: "-0.015em" }}>
+                Coches de Ocasión en Oviedo
+              </h2>
+            </div>
+            <Link href="/catalogo">
+              <a style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "600",
+                color: "#0071E3", textDecoration: "none",
+                border: "1.5px solid #0071E3", borderRadius: "50px",
+                padding: "0.55rem 1.25rem",
+                transition: "background 0.2s, color 0.2s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#0071E3"; (e.currentTarget as HTMLAnchorElement).style.color = "#fff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3"; }}
+              >
+                Ver catálogo completo <ArrowRight size={13} />
+              </a>
+            </Link>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
+            {isLoading ? (
+              Array.from({length: 6}).map((_, i) => (
+                <div key={i} style={{ borderRadius: "20px", overflow: "hidden", background: "#F5F5F7", aspectRatio: "4/3", animation: "pulse 1.5s ease-in-out infinite" }} />
+              ))
+            ) : vehicles.length === 0 ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "3rem", color: "#6E6E73", fontFamily: "'DM Sans', sans-serif" }}>
+                <p style={{ fontSize: "1.1rem", fontWeight: "600" }}>Stock en actualización</p>
+                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>Contacta con nosotros para conocer la disponibilidad actual.</p>
+              </div>
+            ) : vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
+          </div>
+        </div>
+      </section>
+
       {/* ── SERVICIOS ───────────────────────────────────────────────────────────── */}
       <section style={{ background: "#FFFFFF", padding: "5rem 0" }}>
         <div className="container">
@@ -406,48 +448,6 @@ export default function Home() {
                 {b}
               </span>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SHOWROOM ────────────────────────────────────────────────────────────── */}
-      <section className="reveal" style={{ background: "#F5F5F7", padding: "5rem 0" }}>
-        <div className="container">
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2.5rem", flexWrap: "wrap", gap: "1rem" }}>
-            <div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "600", letterSpacing: "0.18em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.6rem", display: "flex", alignItems: "center" }}><span className="lux-hairline" style={{ color: "#0071E3" }} />Stock actual</p>
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.8vw, 2.9rem)", fontWeight: "500", color: "#1D1D1F", margin: 0, letterSpacing: "-0.015em" }}>
-                Coches de Ocasión en Oviedo
-              </h2>
-            </div>
-            <Link href="/catalogo">
-              <a style={{
-                display: "inline-flex", alignItems: "center", gap: "6px",
-                fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "600",
-                color: "#0071E3", textDecoration: "none",
-                border: "1.5px solid #0071E3", borderRadius: "50px",
-                padding: "0.55rem 1.25rem",
-                transition: "background 0.2s, color 0.2s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#0071E3"; (e.currentTarget as HTMLAnchorElement).style.color = "#fff"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#0071E3"; }}
-              >
-                Ver catálogo completo <ArrowRight size={13} />
-              </a>
-            </Link>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
-            {isLoading ? (
-              Array.from({length: 6}).map((_, i) => (
-                <div key={i} style={{ borderRadius: "20px", overflow: "hidden", background: "#F5F5F7", aspectRatio: "4/3", animation: "pulse 1.5s ease-in-out infinite" }} />
-              ))
-            ) : vehicles.length === 0 ? (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "3rem", color: "#6E6E73", fontFamily: "'DM Sans', sans-serif" }}>
-                <p style={{ fontSize: "1.1rem", fontWeight: "600" }}>Stock en actualización</p>
-                <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>Contacta con nosotros para conocer la disponibilidad actual.</p>
-              </div>
-            ) : vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
           </div>
         </div>
       </section>
