@@ -66,7 +66,7 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Links */}
-          <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="hidden md:flex">
+          <div className="hidden md:flex" style={{ alignItems: "center", gap: "2rem" }}>
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <a
@@ -82,22 +82,13 @@ export default function Navigation() {
           {/* Right side */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             {user ? (
-              <>
-                <button
-                  onClick={() => logout()}
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.8rem",
-                    color: "#86868B",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                  className="hidden md:inline"
-                >
-                  Salir
-                </button>
-              </>
+              <button
+                onClick={() => logout()}
+                className="hidden md:inline"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "#86868B", background: "none", border: "none", cursor: "pointer" }}
+              >
+                Salir
+              </button>
             ) : (
               <Link href="/catalogo">
                 <a className="btn-primary hidden md:inline-flex" style={{ padding: "0.55rem 1.25rem", fontSize: "0.82rem" }}>
@@ -110,17 +101,8 @@ export default function Navigation() {
             <button
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-              style={{
-                display: "none",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "6px",
-                color: "#1D1D1F",
-                fontSize: "1.4rem",
-                lineHeight: 1,
-              }}
               className="block md:hidden"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", color: "#1D1D1F", fontSize: "1.4rem", lineHeight: 1 }}
             >
               {mobileOpen ? "✕" : "☰"}
             </button>

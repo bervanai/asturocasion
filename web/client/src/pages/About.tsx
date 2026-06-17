@@ -53,7 +53,7 @@ export default function About() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#F5F5F7", overflowX: "hidden" }}>
       <Navigation />
 
       {/* ---- Hero ---- */}
@@ -111,7 +111,7 @@ export default function About() {
               letterSpacing: "-0.015em",
             }}
           >
-            Más de 15 Años de Concesionario de Ocasión en <em style={{ fontStyle: "italic", color: "#4DA3FF" }}>Oviedo, Asturias</em>
+            Concesionario de Ocasión de Confianza en <em style={{ fontStyle: "italic", color: "#4DA3FF" }}>Oviedo, Asturias</em>
           </h1>
           <p
             style={{
