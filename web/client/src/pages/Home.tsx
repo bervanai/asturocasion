@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search, Fuel, Gauge, Calendar } from "lucide-react";
+import { ArrowRight, Shield, RotateCcw, Star, Phone, CheckCircle, Search, Fuel, Gauge, Calendar, Car, ScanSearch, Banknote, CreditCard, MapPin, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchVehicles } from "@/lib/supabase";
 import { useSEO } from "@/hooks/useSEO";
@@ -353,7 +353,7 @@ export default function Home() {
             {[
               { num: "+200", label: "Coches vendidos" },
               { num: "+200", label: "Familias satisfechas" },
-              { num: "4.9★", label: "Valoración media" },
+              { num: "4.9/5", label: "Valoración media" },
               { num: "48h", label: "Tasación express" },
             ].map((s, i) => (
               <div key={s.num} style={{ borderRight: i < 3 ? "1px solid rgba(255,255,255,0.08)" : "none" }}>
@@ -421,13 +421,13 @@ export default function Home() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.25rem" }}>
             {[
-              { icon: "🚗", title: "Variedad de Vehículos", desc: "Le ofrecemos vehículos de todos los segmentos: compactos, SUV, berlinas, familiares, deportivos y más." },
-              { icon: "🔍", title: "Vehículos por Encargo", desc: "Asesoramiento personalizado y búsqueda de vehículos por encargo. Encontramos el coche que busca." },
-              { icon: "💰", title: "Compra a Particulares", desc: "Le compramos su vehículo con la mejor tasación del mercado asturiano. Pago inmediato." },
-              { icon: "📋", title: "Financiación", desc: "Le ofrecemos la financiación que mejor se adapte a sus necesidades. Condiciones a medida." },
+              { icon: <Car size={22} color="#0071E3" />, title: "Variedad de Vehículos", desc: "Le ofrecemos vehículos de todos los segmentos: compactos, SUV, berlinas, familiares, deportivos y más." },
+              { icon: <ScanSearch size={22} color="#0071E3" />, title: "Vehículos por Encargo", desc: "Asesoramiento personalizado y búsqueda de vehículos por encargo. Encontramos el coche que busca." },
+              { icon: <Banknote size={22} color="#0071E3" />, title: "Compra a Particulares", desc: "Le compramos su vehículo con la mejor tasación del mercado asturiano. Pago inmediato." },
+              { icon: <CreditCard size={22} color="#0071E3" />, title: "Financiación", desc: "Le ofrecemos la financiación que mejor se adapte a sus necesidades. Condiciones a medida." },
             ].map((s) => (
               <div key={s.title} style={{ background: "#F5F5F7", borderRadius: "18px", padding: "1.75rem", border: "1px solid #E8E8ED", transition: "box-shadow 0.2s" }}>
-                <div style={{ fontSize: "2rem", marginBottom: "0.85rem" }}>{s.icon}</div>
+                <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "rgba(0,113,227,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.85rem" }}>{s.icon}</div>
                 <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "700", color: "#1D1D1F", margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>{s.title}</h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.83rem", color: "#6E6E73", lineHeight: 1.6, margin: 0 }}>{s.desc}</p>
               </div>
@@ -534,7 +534,9 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "1.5rem" }}>
             {testimonials.map((t, i) => (
               <div key={i} style={{ background: "#FFFFFF", border: "1px solid #E8E8ED", borderRadius: "20px", padding: "2rem" }}>
-                <div style={{ color: "#F5A623", fontSize: "1rem", marginBottom: "1rem" }}>{"★".repeat(t.rating)}</div>
+                <div style={{ display: "flex", gap: "2px", marginBottom: "1rem" }}>
+                  {Array.from({length: t.rating}).map((_, i) => <Star key={i} size={14} fill="#F5A623" color="#F5A623" />)}
+                </div>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.92rem", color: "#3D3D3F", lineHeight: 1.75, margin: "0 0 1.5rem", fontStyle: "italic" }}>
                   "{t.text}"
                 </p>
@@ -596,9 +598,9 @@ export default function Home() {
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "#0071E3", marginBottom: "0.5rem" }}>Dónde estamos</p>
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: "800", color: "#1D1D1F", margin: "0 0 1rem", letterSpacing: "-0.03em" }}>Encuéntranos en Oviedo</h2>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#6E6E73" }}>
-              <span>📍 José Manuel Fuente, 2 · 33002 Oviedo, Asturias</span>
-              <a href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "600" }}>📞 984 180 450</a>
-              <span>⏰ Lun–Vie: 10:00–13:30 / 16:00–20:00 · Sáb: 10:00–13:30</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><MapPin size={14} color="#0071E3" /> José Manuel Fuente, 2 · 33002 Oviedo, Asturias</span>
+              <a href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}><Phone size={14} /> 984 180 450</a>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Clock size={14} color="#0071E3" /> Lun–Vie: 10:00–13:30 / 16:00–20:00 · Sáb: 10:00–13:30</span>
             </div>
           </div>
         </div>
