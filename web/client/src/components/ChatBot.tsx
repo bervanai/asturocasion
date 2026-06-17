@@ -60,7 +60,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   ubicacion: {
-    text: "Estamos en **José Manuel Fuente, 2 · 33002 Oviedo, Asturias**. Puedes visitarnos de lunes a viernes y también los sábados por la mañana.",
+    text: "Estamos en **José Manuel Fuente, 2 · 33002 Oviedo, Asturias**.\n\nMuy fácil de encontrar en el centro de Oviedo. Puedes visitarnos de lunes a viernes y también los sábados por la mañana.",
     options: [
       { label: "⏰ Ver horario", value: "horario" },
       { label: "📞 Contactar", value: "asesor" },
@@ -68,15 +68,63 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   horario: {
-    text: "Nuestro horario de atención es:\n\n🕙 Lunes a Viernes\n10:00 – 13:30 y 16:00 – 20:00\n\n🕙 Sábados\n10:00 – 13:30\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
+    text: "Nuestro horario de atención es:\n\n🕙 **Lunes a Viernes**\n10:00 – 13:30 y 16:00 – 20:00\n\n🕙 **Sábados**\n10:00 – 13:30\n\n❌ Domingos: cerrado\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
     options: [
       { label: "📞 Llamar ahora", value: "llamar" },
       { label: "💬 WhatsApp", value: "whatsapp" },
       { label: "← Volver al menú", value: "inicio" },
     ],
   },
+  domingo: {
+    text: "Los domingos permanecemos **cerrados**.\n\nPuedes visitarnos de **lunes a viernes** de 10:00 a 13:30 y de 16:00 a 20:00, o los **sábados** de 10:00 a 13:30.\n\n💬 Si tienes prisa, escríbenos por WhatsApp y te respondemos lo antes posible.",
+    options: [
+      { label: "💬 WhatsApp", value: "whatsapp" },
+      { label: "⏰ Ver horario completo", value: "horario" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  sabado: {
+    text: "¡Sí, abrimos los sábados! 🎉\n\n🕙 **Sábados: 10:00 – 13:30**\n\nLos sábados por la tarde estamos cerrados. De lunes a viernes tenemos horario partido: 10:00–13:30 y 16:00–20:00.",
+    options: [
+      { label: "📍 ¿Dónde estáis?", value: "ubicacion" },
+      { label: "📞 Llamar para confirmar", value: "llamar" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  garantia: {
+    text: "Sí, todos nuestros vehículos incluyen **garantía**. Además:\n\n✅ Revisión mecánica completa antes de la venta\n✅ ITV en vigor\n✅ Transferencia sin coste adicional\n✅ Sin letra pequeña ni sorpresas\n\nSi quieres más detalles sobre la garantía de un vehículo concreto, llámanos o escríbenos.",
+    options: [
+      { label: "📞 Preguntar por un coche", value: "asesor" },
+      { label: "🔍 Ver catálogo", value: "ir_catalogo" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  transferencia: {
+    text: "Sí, **la transferencia está incluida en el precio** de todos nuestros vehículos. Nosotros nos encargamos de todo el papeleo, sin coste adicional para ti.\n\nTambién gestionamos el cambio de seguro si lo necesitas.",
+    options: [
+      { label: "🔍 Ver vehículos disponibles", value: "ir_catalogo" },
+      { label: "📞 Hablar con un asesor", value: "asesor" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
+  contacto: {
+    text: "Puedes contactarnos por:\n\n📞 **Teléfono:** 984 180 450\n💬 **WhatsApp:** 629 574 957\n✉️ **Email:** asturocasion@gmail.com\n📍 **Dirección:** José Manuel Fuente, 2 · Oviedo\n\n**Horario de atención:**\nL–V: 10:00–13:30 y 16:00–20:00\nSáb: 10:00–13:30",
+    options: [
+      { label: "📞 Llamar ahora", value: "llamar" },
+      { label: "💬 WhatsApp", value: "whatsapp" },
+      { label: "← Volver al menú", value: "inicio" },
+    ],
+  },
+  itv: {
+    text: "Sí, todos los vehículos que vendemos tienen la **ITV en vigor** en el momento de la entrega. Es parte de nuestra revisión estándar, sin coste adicional.",
+    options: [
+      { label: "ℹ️ ¿Qué más incluye el precio?", value: "info" },
+      { label: "🔍 Ver vehículos", value: "ir_catalogo" },
+      { label: "← Volver", value: "inicio" },
+    ],
+  },
   asesor: {
-    text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados. Nuestro horario es de lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00, y los sábados de 10:00 a 13:30.",
+    text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados.\n\n⏰ Horario: L–V 10:00–13:30 y 16:00–20:00 · Sáb 10:00–13:30",
     options: [
       { label: "📞 Llamar: 984 180 450", value: "llamar" },
       { label: "💬 WhatsApp: 629 574 957", value: "whatsapp" },
@@ -97,6 +145,10 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
       { label: "🔋 Híbrido / Eléctrico", value: "ir_catalogo" },
       { label: "🔍 Ver todos", value: "ir_catalogo" },
     ],
+  },
+  no_entiendo: {
+    text: "No he entendido bien tu pregunta 😅 Pero puedo ayudarte con esto:",
+    options: INITIAL_MESSAGE.options,
   },
   inicio: {
     text: "¿En qué más puedo ayudarte?",
@@ -229,16 +281,28 @@ export default function ChatBot() {
     setInput("");
     setMessages((prev) => [...prev, { id: msgId.current++, from: "user", text }]);
 
-    // Simple keyword matching
-    const lower = text.toLowerCase();
-    let key = "inicio";
-    if (lower.includes("coche") || lower.includes("catálogo") || lower.includes("catalogo") || lower.includes("comprar")) key = "catalogo";
-    else if (lower.includes("vend") || lower.includes("tasac")) key = "vender";
-    else if (lower.includes("precio") || lower.includes("€") || lower.includes("financ")) key = "financiacion";
-    else if (lower.includes("horario") || lower.includes("abre")) key = "horario";
-    else if (lower.includes("donde") || lower.includes("dónde") || lower.includes("ubic")) key = "ubicacion";
-    else if (lower.includes("hablar") || lower.includes("asesor") || lower.includes("persona")) key = "asesor";
-    else if (lower.includes("whatsapp") || lower.includes("wsp")) key = "asesor";
+    // Keyword matching — orden de mayor a menor especificidad
+    const lower = text.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // quita tildes para comparar
+    let key = "no_entiendo";
+
+    if (lower.includes("domingo")) key = "domingo";
+    else if (lower.includes("sabado") || lower.includes("sabados")) key = "sabado";
+    else if (lower.includes("horario") || lower.includes("abre") || lower.includes("cierra") || lower.includes("cierre") || lower.includes("cuando abri") || lower.includes("a que hora") || lower.includes("apertura") || lower.includes("tarde") || lower.includes("manana") || lower.includes("mañana") || lower.includes("lunes") || lower.includes("viernes") || lower.includes("festivo")) key = "horario";
+    else if (lower.includes("garantia") || lower.includes("garantias") || lower.includes("garantizado")) key = "garantia";
+    else if (lower.includes("transferencia") || lower.includes("papeleo") || lower.includes("tramite") || lower.includes("documentacion")) key = "transferencia";
+    else if (lower.includes("itv") || lower.includes("revision") || lower.includes("inspeccion")) key = "itv";
+    else if (lower.includes("financ") || lower.includes("credito") || lower.includes("cuota") || lower.includes("plazos") || lower.includes("pago")) key = "financiacion";
+    else if (lower.includes("vend") || lower.includes("tasac") || lower.includes("cambio") || lower.includes("quiero vender")) key = "vender";
+    else if (lower.includes("precio") || lower.includes("€") || lower.includes("cuanto cuesta") || lower.includes("cuanto vale") || lower.includes("coste")) key = "precio";
+    else if (lower.includes("combustible") || lower.includes("diesel") || lower.includes("gasolina") || lower.includes("hibrido") || lower.includes("electrico") || lower.includes("gasoil")) key = "combustible";
+    else if (lower.includes("coche") || lower.includes("catalogo") || lower.includes("vehiculo") || lower.includes("stock") || lower.includes("comprar") || lower.includes("disponible") || lower.includes("modelo") || lower.includes("marca")) key = "catalogo";
+    else if (lower.includes("donde") || lower.includes("ubic") || lower.includes("direccion") || lower.includes("calle") || lower.includes("oviedo") || lower.includes("como llegar") || lower.includes("instalacion")) key = "ubicacion";
+    else if (lower.includes("telefono") || lower.includes("numero") || lower.includes("email") || lower.includes("correo") || lower.includes("contacto") || lower.includes("contactar")) key = "contacto";
+    else if (lower.includes("whatsapp") || lower.includes("wsp") || lower.includes("wasap")) key = "asesor";
+    else if (lower.includes("hablar") || lower.includes("asesor") || lower.includes("persona") || lower.includes("llamar") || lower.includes("agente")) key = "asesor";
+    else if (lower.includes("info") || lower.includes("incluye") || lower.includes("que dan") || lower.includes("servicio")) key = "info";
+
     addBotMessage(key);
   };
 
