@@ -51,7 +51,7 @@ const NAV_ITEMS = [
 ];
 
 function LoginScreen({ onLogin }: { onLogin: (email: string, pwd: string) => Promise<boolean> }) {
-  const [email, setEmail] = useState("admin@asturocasion.es");
+  const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
