@@ -304,10 +304,9 @@ export default function AdminDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
           gap: "1rem",
         }}
-        className="lg:grid-cols-3 grid-cols-1"
+        className="grid-cols-1 lg:grid-cols-3"
       >
         {/* Lead funnel */}
         <div className="glass-card" style={{ padding: "1.25rem 1.5rem" }}>

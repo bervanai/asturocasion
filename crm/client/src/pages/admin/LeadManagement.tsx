@@ -600,7 +600,7 @@ export default function LeadManagement() {
       </div>
 
       {/* ── Content */}
-      <div style={{ display: "grid", gridTemplateColumns: selectedLead ? "1fr 300px" : "1fr", gap: "1rem", alignItems: "start" }}>
+      <div className={selectedLead ? "grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-start" : "grid grid-cols-1 gap-4 items-start"}>
 
         {/* Table view */}
         {viewMode === "table" && (
@@ -697,7 +697,7 @@ export default function LeadManagement() {
 
         {/* Kanban view */}
         {viewMode === "kanban" && (
-          <div style={{ overflowX: "auto", paddingBottom: "0.5rem" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: "0.5rem" }}>
             <div style={{ display: "flex", gap: "0.75rem", minWidth: "900px" }}>
               {ALL_STATUSES.map((status) => (
                 <KanbanColumn
