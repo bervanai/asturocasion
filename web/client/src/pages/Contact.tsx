@@ -84,7 +84,6 @@ export default function Contact() {
       label: "Teléfono",
       lines: [
         <a key="1" href="tel:629574957" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "500" }}>629 574 957</a>,
-        <a key="2" href="tel:629574957" style={{ color: "#86868B", textDecoration: "none" }}>629 574 957</a>,
       ],
     },
     {
