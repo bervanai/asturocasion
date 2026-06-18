@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
 
 Sitemap: https://asturocasion.es/sitemap.xml
