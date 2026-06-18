@@ -19,26 +19,37 @@ import VehicleManagement from "./pages/admin/VehicleManagement";
 import LeadManagement from "./pages/admin/LeadManagement";
 import { supabase } from "@/lib/supabase";
 
+const AUTH_KEY = "astur_crm_auth";
+const AUTH_TS_KEY = "astur_crm_auth_ts";
+const EIGHT_HOURS = 8 * 60 * 60 * 1000;
+
 function useSupabaseAuth() {
   const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setAuthed(!!data.session);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthed(!!session);
-    });
-    return () => subscription.unsubscribe();
+    const ts = Number(localStorage.getItem(AUTH_TS_KEY) ?? "0");
+    const ok = localStorage.getItem(AUTH_KEY) === "1" && Date.now() - ts < EIGHT_HOURS;
+    if (!ok) {
+      localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(AUTH_TS_KEY);
+    }
+    setAuthed(ok);
   }, []);
 
   const login = async (email: string, pwd: string): Promise<boolean> => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
-    return !error;
+    // Verify password via secure DB function (server-side, never in bundle)
+    const { data, error } = await supabase.rpc("admin_login", { p_password: pwd });
+    if (error || !data) return false;
+    localStorage.setItem(AUTH_KEY, "1");
+    localStorage.setItem(AUTH_TS_KEY, String(Date.now()));
+    setAuthed(true);
+    return true;
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
+  const logout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_TS_KEY);
+    setAuthed(false);
   };
 
   return { authed, login, logout };
@@ -51,7 +62,6 @@ const NAV_ITEMS = [
 ];
 
 function LoginScreen({ onLogin }: { onLogin: (email: string, pwd: string) => Promise<boolean> }) {
-  const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
@@ -59,7 +69,7 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, pwd: string) => Pro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const ok = await onLogin(email, pwd);
+    const ok = await onLogin("", pwd);
     setLoading(false);
     if (!ok) { setError(true); setPwd(""); }
   };
@@ -71,19 +81,9 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, pwd: string) => Pro
             <Lock style={{ width: "22px", height: "22px", color: "#0a0a0b" }} />
           </div>
           <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.375rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.03em" }}>Astur Ocasión CRM</h1>
-          <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "0.25rem" }}>Acceso seguro al panel de administración</p>
+          <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "0.25rem" }}>Introduce la contraseña de administrador</p>
         </div>
         <form onSubmit={handleSubmit} style={{ background: "#141416", border: "1px solid #1f1f23", borderRadius: "12px", padding: "1.75rem" }}>
-          <div style={{ marginBottom: "0.75rem" }}>
-            <input
-              type="email"
-              value={email}
-              onChange={e => { setEmail(e.target.value); setError(false); }}
-              placeholder="Email"
-              required
-              style={{ width: "100%", background: "#0a0a0b", border: `1px solid ${error ? "#ef4444" : "#1f1f23"}`, borderRadius: "8px", padding: "0.625rem 0.875rem", fontSize: "0.875rem", color: "#f0f0f0", outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
           <div style={{ position: "relative", marginBottom: "1rem" }}>
             <input
               type={show ? "text" : "password"}
