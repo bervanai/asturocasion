@@ -110,6 +110,17 @@ function ImageUploader({
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    // Validate each file before uploading
+    for (const f of Array.from(files)) {
+      if (!f.type.startsWith("image/")) {
+        toast.error(`"${f.name}" no es una imagen válida`);
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error(`"${f.name}" supera el límite de 10 MB`);
+        return;
+      }
+    }
     setUploading(true);
     try {
       const uploads = await Promise.all(
@@ -130,8 +141,8 @@ function ImageUploader({
       await deleteVehicleImage(url);
       onChange(images.filter((u) => u !== url));
     } catch {
-      // Remove from UI anyway even if delete fails
-      onChange(images.filter((u) => u !== url));
+      toast.error("No se pudo eliminar la foto del servidor. Inténtalo de nuevo.");
+      // Keep the image in the UI so the user knows it's still there
     }
   };
 
@@ -305,6 +316,7 @@ export default function VehicleManagement() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [originalStatus, setOriginalStatus] = useState<string | null>(null);
   const [formData, setFormData] = useState<VehicleForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -330,6 +342,7 @@ export default function VehicleManagement() {
 
   const handleEdit = (v: (typeof vehicles)[0]) => {
     setEditingId(v.id);
+    setOriginalStatus(v.status); // track original DB status to avoid resetting sold_at
     setFormData({
       brand: v.brand,
       model: v.model,
@@ -352,6 +365,15 @@ export default function VehicleManagement() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newStatus = STATUS_TO_API[formData.status] ?? "available";
+    // Only set sold_at when actually transitioning TO sold for the first time
+    let soldAtPatch: { sold_at?: string | null } = {};
+    if (editingId !== null) {
+      if (newStatus === "sold" && originalStatus !== "sold") soldAtPatch = { sold_at: new Date().toISOString() };
+      else if (newStatus !== "sold" && originalStatus === "sold") soldAtPatch = { sold_at: null };
+    } else {
+      if (newStatus === "sold") soldAtPatch = { sold_at: new Date().toISOString() };
+    }
     const payload = {
       brand: formData.brand,
       model: formData.model,
@@ -360,8 +382,8 @@ export default function VehicleManagement() {
       km: Number(formData.km),
       fuel_type: formData.fuel,
       transmission: formData.transmission,
-      status: STATUS_TO_API[formData.status] ?? "available",
-      ...(STATUS_TO_API[formData.status] === "sold" ? { sold_at: new Date().toISOString() } : {}),
+      status: newStatus,
+      ...soldAtPatch,
       description: formData.description || null,
       images: formData.images.length > 0 ? formData.images : null,
       color: formData.color || null,

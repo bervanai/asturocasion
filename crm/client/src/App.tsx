@@ -13,42 +13,32 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminDashboard from "./pages/admin/Dashboard";
 import VehicleManagement from "./pages/admin/VehicleManagement";
 import LeadManagement from "./pages/admin/LeadManagement";
+import { supabase } from "@/lib/supabase";
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
-const AUTH_KEY = "astur_crm_auth";
-const AUTH_TS_KEY = "astur_crm_auth_ts";
+function useSupabaseAuth() {
+  const [authed, setAuthed] = useState<boolean | null>(null);
 
-function useSimpleAuth() {
-  const [authed, setAuthed] = useState(() => {
-    if (localStorage.getItem(AUTH_KEY) !== "1") return false;
-    const ts = Number(localStorage.getItem(AUTH_TS_KEY) ?? "0");
-    const EIGHT_HOURS = 8 * 60 * 60 * 1000;
-    if (Date.now() - ts > EIGHT_HOURS) {
-      localStorage.removeItem(AUTH_KEY);
-      localStorage.removeItem(AUTH_TS_KEY);
-      return false;
-    }
-    return true;
-  });
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data.session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthed(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-  const login = (pwd: string) => {
-    if (pwd === ADMIN_PASSWORD) {
-      localStorage.setItem(AUTH_KEY, "1");
-      localStorage.setItem(AUTH_TS_KEY, String(Date.now()));
-      setAuthed(true);
-      return true;
-    }
-    return false;
+  const login = async (email: string, pwd: string): Promise<boolean> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+    return !error;
   };
 
-  const logout = () => {
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem(AUTH_TS_KEY);
-    setAuthed(false);
+  const logout = async () => {
+    await supabase.auth.signOut();
   };
 
   return { authed, login, logout };
@@ -60,13 +50,18 @@ const NAV_ITEMS = [
   { href: "/leads",     icon: FileText,         label: "Leads"      },
 ];
 
-function LoginScreen({ onLogin }: { onLogin: (pwd: string) => boolean }) {
+function LoginScreen({ onLogin }: { onLogin: (email: string, pwd: string) => Promise<boolean> }) {
+  const [email, setEmail] = useState("admin@asturocasion.es");
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!onLogin(pwd)) { setError(true); setPwd(""); }
+    setLoading(true);
+    const ok = await onLogin(email, pwd);
+    setLoading(false);
+    if (!ok) { setError(true); setPwd(""); }
   };
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0b" }}>
@@ -76,14 +71,19 @@ function LoginScreen({ onLogin }: { onLogin: (pwd: string) => boolean }) {
             <Lock style={{ width: "22px", height: "22px", color: "#0a0a0b" }} />
           </div>
           <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.375rem", fontWeight: 700, color: "#f0f0f0", letterSpacing: "-0.03em" }}>Astur Ocasión CRM</h1>
-          <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "0.25rem" }}>Introduce la contraseña de administrador</p>
+          <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginTop: "0.25rem" }}>Acceso seguro al panel de administración</p>
         </div>
-        {ADMIN_PASSWORD === "" && (
-          <p style={{ fontSize: "0.75rem", color: "#f59e0b", background: "#1c1a10", border: "1px solid #92400e", borderRadius: "8px", padding: "0.625rem 0.875rem", marginBottom: "1rem", textAlign: "center" }}>
-            Configura VITE_ADMIN_PASSWORD en las variables de entorno de Vercel.
-          </p>
-        )}
         <form onSubmit={handleSubmit} style={{ background: "#141416", border: "1px solid #1f1f23", borderRadius: "12px", padding: "1.75rem" }}>
+          <div style={{ marginBottom: "0.75rem" }}>
+            <input
+              type="email"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setError(false); }}
+              placeholder="Email"
+              required
+              style={{ width: "100%", background: "#0a0a0b", border: `1px solid ${error ? "#ef4444" : "#1f1f23"}`, borderRadius: "8px", padding: "0.625rem 0.875rem", fontSize: "0.875rem", color: "#f0f0f0", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
           <div style={{ position: "relative", marginBottom: "1rem" }}>
             <input
               type={show ? "text" : "password"}
@@ -91,15 +91,16 @@ function LoginScreen({ onLogin }: { onLogin: (pwd: string) => boolean }) {
               onChange={e => { setPwd(e.target.value); setError(false); }}
               placeholder="Contraseña"
               autoFocus
+              required
               style={{ width: "100%", background: "#0a0a0b", border: `1px solid ${error ? "#ef4444" : "#1f1f23"}`, borderRadius: "8px", padding: "0.625rem 2.5rem 0.625rem 0.875rem", fontSize: "0.875rem", color: "#f0f0f0", outline: "none", boxSizing: "border-box" }}
             />
             <button type="button" onClick={() => setShow(!show)} style={{ position: "absolute", right: "0.625rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#6b7280", cursor: "pointer" }}>
               {show ? <EyeOff style={{ width: "16px", height: "16px" }} /> : <Eye style={{ width: "16px", height: "16px" }} />}
             </button>
           </div>
-          {error && <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: "0.75rem" }}>Contraseña incorrecta</p>}
-          <button type="submit" style={{ width: "100%", background: "#e8a020", color: "#0a0a0b", border: "none", borderRadius: "8px", padding: "0.625rem", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer" }}>
-            Entrar
+          {error && <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: "0.75rem" }}>Credenciales incorrectas</p>}
+          <button type="submit" disabled={loading} style={{ width: "100%", background: "#e8a020", color: "#0a0a0b", border: "none", borderRadius: "8px", padding: "0.625rem", fontSize: "0.875rem", fontWeight: 700, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "Accediendo…" : "Entrar"}
           </button>
         </form>
       </div>
@@ -353,7 +354,13 @@ function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: (
 
 
 function Router() {
-  const { authed, login, logout } = useSimpleAuth();
+  const { authed, login, logout } = useSupabaseAuth();
+
+  if (authed === null) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0b" }}>
+      <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "3px solid #e8a020", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+    </div>
+  );
 
   if (!authed) return <LoginScreen onLogin={login} />;
 

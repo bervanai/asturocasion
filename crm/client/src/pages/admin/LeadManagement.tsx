@@ -449,12 +449,22 @@ export default function LeadManagement() {
 
   const handleSaveNotes = () => {
     if (!selectedLead) return;
-    updateMutation.mutate({
-      id: selectedLead.id,
-      notes: notesValue,
-      next_contact_date: nextContactDate || null,
-    });
+    const snapshot = { ...selectedLead };
+    const snapshotNotes = notesValue;
+    const snapshotDate = nextContactDate;
+    // Optimistic update
     setSelectedLead((prev) => prev ? { ...prev, notes: notesValue, next_contact_date: nextContactDate || null } : null);
+    updateMutation.mutate(
+      { id: selectedLead.id, notes: notesValue, next_contact_date: nextContactDate || null },
+      {
+        onError: () => {
+          // Rollback on failure
+          setSelectedLead(snapshot);
+          setNotesValue(snapshotNotes);
+          setNextContactDate(snapshotDate);
+        },
+      }
+    );
   };
 
   // New lead modal state
