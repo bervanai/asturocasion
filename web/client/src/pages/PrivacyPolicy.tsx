@@ -34,7 +34,7 @@ export default function PrivacyPolicy() {
           <Section title="1. Responsable del Tratamiento">
             <p style={BODY}><strong>Denominación:</strong> Astur Ocasión del Automóvil</p>
             <p style={BODY}><strong>Dirección:</strong> José Manuel Fuente, 2 · 33002 Oviedo, Asturias</p>
-            <p style={BODY}><strong>Teléfono:</strong> 984 180 450</p>
+            <p style={BODY}><strong>Teléfono:</strong> 629 574 957</p>
             <p style={BODY}><strong>Email:</strong> <a href="mailto:asturocasion@gmail.com" style={{ color: "#0071E3" }}>asturocasion@gmail.com</a></p>
           </Section>
 

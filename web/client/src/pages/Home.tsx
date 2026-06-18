@@ -487,8 +487,8 @@ export default function Home() {
               >
                 Cómo llegar <ArrowRight size={15} />
               </a>
-              <a href="tel:984180450" className="lux-underline" style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(255,255,255,0.78)", textDecoration: "none" }}>
-                <Phone size={15} /> 984 180 450
+              <a href="tel:629574957" className="lux-underline" style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "rgba(255,255,255,0.78)", textDecoration: "none" }}>
+                <Phone size={15} /> 629 574 957
               </a>
             </div>
           </div>
@@ -585,12 +585,12 @@ export default function Home() {
                   Tasar mi vehículo <ArrowRight size={16} />
                 </a>
               </Link>
-              <a href="tel:984180450" style={{
+              <a href="tel:629574957" style={{
                 display: "flex", alignItems: "center", gap: "8px",
                 fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem",
                 color: "rgba(255,255,255,0.75)", textDecoration: "none",
               }}>
-                <Phone size={15} /> 984 180 450
+                <Phone size={15} /> 629 574 957
               </a>
             </div>
           </div>
@@ -605,7 +605,7 @@ export default function Home() {
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: "800", color: "#1D1D1F", margin: "0 0 1rem", letterSpacing: "-0.03em" }}>Encuéntranos en Oviedo</h2>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#6E6E73" }}>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><MapPin size={14} color="#0071E3" /> José Manuel Fuente, 2 · 33002 Oviedo, Asturias</span>
-              <a href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}><Phone size={14} /> 984 180 450</a>
+              <a href="tel:629574957" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}><Phone size={14} /> 629 574 957</a>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Clock size={14} color="#0071E3" /> Lun–Vie: 10:00–13:30 / 16:00–20:00 · Sáb: 10:00–13:30</span>
             </div>
           </div>

@@ -184,7 +184,7 @@ export default function Footer() {
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
               <li>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Teléfono</p>
-                <a href="tel:984180450" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#0071E3", textDecoration: "none", fontWeight: "600" }}>984 180 450</a>
+                <a href="tel:629574957" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem", color: "#0071E3", textDecoration: "none", fontWeight: "600" }}>629 574 957</a>
               </li>
               <li>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "rgba(245,245,247,0.3)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>WhatsApp</p>

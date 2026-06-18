@@ -68,7 +68,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   horario: {
-    text: "Nuestro horario de atención es:\n\n🕙 **Lunes a Viernes**\n10:00 – 13:30 y 16:00 – 20:00\n\n🕙 **Sábados**\n10:00 – 13:30\n\n❌ Domingos: cerrado\n\n📞 También puedes llamarnos al **984 180 450** o escribirnos por WhatsApp.",
+    text: "Nuestro horario de atención es:\n\n🕙 **Lunes a Viernes**\n10:00 – 13:30 y 16:00 – 20:00\n\n🕙 **Sábados**\n10:00 – 13:30\n\n❌ Domingos: cerrado\n\n📞 También puedes llamarnos al **629 574 957** o escribirnos por WhatsApp.",
     options: [
       { label: "📞 Llamar ahora", value: "llamar" },
       { label: "💬 WhatsApp", value: "whatsapp" },
@@ -108,7 +108,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
     ],
   },
   contacto: {
-    text: "Puedes contactarnos por:\n\n📞 **Teléfono:** 984 180 450\n💬 **WhatsApp:** 629 574 957\n✉️ **Email:** asturocasion@gmail.com\n📍 **Dirección:** José Manuel Fuente, 2 · Oviedo\n\n**Horario de atención:**\nL–V: 10:00–13:30 y 16:00–20:00\nSáb: 10:00–13:30",
+    text: "Puedes contactarnos por:\n\n📞 **Teléfono:** 629 574 957\n💬 **WhatsApp:** 629 574 957\n✉️ **Email:** asturocasion@gmail.com\n📍 **Dirección:** José Manuel Fuente, 2 · Oviedo\n\n**Horario de atención:**\nL–V: 10:00–13:30 y 16:00–20:00\nSáb: 10:00–13:30",
     options: [
       { label: "📞 Llamar ahora", value: "llamar" },
       { label: "💬 WhatsApp", value: "whatsapp" },
@@ -126,7 +126,7 @@ const BOT_RESPONSES: Record<string, { text: string; options?: { label: string; v
   asesor: {
     text: "¡Claro! Puedes contactar con nuestro equipo por teléfono o WhatsApp y te atenderemos encantados.\n\n⏰ Horario: L–V 10:00–13:30 y 16:00–20:00 · Sáb 10:00–13:30",
     options: [
-      { label: "📞 Llamar: 984 180 450", value: "llamar" },
+      { label: "📞 Llamar: 629 574 957", value: "llamar" },
       { label: "💬 WhatsApp: 629 574 957", value: "whatsapp" },
       { label: "← Volver al menú", value: "inicio" },
     ],
@@ -253,7 +253,7 @@ export default function ChatBot() {
       return;
     }
     if (value === "llamar") {
-      window.location.href = "tel:984180450";
+      window.location.href = "tel:629574957";
       return;
     }
     if (value === "whatsapp") {

@@ -478,7 +478,7 @@ export default function TradeIn() {
                 Contacto directo
               </p>
               <a
-                href="tel:984180450"
+                href="tel:629574957"
                 style={{
                   display: "flex", alignItems: "center", gap: "10px",
                   fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", fontWeight: "500",
@@ -491,7 +491,7 @@ export default function TradeIn() {
                 <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(0,113,227,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0071E3", flexShrink: 0 }}>
                   <Phone size={14} />
                 </div>
-                984 180 450
+                629 574 957
               </a>
               <a
                 href="https://wa.me/34629574957"

@@ -37,7 +37,7 @@ const TEXTAREA_STYLE: React.CSSProperties = {
 export default function Contact() {
   useSEO({
     title: "Contacto — Astur Ocasión Oviedo",
-    description: "Contacta con Astur Ocasión en Oviedo. Llámanos al 984 180 450 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00. Sábados de 10:00 a 13:30.",
+    description: "Contacta con Astur Ocasión en Oviedo. Llámanos al 629 574 957 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00. Sábados de 10:00 a 13:30.",
     path: "/contacto",
   });
 
@@ -83,7 +83,7 @@ export default function Contact() {
       icon: <Phone size={18} />,
       label: "Teléfono",
       lines: [
-        <a key="1" href="tel:984180450" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "500" }}>984 180 450</a>,
+        <a key="1" href="tel:629574957" style={{ color: "#0071E3", textDecoration: "none", fontWeight: "500" }}>629 574 957</a>,
         <a key="2" href="tel:629574957" style={{ color: "#86868B", textDecoration: "none" }}>629 574 957</a>,
       ],
     },

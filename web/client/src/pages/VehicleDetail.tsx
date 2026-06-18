@@ -343,9 +343,9 @@ export default function VehicleDetail() {
                 Transferencia y garantía incluidas en el precio
               </p>
 
-              <a href="tel:984180450" className="btn-primary" style={{ width: "100%", justifyContent: "center", marginBottom: "0.75rem", display: "flex" }}>
+              <a href="tel:629574957" className="btn-primary" style={{ width: "100%", justifyContent: "center", marginBottom: "0.75rem", display: "flex" }}>
                 <Phone size={15} />
-                Llamar: 984 180 450
+                Llamar: 629 574 957
               </a>
               <a
                 href="https://wa.me/34629574957"
