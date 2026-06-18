@@ -80,7 +80,7 @@ export default function TradeIn() {
   const [submitted, setSubmitted] = useState(false);
 
   const createLead = useMutation({
-    mutationFn: (data: { name: string; email: string; phone?: string; type: "valuation"; message?: string }) =>
+    mutationFn: (data: { name: string; email: string; phone?: string; type: "valuation"; message?: string; vehicle_info?: Record<string, unknown> }) =>
       insertLead(data),
     onSuccess: () => {
       setSubmitted(true);
@@ -97,6 +97,12 @@ export default function TradeIn() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const vehicleInfo: Record<string, unknown> = {
+      brand: formData.brand,
+      model: formData.model,
+      year: formData.year ? Number(formData.year) : undefined,
+      km: formData.km ? Number(formData.km) : undefined,
+    };
     const vehicleStr = [formData.brand, formData.model, formData.year, formData.km ? `${formData.km} km` : ""].filter(Boolean).join(" ");
     const message = [
       vehicleStr ? `Vehículo a tasar: ${vehicleStr}` : "",
@@ -110,6 +116,7 @@ export default function TradeIn() {
       phone: formData.phone || undefined,
       type: "valuation",
       message: message || undefined,
+      vehicle_info: vehicleInfo,
     });
   };
 

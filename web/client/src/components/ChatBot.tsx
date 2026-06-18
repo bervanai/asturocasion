@@ -360,6 +360,7 @@ export default function ChatBot() {
 
       {/* Chat panel */}
       <div
+        className="chatbot-panel"
         style={{
           position: "fixed",
           bottom: "calc(1.5rem + 68px)",
