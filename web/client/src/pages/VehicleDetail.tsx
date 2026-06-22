@@ -124,7 +124,7 @@ export default function VehicleDetail() {
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
           />
           {/* Gradiente oscuro encima de la foto */}
-          <div style={{
+          <div className="hero-gradient" style={{
             position: "absolute", inset: 0,
             background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.1) 40%, rgba(13,15,20,0.85) 100%)",
           }} />
@@ -171,8 +171,8 @@ export default function VehicleDetail() {
             </>
           )}
 
-          {/* Overlay inferior: nombre + precio + botones */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem" }}>
+          {/* Overlay inferior: nombre + precio + botones — SOLO DESKTOP */}
+          <div className="hero-overlay" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem" }}>
             <div className="hero-content" style={{ maxWidth: "900px", margin: "0 auto" }}>
               {/* Nombre del coche */}
               <h1 className="hero-title" style={{
@@ -257,6 +257,48 @@ export default function VehicleDetail() {
             ))}
           </div>
         )}
+
+        {/* Info móvil: nombre + precio + botones — SOLO MOBILE, fuera de la foto */}
+        <div className="hero-mobile-info" style={{ display: "none" }}>
+          <div style={{ padding: "1.1rem 1rem 0.25rem" }}>
+            <h1 style={{
+              fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: "700",
+              color: "#fff", margin: "0 0 0.5rem 0", lineHeight: 1.15,
+            }}>
+              {vehicle.brand} {vehicle.model}
+            </h1>
+            <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.85rem" }}>
+              {[String(vehicle.year), `${vehicle.km.toLocaleString("es-ES")} km`, vehicle.fuel_type, vehicle.transmission].map((tag) => (
+                <span key={tag} style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: "500",
+                  color: "rgba(255,255,255,0.8)", background: "rgba(255,255,255,0.12)",
+                  borderRadius: "99px", padding: "0.18rem 0.6rem",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                }}>{tag}</span>
+              ))}
+            </div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: "700", color: "#e8a020", margin: "0 0 1rem 0" }}>
+              {Number(vehicle.price).toLocaleString("es-ES")} €
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", padding: "0 1rem 1rem" }}>
+            <a href="tel:629574957" className="btn-primary" style={{ justifyContent: "center", gap: "6px" }}>
+              <Phone size={14} /> Llamar
+            </a>
+            <a
+              href="https://wa.me/34629574957" target="_blank" rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", background: "#25d366", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "600", padding: "0.65rem", borderRadius: "2px", textDecoration: "none" }}
+            >
+              <MessageCircle size={14} /> WhatsApp
+            </a>
+            <a
+              href="mailto:asturocasion@gmail.com"
+              style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.15)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "500", padding: "0.65rem", borderRadius: "2px", textDecoration: "none" }}
+            >
+              <Mail size={14} /> Enviar email
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* ── CONTENIDO PRINCIPAL: columna única centrada ── */}
@@ -351,10 +393,13 @@ export default function VehicleDetail() {
 
       <style>{`
         @media (max-width: 600px) {
-          .hero-title { font-size: 1.3rem !important; }
-          .hero-cta { flex-direction: column !important; align-items: flex-start !important; gap: 0.65rem !important; }
-          .hero-buttons { width: 100%; }
-          .hero-btn { flex: 1; justify-content: center; }
+          /* Ocultar overlay dentro de la foto en móvil */
+          .hero-overlay { display: none !important; }
+          /* Mostrar bloque de info debajo de la foto */
+          .hero-mobile-info { display: block !important; background: #0d0f14; }
+          /* Foto sin gradiente oscuro en móvil (ya no hay texto encima) */
+          .hero-gradient { opacity: 0 !important; }
+          /* Spec grid en 1 columna */
           .spec-grid { grid-template-columns: 1fr !important; }
           .spec-grid > div { border-right: none !important; }
           .guarantees-grid { grid-template-columns: 1fr !important; }
@@ -362,8 +407,10 @@ export default function VehicleDetail() {
           .cta-buttons a { justify-content: center; }
           .vd-body { padding: 1.5rem 1rem 2rem !important; }
         }
-        @media (max-width: 380px) {
-          .hero-btn { padding: 0.5rem 0.7rem !important; font-size: 0.78rem !important; }
+        @media (min-width: 601px) {
+          /* En desktop: overlay visible, bloque móvil oculto */
+          .hero-overlay { display: block !important; }
+          .hero-mobile-info { display: none !important; }
         }
       `}</style>
 
