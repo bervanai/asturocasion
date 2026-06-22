@@ -153,6 +153,58 @@ export default function VehicleDetail() {
       </div>
 
       <div className="container" style={{ flex: 1, paddingTop: "2.5rem", paddingBottom: "3rem" }}>
+
+        {/* Vehicle title — visible on all screen sizes */}
+        <div style={{ marginBottom: "2rem" }}>
+          <h1
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
+              fontWeight: "700",
+              color: "#0d0f14",
+              margin: "0 0 0.5rem 0",
+              lineHeight: 1.15,
+            }}
+          >
+            {vehicle.brand} {vehicle.model}
+          </h1>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+            <span
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "1.75rem",
+                fontWeight: "700",
+                color: "#e8a020",
+              }}
+            >
+              {Number(vehicle.price).toLocaleString("es-ES")} €
+            </span>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+              {[
+                vehicle.year,
+                `${vehicle.km.toLocaleString("es-ES")} km`,
+                vehicle.fuel_type,
+                vehicle.transmission,
+              ].map((tag) => tag && (
+                <span
+                  key={String(tag)}
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.78rem",
+                    fontWeight: "500",
+                    color: "#6b6456",
+                    background: "#f0ece4",
+                    borderRadius: "99px",
+                    padding: "0.25rem 0.75rem",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div
           style={{
             display: "grid",
