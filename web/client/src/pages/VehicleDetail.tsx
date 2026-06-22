@@ -155,31 +155,33 @@ export default function VehicleDetail() {
       <div className="container" style={{ flex: 1, paddingTop: "2.5rem", paddingBottom: "3rem" }}>
 
         {/* Vehicle title — visible on all screen sizes */}
-        <div style={{ marginBottom: "2rem" }}>
+        <div className="vehicle-title-section" style={{ marginBottom: "2rem" }}>
           <h1
+            className="vehicle-title-h1"
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
+              fontSize: "clamp(1.4rem, 4vw, 2.4rem)",
               fontWeight: "700",
               color: "#0d0f14",
               margin: "0 0 0.5rem 0",
-              lineHeight: 1.15,
+              lineHeight: 1.2,
             }}
           >
             {vehicle.brand} {vehicle.model}
           </h1>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+          <div className="vehicle-title-meta" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
             <span
+              className="vehicle-title-price"
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: "1.75rem",
+                fontSize: "1.6rem",
                 fontWeight: "700",
                 color: "#e8a020",
               }}
             >
               {Number(vehicle.price).toLocaleString("es-ES")} €
             </span>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
               {[
                 vehicle.year,
                 `${vehicle.km.toLocaleString("es-ES")} km`,
@@ -190,12 +192,13 @@ export default function VehicleDetail() {
                   key={String(tag)}
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.78rem",
+                    fontSize: "0.75rem",
                     fontWeight: "500",
                     color: "#6b6456",
                     background: "#f0ece4",
                     borderRadius: "99px",
-                    padding: "0.25rem 0.75rem",
+                    padding: "0.2rem 0.65rem",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {tag}
@@ -559,10 +562,11 @@ export default function VehicleDetail() {
           }
           .vehicle-price-box {
             padding: 1.25rem !important;
+            margin-bottom: 0.75rem !important;
           }
           .vehicle-price-value {
-            font-size: 2rem !important;
-            margin-bottom: 0.35rem !important;
+            font-size: 1.8rem !important;
+            margin-bottom: 0.25rem !important;
           }
           .vehicle-price-buttons {
             display: grid !important;
@@ -572,13 +576,25 @@ export default function VehicleDetail() {
           .vehicle-price-buttons a:last-child {
             grid-column: 1 / -1 !important;
           }
+          .vehicle-title-section {
+            margin-bottom: 1.25rem !important;
+          }
+          .vehicle-title-h1 {
+            font-size: 1.4rem !important;
+          }
+          .vehicle-title-price {
+            font-size: 1.3rem !important;
+          }
         }
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
           .vehicle-price-buttons {
             grid-template-columns: 1fr !important;
           }
           .vehicle-price-buttons a:last-child {
             grid-column: auto !important;
+          }
+          .vehicle-title-meta {
+            gap: 0.5rem !important;
           }
         }
       `}</style>
