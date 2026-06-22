@@ -553,15 +553,31 @@ export default function VehicleDetail() {
       </div>
 
       <style>{`
-        /* ── Desktop ── */
+        /* ── Sticky bar hidden on desktop/tablet ── */
         .vehicle-sticky-bar { display: none; }
 
-        /* ── Tablet / mobile ── */
-        @media (max-width: 1023px) {
+        /* ── Tablet (768–1023px): narrow 2-col grid ── */
+        @media (max-width: 1023px) and (min-width: 768px) {
+          .vehicle-detail-grid {
+            grid-template-columns: 1fr 280px !important;
+            gap: 1.5rem !important;
+          }
+          .vehicle-price-box {
+            padding: 1.25rem !important;
+          }
+          .vehicle-price-value {
+            font-size: 1.8rem !important;
+          }
+          .vehicle-title-h1 {
+            font-size: 1.5rem !important;
+          }
+        }
+
+        /* ── Mobile (<768px): single column + sticky bar ── */
+        @media (max-width: 767px) {
           .vehicle-detail-grid {
             grid-template-columns: 1fr !important;
           }
-          /* Hide the full sidebar — we show the sticky bar instead */
           .vehicle-sidebar {
             display: none !important;
           }
@@ -569,10 +585,13 @@ export default function VehicleDetail() {
             margin-bottom: 1rem !important;
           }
           .vehicle-title-h1 {
-            font-size: 1.3rem !important;
+            font-size: 1.2rem !important;
           }
           .vehicle-title-price {
-            font-size: 1.2rem !important;
+            font-size: 1.1rem !important;
+          }
+          .vehicle-title-meta {
+            gap: 0.4rem !important;
           }
           /* Sticky bottom CTA bar */
           .vehicle-sticky-bar {
@@ -589,7 +608,7 @@ export default function VehicleDetail() {
           }
           .vehicle-sticky-price {
             font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #e8a020;
             white-space: nowrap;
@@ -602,18 +621,17 @@ export default function VehicleDetail() {
             font-family: 'DM Sans', sans-serif;
             font-size: 0.82rem;
             font-weight: 600;
-            padding: 0.55rem 1rem;
+            padding: 0.55rem 0.9rem;
             border-radius: 4px;
             text-decoration: none;
             white-space: nowrap;
           }
-          /* Add bottom padding to content so it's not hidden behind bar */
           .vehicle-page-content {
             padding-bottom: 4.5rem !important;
           }
         }
         @media (max-width: 400px) {
-          .vehicle-sticky-price { font-size: 0.95rem !important; }
+          .vehicle-sticky-price { font-size: 0.88rem !important; }
           .vehicle-sticky-btn { padding: 0.5rem 0.6rem !important; font-size: 0.75rem !important; }
         }
       `}</style>
