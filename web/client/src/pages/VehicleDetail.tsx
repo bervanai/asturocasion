@@ -20,8 +20,8 @@ const BRAND_IMAGES: Record<string, string> = {
 
 export default function VehicleDetail() {
   const [, params] = useRoute("/vehiculo/:id");
-
   const vehicleId = params?.id ?? "";
+
   const { data: vehicle, isLoading, isError } = useQuery({
     queryKey: ["vehicle", vehicleId],
     queryFn: () => fetchVehicleById(vehicleId),
@@ -30,7 +30,6 @@ export default function VehicleDetail() {
 
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Dynamic SEO per vehicle
   useSEO({
     title: vehicle
       ? `${vehicle.brand} ${vehicle.model} ${vehicle.year} — ${Number(vehicle.price).toLocaleString("es-ES")}€`
@@ -49,11 +48,7 @@ export default function VehicleDetail() {
           "brand": { "@type": "Brand", "name": vehicle.brand },
           "model": vehicle.model,
           "vehicleModelDate": String(vehicle.year),
-          "mileageFromOdometer": {
-            "@type": "QuantitativeValue",
-            "value": vehicle.km,
-            "unitCode": "KMT",
-          },
+          "mileageFromOdometer": { "@type": "QuantitativeValue", "value": vehicle.km, "unitCode": "KMT" },
           "fuelType": vehicle.fuel_type,
           "vehicleTransmission": vehicle.transmission,
           ...(vehicle.power_cv ? { "vehicleEngine": { "@type": "EngineSpecification", "enginePower": { "@type": "QuantitativeValue", "value": vehicle.power_cv, "unitCode": "BHP" } } } : {}),
@@ -64,29 +59,13 @@ export default function VehicleDetail() {
             "@type": "Offer",
             "priceCurrency": "EUR",
             "price": vehicle.price,
-            "availability": vehicle.status === "available"
-              ? "https://schema.org/InStock"
-              : "https://schema.org/OutOfStock",
-            "seller": {
-              "@type": "AutoDealer",
-              "name": "Astur Ocasión",
-              "url": "https://asturocasion.es",
-            },
+            "availability": vehicle.status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "seller": { "@type": "AutoDealer", "name": "Astur Ocasión", "url": "https://asturocasion.es" },
           },
           "url": `https://asturocasion.es/vehiculo/${vehicleId}`,
         }
       : undefined,
   });
-
-  const specRows = vehicle ? [
-    { label: "Marca", value: vehicle.brand, icon: null },
-    { label: "Modelo", value: vehicle.model, icon: null },
-    { label: "Año", value: String(vehicle.year), icon: <Calendar size={13} /> },
-    { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
-    { label: "Combustible", value: vehicle.fuel_type, icon: <Fuel size={13} /> },
-    { label: "Cambio", value: vehicle.transmission, icon: null },
-    ...(vehicle.power_cv ? [{ label: "Potencia", value: `${vehicle.power_cv} CV`, icon: null }] : []),
-  ] : [];
 
   if (isLoading) {
     return (
@@ -113,557 +92,282 @@ export default function VehicleDetail() {
     );
   }
 
+  const imgs = vehicle.images && vehicle.images.length > 0
+    ? vehicle.images
+    : [BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"];
+  const clampedIdx = Math.min(activeIdx, imgs.length - 1);
+
+  const specRows = [
+    { label: "Marca", value: vehicle.brand, icon: null },
+    { label: "Modelo", value: vehicle.model, icon: null },
+    { label: "Año", value: String(vehicle.year), icon: <Calendar size={13} /> },
+    { label: "Kilómetros", value: `${vehicle.km.toLocaleString("es-ES")} km`, icon: <Gauge size={13} /> },
+    { label: "Combustible", value: vehicle.fuel_type, icon: <Fuel size={13} /> },
+    { label: "Cambio", value: vehicle.transmission, icon: null },
+    ...(vehicle.power_cv ? [{ label: "Potencia", value: `${vehicle.power_cv} CV`, icon: null }] : []),
+    ...(vehicle.color ? [{ label: "Color", value: vehicle.color, icon: null }] : []),
+  ];
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8f6f2" }}>
       <Navigation />
 
-      {/* Breadcrumb */}
-      <div
-        style={{
-          background: "#0d0f14",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          padding: "0.75rem 0",
-        }}
-      >
-        <div className="container" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Link href="/catalogo">
-            <a
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.8rem",
-                color: "rgba(248,246,242,0.45)",
-                textDecoration: "none",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#e8a020")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(248,246,242,0.45)")}
-            >
-              <ArrowLeft size={12} />
-              Volver al catálogo
-            </a>
-          </Link>
-          <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "0.7rem" }}>/</span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "rgba(248,246,242,0.3)" }}>
-            {vehicle.brand} {vehicle.model}
-          </span>
+      {/* ── HERO: foto a pantalla completa con overlay ── */}
+      <div style={{ position: "relative", width: "100%", background: "#0d0f14" }}>
+        {/* Imagen principal */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "16/7", minHeight: "280px", maxHeight: "600px", overflow: "hidden" }}>
+          <img
+            key={imgs[clampedIdx]}
+            src={imgs[clampedIdx]}
+            alt={`${vehicle.brand} ${vehicle.model}`}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
+          />
+          {/* Gradiente oscuro encima de la foto */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.1) 40%, rgba(13,15,20,0.85) 100%)",
+          }} />
+
+          {/* Botón volver (esquina superior izquierda) */}
+          <div style={{ position: "absolute", top: "1rem", left: "1rem" }}>
+            <Link href="/catalogo">
+              <a style={{
+                display: "inline-flex", alignItems: "center", gap: "5px",
+                fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", fontWeight: "500",
+                color: "rgba(255,255,255,0.85)", textDecoration: "none",
+                background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "99px", padding: "0.4rem 0.9rem",
+              }}>
+                <ArrowLeft size={13} /> Volver al catálogo
+              </a>
+            </Link>
+          </div>
+
+          {/* Contador de fotos */}
+          {imgs.length > 1 && (
+            <div style={{
+              position: "absolute", top: "1rem", right: "1rem",
+              background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+              borderRadius: "99px", padding: "0.25rem 0.7rem",
+              fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)",
+            }}>
+              {clampedIdx + 1} / {imgs.length}
+            </div>
+          )}
+
+          {/* Flechas prev/next */}
+          {imgs.length > 1 && (
+            <>
+              <button
+                onClick={() => setActiveIdx((i) => (i - 1 + imgs.length) % imgs.length)}
+                style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
+              ><ChevronLeft size={20} /></button>
+              <button
+                onClick={() => setActiveIdx((i) => (i + 1) % imgs.length)}
+                style={{ position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
+              ><ChevronRight size={20} /></button>
+            </>
+          )}
+
+          {/* Overlay inferior: nombre + precio + botones */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem" }}>
+            <div className="hero-content" style={{ maxWidth: "900px", margin: "0 auto" }}>
+              {/* Nombre del coche */}
+              <h1 className="hero-title" style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                fontWeight: "700",
+                color: "#ffffff",
+                margin: "0 0 0.5rem 0",
+                lineHeight: 1.1,
+                textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+              }}>
+                {vehicle.brand} {vehicle.model}
+              </h1>
+
+              {/* Tags rápidos */}
+              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+                {[String(vehicle.year), `${vehicle.km.toLocaleString("es-ES")} km`, vehicle.fuel_type, vehicle.transmission].map((tag) => (
+                  <span key={tag} style={{
+                    fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem", fontWeight: "500",
+                    color: "rgba(255,255,255,0.85)", background: "rgba(255,255,255,0.15)",
+                    backdropFilter: "blur(4px)", borderRadius: "99px", padding: "0.2rem 0.65rem",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                  }}>{tag}</span>
+                ))}
+              </div>
+
+              {/* Precio + botones en la misma fila */}
+              <div className="hero-cta" style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                <span style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
+                  fontWeight: "700",
+                  color: "#e8a020",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                }}>
+                  {Number(vehicle.price).toLocaleString("es-ES")} €
+                </span>
+                <div className="hero-buttons" style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <a href="tel:629574957" className="btn-primary hero-btn" style={{ gap: "6px" }}>
+                    <Phone size={14} /> Llamar
+                  </a>
+                  <a
+                    href="https://wa.me/34629574957"
+                    target="_blank" rel="noopener noreferrer"
+                    className="hero-btn"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#25d366", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "600", padding: "0.6rem 1.1rem", borderRadius: "2px", textDecoration: "none" }}
+                  >
+                    <MessageCircle size={14} /> WhatsApp
+                  </a>
+                  <a
+                    href="mailto:asturocasion@gmail.com"
+                    className="hero-btn"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.25)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "500", padding: "0.6rem 1.1rem", borderRadius: "2px", textDecoration: "none", backdropFilter: "blur(4px)" }}
+                  >
+                    <Mail size={14} /> Email
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Miniaturas debajo del hero */}
+        {imgs.length > 1 && (
+          <div style={{ background: "#0d0f14", padding: "0.75rem 1rem", display: "flex", gap: "0.5rem", overflowX: "auto" }}>
+            {imgs.map((src, i) => (
+              <button
+                key={src}
+                onClick={() => setActiveIdx(i)}
+                style={{
+                  flexShrink: 0, width: "80px", height: "54px",
+                  borderRadius: "4px", overflow: "hidden",
+                  border: `2px solid ${i === clampedIdx ? "#e8a020" : "transparent"}`,
+                  cursor: "pointer", padding: 0, background: "#1a1c23",
+                  opacity: i === clampedIdx ? 1 : 0.55, transition: "all 0.15s",
+                }}
+              >
+                <img src={src} alt={`Vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=60"; }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="container vehicle-page-content" style={{ flex: 1, paddingTop: "2.5rem", paddingBottom: "3rem" }}>
+      {/* ── CONTENIDO PRINCIPAL: columna única centrada ── */}
+      <div style={{ flex: 1 }}>
+        <div className="vd-body" style={{ maxWidth: "860px", margin: "0 auto", padding: "2.5rem 1.5rem 3rem" }}>
 
-        {/* Vehicle title — visible on all screen sizes */}
-        <div className="vehicle-title-section" style={{ marginBottom: "2rem" }}>
-          <h1
-            className="vehicle-title-h1"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(1.4rem, 4vw, 2.4rem)",
-              fontWeight: "700",
-              color: "#0d0f14",
-              margin: "0 0 0.5rem 0",
-              lineHeight: 1.2,
-            }}
-          >
-            {vehicle.brand} {vehicle.model}
-          </h1>
-          <div className="vehicle-title-meta" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-            <span
-              className="vehicle-title-price"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "1.6rem",
-                fontWeight: "700",
-                color: "#e8a020",
-              }}
-            >
-              {Number(vehicle.price).toLocaleString("es-ES")} €
-            </span>
-            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-              {[
-                vehicle.year,
-                `${vehicle.km.toLocaleString("es-ES")} km`,
-                vehicle.fuel_type,
-                vehicle.transmission,
-              ].map((tag) => tag && (
-                <span
-                  key={String(tag)}
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.75rem",
-                    fontWeight: "500",
-                    color: "#6b6456",
-                    background: "#f0ece4",
-                    borderRadius: "99px",
-                    padding: "0.2rem 0.65rem",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {tag}
-                </span>
+          {/* Ficha técnica */}
+          <div style={{ background: "#fff", border: "1px solid #e8e4dc", borderRadius: "8px", overflow: "hidden", marginBottom: "1.5rem" }}>
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #f0ece4", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Gauge size={15} color="#e8a020" />
+              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", fontWeight: "700", letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6456", margin: 0 }}>
+                Ficha Técnica
+              </h2>
+            </div>
+            <div className="spec-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+              {specRows.map((row, i) => (
+                <div key={row.label} style={{
+                  display: "flex", flexDirection: "column", padding: "0.9rem 1.5rem",
+                  borderBottom: i < specRows.length - 2 ? "1px solid #f0ece4" : "none",
+                  borderRight: i % 2 === 0 ? "1px solid #f0ece4" : "none",
+                }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9a9080", display: "flex", alignItems: "center", gap: "4px", marginBottom: "0.2rem" }}>
+                    {row.icon}{row.label}
+                  </span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", fontWeight: "600", color: "#0d0f14" }}>
+                    {row.value}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 340px",
-            gap: "2.5rem",
-            alignItems: "start",
-          }}
-          className="vehicle-detail-grid"
-        >
-          {/* Left column */}
-          <div>
-            {/* Gallery */}
-            {(() => {
-              const imgs = vehicle.images && vehicle.images.length > 0
-                ? vehicle.images
-                : [BRAND_IMAGES[vehicle.brand] ?? "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"];
-              const clampedIdx = Math.min(activeIdx, imgs.length - 1);
-              return (
-                <div style={{ marginBottom: "1rem" }}>
-                  {/* Main image */}
-                  <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", aspectRatio: "16/9", background: "#F5F5F7" }}>
-                    <img
-                      key={imgs[clampedIdx]}
-                      src={imgs[clampedIdx]}
-                      alt={`${vehicle.brand} ${vehicle.model}`}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.2s" }}
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
-                    />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.45) 100%)" }} />
-                    <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontFamily: "'DM Sans', sans-serif", fontSize: "0.82rem", color: "rgba(255,255,255,0.8)", fontWeight: "500" }}>
-                      {vehicle.brand} {vehicle.model} · {vehicle.year}
-                    </div>
-                    {/* Counter badge */}
-                    {imgs.length > 1 && (
-                      <div style={{ position: "absolute", bottom: "1rem", right: "1rem", background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", borderRadius: "99px", padding: "0.2rem 0.6rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontFamily: "'DM Sans', sans-serif" }}>
-                        {clampedIdx + 1} / {imgs.length}
-                      </div>
-                    )}
-                    {/* Prev/Next arrows */}
-                    {imgs.length > 1 && (
-                      <>
-                        <button
-                          onClick={() => setActiveIdx((i) => (i - 1 + imgs.length) % imgs.length)}
-                          style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "36px", height: "36px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
-                        >
-                          <ChevronLeft size={18} />
-                        </button>
-                        <button
-                          onClick={() => setActiveIdx((i) => (i + 1) % imgs.length)}
-                          style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "36px", height: "36px", borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}
-                        >
-                          <ChevronRight size={18} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Thumbnails */}
-                  {imgs.length > 1 && (
-                    <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.625rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
-                      {imgs.map((src, i) => (
-                        <button
-                          key={src}
-                          onClick={() => setActiveIdx(i)}
-                          style={{
-                            flexShrink: 0,
-                            width: "80px",
-                            height: "56px",
-                            borderRadius: "6px",
-                            overflow: "hidden",
-                            border: `2px solid ${i === clampedIdx ? "#e8a020" : "transparent"}`,
-                            cursor: "pointer",
-                            padding: 0,
-                            background: "#e8e4dc",
-                            transition: "border-color 0.15s",
-                            opacity: i === clampedIdx ? 1 : 0.6,
-                          }}
-                        >
-                          <img
-                            src={src}
-                            alt={`Vista ${i + 1}`}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=60"; }}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Description */}
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e8e4dc",
-                borderRadius: "4px",
-                padding: "2rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <h2
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: "1.4rem",
-                  fontWeight: "600",
-                  color: "#0d0f14",
-                  marginBottom: "1.25rem",
-                }}
-              >
-                Descripción
-              </h2>
-              {vehicle.description ? (
-                <p
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.9rem",
-                    color: "#6b6456",
-                    lineHeight: 1.75,
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {vehicle.description}
-                </p>
-              ) : (
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#9a9080", fontStyle: "italic" }}>
-                  Sin descripción disponible.
-                </p>
-              )}
-            </div>
+          {/* Descripción */}
+          <div style={{ background: "#fff", border: "1px solid #e8e4dc", borderRadius: "8px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: "600", color: "#0d0f14", marginBottom: "1rem" }}>
+              Descripción
+            </h2>
+            {vehicle.description ? (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#6b6456", lineHeight: 1.8, whiteSpace: "pre-line", margin: 0 }}>
+                {vehicle.description}
+              </p>
+            ) : (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#9a9080", fontStyle: "italic", margin: 0 }}>
+                Sin descripción disponible.
+              </p>
+            )}
           </div>
 
-          {/* Right sidebar */}
-          <div className="vehicle-sidebar">
-            {/* Price */}
-            <div
-              className="vehicle-price-box"
-              style={{
-                background: "#0d0f14",
-                borderRadius: "4px",
-                padding: "1.75rem",
-                marginBottom: "1rem",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0,
-                  height: "3px",
-                  background: "linear-gradient(90deg, #e8a020, #c9a84c)",
-                }}
-              />
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.7rem",
-                  fontWeight: "600",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "rgba(248,246,242,0.4)",
-                  marginBottom: "0.4rem",
-                }}
-              >
-                Precio de venta
-              </p>
-              <div
-                className="vehicle-price-value"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: "2.8rem",
-                  fontWeight: "700",
-                  color: "#e8a020",
-                  lineHeight: 1,
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {Number(vehicle.price).toLocaleString("es-ES")} €
-              </div>
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.78rem",
-                  color: "rgba(248,246,242,0.35)",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                Transferencia y garantía incluidas en el precio
-              </p>
-
-              <div className="vehicle-price-buttons" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <a href="tel:629574957" className="btn-primary" style={{ width: "100%", justifyContent: "center", display: "flex" }}>
-                  <Phone size={15} />
-                  Llamar: 629 574 957
-                </a>
-                <a
-                  href="https://wa.me/34629574957"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    background: "#25d366",
-                    color: "#ffffff",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.875rem",
-                    fontWeight: "600",
-                    padding: "0.75rem",
-                    borderRadius: "2px",
-                    textDecoration: "none",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#20b858")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#25d366")}
-                >
-                  <MessageCircle size={15} />
-                  WhatsApp
-                </a>
-                <a
-                  href="mailto:asturocasion@gmail.com"
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    background: "rgba(255,255,255,0.06)",
-                    color: "rgba(248,246,242,0.7)",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.875rem",
-                    fontWeight: "500",
-                    padding: "0.75rem",
-                    borderRadius: "2px",
-                    textDecoration: "none",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    transition: "border-color 0.2s",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(232,160,32,0.4)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)")}
-                >
-                  <Mail size={15} />
-                  Enviar email
-                </a>
-              </div>
+          {/* Incluido en el precio */}
+          <div style={{ background: "rgba(232,160,32,0.05)", border: "1px solid rgba(232,160,32,0.25)", borderRadius: "8px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
+              <Shield size={16} color="#e8a020" />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", fontWeight: "700", color: "#0d0f14" }}>Incluido en el precio</span>
             </div>
-
-            {/* Specs */}
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e8e4dc",
-                borderRadius: "4px",
-                padding: "1.5rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.72rem",
-                  fontWeight: "600",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#6b6456",
-                  marginBottom: "1.25rem",
-                }}
-              >
-                Ficha Técnica
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                {specRows.map((row, i) => (
-                  <div
-                    key={row.label}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "0.6rem 0",
-                      borderBottom: i < specRows.length - 1 ? "1px solid #f0ece4" : "none",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.82rem",
-                        color: "#9a9080",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                      }}
-                    >
-                      {row.icon}
-                      {row.label}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: "0.82rem",
-                        fontWeight: "500",
-                        color: "#0d0f14",
-                      }}
-                    >
-                      {row.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Guarantees */}
-            <div
-              style={{
-                background: "rgba(232,160,32,0.05)",
-                border: "1px solid rgba(232,160,32,0.2)",
-                borderRadius: "4px",
-                padding: "1.25rem",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
-                <Shield size={15} color="#e8a020" />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", fontWeight: "600", color: "#0d0f14" }}>Incluido en el precio</span>
-              </div>
-              {[
-                "100% revisado, perfecto estado",
-                "ITV al día",
-                "Cambio de titularidad gratuito",
-                "Garantía incluida",
-                "Financiación disponible",
-              ].map((item) => (
-                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0", fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "#6b6456" }}>
-                  <CheckCircle size={12} color="#e8a020" style={{ flexShrink: 0 }} />
+            <div className="guarantees-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+              {["100% revisado, perfecto estado", "ITV al día", "Cambio de titularidad gratuito", "Garantía incluida", "Financiación disponible"].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#6b6456" }}>
+                  <CheckCircle size={13} color="#e8a020" style={{ flexShrink: 0 }} />
                   {item}
                 </div>
               ))}
             </div>
           </div>
+
+          {/* CTA final */}
+          <div style={{ background: "#0d0f14", borderRadius: "8px", padding: "2rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #e8a020, #c9a84c)" }} />
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>¿Te interesa?</p>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: "600", color: "#fff", marginBottom: "1.5rem" }}>Contacta ahora y te lo reservamos</p>
+            <div className="cta-buttons" style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <a href="tel:629574957" className="btn-primary" style={{ gap: "7px" }}>
+                <Phone size={15} /> Llamar: 629 574 957
+              </a>
+              <a
+                href="https://wa.me/34629574957"
+                target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "#25d366", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "600", padding: "0.7rem 1.25rem", borderRadius: "2px", textDecoration: "none" }}
+              >
+                <MessageCircle size={15} /> WhatsApp
+              </a>
+              <a
+                href="mailto:asturocasion@gmail.com"
+                style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.15)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", fontWeight: "500", padding: "0.7rem 1.25rem", borderRadius: "2px", textDecoration: "none" }}
+              >
+                <Mail size={15} /> Enviar email
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <style>{`
-        /* ── Sticky bar hidden on desktop/tablet ── */
-        .vehicle-sticky-bar { display: none; }
-
-        /* ── Tablet (768–1023px): narrow 2-col grid ── */
-        @media (max-width: 1023px) and (min-width: 768px) {
-          .vehicle-detail-grid {
-            grid-template-columns: 1fr 280px !important;
-            gap: 1.5rem !important;
-          }
-          .vehicle-price-box {
-            padding: 1.25rem !important;
-          }
-          .vehicle-price-value {
-            font-size: 1.8rem !important;
-          }
-          .vehicle-title-h1 {
-            font-size: 1.5rem !important;
-          }
+        @media (max-width: 600px) {
+          .hero-title { font-size: 1.3rem !important; }
+          .hero-cta { flex-direction: column !important; align-items: flex-start !important; gap: 0.65rem !important; }
+          .hero-buttons { width: 100%; }
+          .hero-btn { flex: 1; justify-content: center; }
+          .spec-grid { grid-template-columns: 1fr !important; }
+          .spec-grid > div { border-right: none !important; }
+          .guarantees-grid { grid-template-columns: 1fr !important; }
+          .cta-buttons { flex-direction: column !important; }
+          .cta-buttons a { justify-content: center; }
+          .vd-body { padding: 1.5rem 1rem 2rem !important; }
         }
-
-        /* ── Mobile (<768px): single column + sticky bar ── */
-        @media (max-width: 767px) {
-          .vehicle-detail-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .vehicle-sidebar {
-            display: none !important;
-          }
-          .vehicle-title-section {
-            margin-bottom: 1rem !important;
-          }
-          .vehicle-title-h1 {
-            font-size: 1.2rem !important;
-          }
-          .vehicle-title-price {
-            font-size: 1.1rem !important;
-          }
-          .vehicle-title-meta {
-            gap: 0.4rem !important;
-          }
-          /* Sticky bottom CTA bar */
-          .vehicle-sticky-bar {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: #0d0f14;
-            border-top: 2px solid #e8a020;
-            padding: 0.75rem 1rem;
-            z-index: 100;
-            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-          }
-          .vehicle-sticky-price {
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #e8a020;
-            white-space: nowrap;
-            margin-right: auto;
-          }
-          .vehicle-sticky-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 0.55rem 0.9rem;
-            border-radius: 4px;
-            text-decoration: none;
-            white-space: nowrap;
-          }
-          .vehicle-page-content {
-            padding-bottom: 4.5rem !important;
-          }
-        }
-        @media (max-width: 400px) {
-          .vehicle-sticky-price { font-size: 0.88rem !important; }
-          .vehicle-sticky-btn { padding: 0.5rem 0.6rem !important; font-size: 0.75rem !important; }
+        @media (max-width: 380px) {
+          .hero-btn { padding: 0.5rem 0.7rem !important; font-size: 0.78rem !important; }
         }
       `}</style>
 
-      {/* Sticky bottom bar — mobile only */}
-      <div className="vehicle-sticky-bar">
-        <span className="vehicle-sticky-price">
-          {Number(vehicle.price).toLocaleString("es-ES")} €
-        </span>
-        <a
-          href="tel:629574957"
-          className="vehicle-sticky-btn"
-          style={{ background: "#0071E3", color: "#fff" }}
-        >
-          <Phone size={14} />
-          Llamar
-        </a>
-        <a
-          href="https://wa.me/34629574957"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="vehicle-sticky-btn"
-          style={{ background: "#25d366", color: "#fff" }}
-        >
-          <MessageCircle size={14} />
-          WhatsApp
-        </a>
-      </div>
-
       <Footer />
-
-
     </div>
   );
 }
