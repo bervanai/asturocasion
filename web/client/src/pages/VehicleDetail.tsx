@@ -152,7 +152,7 @@ export default function VehicleDetail() {
         </div>
       </div>
 
-      <div className="container" style={{ flex: 1, paddingTop: "2.5rem", paddingBottom: "3rem" }}>
+      <div className="container vehicle-page-content" style={{ flex: 1, paddingTop: "2.5rem", paddingBottom: "3rem" }}>
 
         {/* Vehicle title — visible on all screen sizes */}
         <div className="vehicle-title-section" style={{ marginBottom: "2rem" }}>
@@ -553,51 +553,95 @@ export default function VehicleDetail() {
       </div>
 
       <style>{`
+        /* ── Desktop ── */
+        .vehicle-sticky-bar { display: none; }
+
+        /* ── Tablet / mobile ── */
         @media (max-width: 1023px) {
           .vehicle-detail-grid {
             grid-template-columns: 1fr !important;
           }
+          /* Hide the full sidebar — we show the sticky bar instead */
           .vehicle-sidebar {
-            order: -1;
-          }
-          .vehicle-price-box {
-            padding: 1.25rem !important;
-            margin-bottom: 0.75rem !important;
-          }
-          .vehicle-price-value {
-            font-size: 1.8rem !important;
-            margin-bottom: 0.25rem !important;
-          }
-          .vehicle-price-buttons {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 0.5rem !important;
-          }
-          .vehicle-price-buttons a:last-child {
-            grid-column: 1 / -1 !important;
+            display: none !important;
           }
           .vehicle-title-section {
-            margin-bottom: 1.25rem !important;
+            margin-bottom: 1rem !important;
           }
           .vehicle-title-h1 {
-            font-size: 1.4rem !important;
-          }
-          .vehicle-title-price {
             font-size: 1.3rem !important;
           }
+          .vehicle-title-price {
+            font-size: 1.2rem !important;
+          }
+          /* Sticky bottom CTA bar */
+          .vehicle-sticky-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #0d0f14;
+            border-top: 2px solid #e8a020;
+            padding: 0.75rem 1rem;
+            z-index: 100;
+            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+          }
+          .vehicle-sticky-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e8a020;
+            white-space: nowrap;
+            margin-right: auto;
+          }
+          .vehicle-sticky-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.55rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            white-space: nowrap;
+          }
+          /* Add bottom padding to content so it's not hidden behind bar */
+          .vehicle-page-content {
+            padding-bottom: 4.5rem !important;
+          }
         }
-        @media (max-width: 640px) {
-          .vehicle-price-buttons {
-            grid-template-columns: 1fr !important;
-          }
-          .vehicle-price-buttons a:last-child {
-            grid-column: auto !important;
-          }
-          .vehicle-title-meta {
-            gap: 0.5rem !important;
-          }
+        @media (max-width: 400px) {
+          .vehicle-sticky-price { font-size: 0.95rem !important; }
+          .vehicle-sticky-btn { padding: 0.5rem 0.6rem !important; font-size: 0.75rem !important; }
         }
       `}</style>
+
+      {/* Sticky bottom bar — mobile only */}
+      <div className="vehicle-sticky-bar">
+        <span className="vehicle-sticky-price">
+          {Number(vehicle.price).toLocaleString("es-ES")} €
+        </span>
+        <a
+          href="tel:629574957"
+          className="vehicle-sticky-btn"
+          style={{ background: "#0071E3", color: "#fff" }}
+        >
+          <Phone size={14} />
+          Llamar
+        </a>
+        <a
+          href="https://wa.me/34629574957"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="vehicle-sticky-btn"
+          style={{ background: "#25d366", color: "#fff" }}
+        >
+          <MessageCircle size={14} />
+          WhatsApp
+        </a>
+      </div>
 
       <Footer />
 
