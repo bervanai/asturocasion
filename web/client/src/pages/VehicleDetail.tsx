@@ -287,9 +287,10 @@ export default function VehicleDetail() {
           </div>
 
           {/* Right sidebar */}
-          <div>
+          <div className="vehicle-sidebar">
             {/* Price */}
             <div
+              className="vehicle-price-box"
               style={{
                 background: "#0d0f14",
                 borderRadius: "4px",
@@ -321,6 +322,7 @@ export default function VehicleDetail() {
                 Precio de venta
               </p>
               <div
+                className="vehicle-price-value"
                 style={{
                   fontFamily: "'Playfair Display', serif",
                   fontSize: "2.8rem",
@@ -343,62 +345,63 @@ export default function VehicleDetail() {
                 Transferencia y garantía incluidas en el precio
               </p>
 
-              <a href="tel:629574957" className="btn-primary" style={{ width: "100%", justifyContent: "center", marginBottom: "0.75rem", display: "flex" }}>
-                <Phone size={15} />
-                Llamar: 629 574 957
-              </a>
-              <a
-                href="https://wa.me/34629574957"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  background: "#25d366",
-                  color: "#ffffff",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.875rem",
-                  fontWeight: "600",
-                  padding: "0.75rem",
-                  borderRadius: "2px",
-                  textDecoration: "none",
-                  transition: "background 0.2s",
-                  marginBottom: "0.75rem",
-                }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#20b858")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#25d366")}
-              >
-                <MessageCircle size={15} />
-                WhatsApp
-              </a>
-              <a
-                href="mailto:asturocasion@gmail.com"
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  background: "rgba(255,255,255,0.06)",
-                  color: "rgba(248,246,242,0.7)",
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: "0.875rem",
-                  fontWeight: "500",
-                  padding: "0.75rem",
-                  borderRadius: "2px",
-                  textDecoration: "none",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  transition: "border-color 0.2s",
-                }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(232,160,32,0.4)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)")}
-              >
-                <Mail size={15} />
-                Enviar email
-              </a>
+              <div className="vehicle-price-buttons" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <a href="tel:629574957" className="btn-primary" style={{ width: "100%", justifyContent: "center", display: "flex" }}>
+                  <Phone size={15} />
+                  Llamar: 629 574 957
+                </a>
+                <a
+                  href="https://wa.me/34629574957"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    background: "#25d366",
+                    color: "#ffffff",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    padding: "0.75rem",
+                    borderRadius: "2px",
+                    textDecoration: "none",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#20b858")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#25d366")}
+                >
+                  <MessageCircle size={15} />
+                  WhatsApp
+                </a>
+                <a
+                  href="mailto:asturocasion@gmail.com"
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    background: "rgba(255,255,255,0.06)",
+                    color: "rgba(248,246,242,0.7)",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    padding: "0.75rem",
+                    borderRadius: "2px",
+                    textDecoration: "none",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    transition: "border-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(232,160,32,0.4)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)")}
+                >
+                  <Mail size={15} />
+                  Enviar email
+                </a>
+              </div>
             </div>
 
             {/* Specs */}
@@ -498,6 +501,32 @@ export default function VehicleDetail() {
         @media (max-width: 1023px) {
           .vehicle-detail-grid {
             grid-template-columns: 1fr !important;
+          }
+          .vehicle-sidebar {
+            order: -1;
+          }
+          .vehicle-price-box {
+            padding: 1.25rem !important;
+          }
+          .vehicle-price-value {
+            font-size: 2rem !important;
+            margin-bottom: 0.35rem !important;
+          }
+          .vehicle-price-buttons {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.5rem !important;
+          }
+          .vehicle-price-buttons a:last-child {
+            grid-column: 1 / -1 !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .vehicle-price-buttons {
+            grid-template-columns: 1fr !important;
+          }
+          .vehicle-price-buttons a:last-child {
+            grid-column: auto !important;
           }
         }
       `}</style>
