@@ -47,8 +47,8 @@ const TIMELINE = [
 
 export default function About() {
   useSEO({
-    title: "Quiénes Somos — Concesionario de Ocasión en Oviedo",
-    description: "Conoce Astur Ocasión: concesionario familiar en Oviedo especializado en vehículos de ocasión premium. Transparencia, garantía y atención personalizada desde el primer día.",
+    title: "Concesionario Coches Segunda Mano Oviedo | Quiénes Somos — Astur Ocasión",
+    description: "Astur Ocasión es tu concesionario de coches de segunda mano en Oviedo, Asturias. Más de 100 reseñas positivas, garantía incluida y atención personalizada. C. José Manuel Fuente, 2 — Oviedo.",
     path: "/sobre-nosotros",
   });
 

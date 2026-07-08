@@ -128,8 +128,8 @@ function VehicleCard({ v }: { v: Vehicle }) {
 
 export default function Catalog() {
   useSEO({
-    title: "Catálogo de Coches de Ocasión en Oviedo",
-    description: "Explora nuestro catálogo de vehículos de ocasión en Oviedo: Mercedes, BMW, Audi, Jaguar, Land Rover, Lexus y más. Filtros por marca, precio y combustible. Todos con garantía incluida.",
+    title: "Coches de Segunda Mano en Oviedo | Catálogo Astur Ocasión",
+    description: "Catálogo de coches de segunda mano en Oviedo y Asturias. Mercedes, BMW, Audi, Volkswagen, Jaguar y más. Todos revisados, con garantía y transferencia incluidas. Busca tu coche ideal en Astur Ocasión.",
     path: "/catalogo",
   });
 

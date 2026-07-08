@@ -61,8 +61,8 @@ const PROCESS_STEPS = [
 
 export default function TradeIn() {
   useSEO({
-    title: "Compramos Tu Coche — Tasación Gratuita en Oviedo",
-    description: "¿Quieres vender tu coche en Oviedo? En Astur Ocasión te lo compramos al mejor precio. Tasación gratuita, respuesta en menos de 24h y pago inmediato. Sin complicaciones.",
+    title: "Vender Coche en Oviedo | Tasación Gratuita — Astur Ocasión",
+    description: "¿Quieres vender tu coche en Oviedo o Asturias? Te lo compramos al mejor precio. Tasación online gratuita, respuesta en 24h y pago inmediato. Sin trámites, sin complicaciones. Astur Ocasión, Oviedo.",
     path: "/compramos-tu-coche",
   });
 

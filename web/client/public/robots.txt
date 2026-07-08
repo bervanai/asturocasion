@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://asturocasion.es/sitemap.xml
+Sitemap: https://www.asturocasion.es/sitemap.xml

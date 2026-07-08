@@ -5,43 +5,43 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
   <url>
-    <loc>https://asturocasion.es/</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://asturocasion.es/catalogo</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/catalogo</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://asturocasion.es/compramos-tu-coche</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/compramos-tu-coche</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://asturocasion.es/sobre-nosotros</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/sobre-nosotros</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://asturocasion.es/contacto</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/contacto</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://asturocasion.es/politica-de-privacidad</loc>
-    <lastmod>2026-06-18</lastmod>
+    <loc>https://www.asturocasion.es/politica-de-privacidad</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

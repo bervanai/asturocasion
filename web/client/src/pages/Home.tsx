@@ -176,8 +176,8 @@ function VehicleCard({ v }: { v: Vehicle }) {
 
 export default function Home() {
   useSEO({
-    title: "Coches de Ocasión Premium en Oviedo, Asturias",
-    description: "Astur Ocasión — Concesionario de vehículos de ocasión en Oviedo. Mercedes, BMW, Audi, Jaguar, Land Rover y más. Todos revisados, con garantía y transferencia incluidas. Sin letra pequeña.",
+    title: "Comprar Coche de Segunda Mano en Oviedo | Coches de Ocasión Asturias",
+    description: "Compra tu próximo coche de segunda mano en Oviedo. Astur Ocasión: concesionario de coches usados en Asturias con garantía y transferencia incluidas. Mercedes, BMW, Audi, Volkswagen y más. Llama ahora: 629 574 957.",
     path: "/",
   });
 
