@@ -60,9 +60,9 @@ export default function VehicleDetail() {
             "priceCurrency": "EUR",
             "price": vehicle.price,
             "availability": vehicle.status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-            "seller": { "@type": "AutoDealer", "name": "Astur Ocasión", "url": "https://asturocasion.es" },
+            "seller": { "@type": "AutoDealer", "name": "Astur Ocasión", "url": "https://www.asturocasion.es" },
           },
-          "url": `https://asturocasion.es/vehiculo/${vehicleId}`,
+          "url": `https://www.asturocasion.es/vehiculo/${vehicleId}`,
         }
       : undefined,
   });

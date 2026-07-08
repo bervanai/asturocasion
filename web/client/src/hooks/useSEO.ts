@@ -4,7 +4,7 @@ const SITE_NAME = "Astur Ocasión";
 const BASE_URL = "https://www.asturocasion.es";
 const DEFAULT_DESCRIPTION =
   "Concesionario de vehículos de ocasión premium en Oviedo, Asturias. Mercedes, BMW, Audi, Jaguar y más. Todos revisados, con garantía y transferencia incluidas.";
-const DEFAULT_IMAGE = "https://asturocasion.es/showroom.jpg";
+const DEFAULT_IMAGE = "https://www.asturocasion.es/showroom.jpg";
 
 interface SEOOptions {
   title?: string;
