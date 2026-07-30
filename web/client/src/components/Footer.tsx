@@ -143,6 +143,7 @@ export default function Footer() {
                 { href: "/catalogo", label: "Catálogo de Vehículos" },
                 { href: "/compramos-tu-coche", label: "Compramos tu Coche" },
                 { href: "/sobre-nosotros", label: "Sobre Nosotros" },
+                { href: "/preguntas-frecuentes", label: "Preguntas Frecuentes" },
                 { href: "/contacto", label: "Contacto" },
               ].map((link) => (
                 <li key={link.href}>

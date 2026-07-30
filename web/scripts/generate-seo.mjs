@@ -83,6 +83,27 @@ const ROUTES = [
       "Contacta con Astur Ocasión en Oviedo. Llámanos al 629 574 957 o escríbenos por WhatsApp. Horario: lunes a viernes de 10:00 a 13:30 y de 16:00 a 20:00. Sábados de 10:00 a 13:30.",
   },
   {
+    path: "/preguntas-frecuentes",
+    priority: "0.6",
+    changefreq: "monthly",
+    title: "Preguntas Frecuentes | Coches de Ocasión en Oviedo — Astur Ocasión",
+    description:
+      "Resolvemos tus dudas sobre comprar coche de segunda mano en Oviedo: garantía, transferencia, financiación, tasación y más. Astur Ocasión, Oviedo (Asturias).",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        ["¿Dónde está Astur Ocasión?", "Estamos en C. José Manuel Fuente «El Tarangu», 2, 33002 Oviedo (Asturias). Puedes visitarnos sin cita en nuestro horario de apertura o llamarnos al 629 574 957."],
+        ["¿Los coches llevan garantía?", "Sí. Todos nuestros vehículos de ocasión se entregan revisados y con garantía incluida, además de la transferencia a tu nombre. Compras con total tranquilidad."],
+        ["¿La transferencia está incluida en el precio?", "Sí, la transferencia del vehículo a tu nombre va incluida. Nos encargamos de todos los trámites para que solo tengas que recoger tu coche."],
+        ["¿Ofrecéis financiación?", "Sí, disponemos de financiación a medida para la compra de tu coche de segunda mano. Cuéntanos tu caso y te preparamos una propuesta sin compromiso."],
+        ["¿Compráis mi coche usado?", "Sí. Tasamos y compramos tu coche al mejor precio. Puedes pedir una tasación online gratuita y te damos respuesta en 24 horas, con pago inmediato y sin trámites para ti."],
+        ["¿Qué marcas de coches tenéis?", "Trabajamos con una amplia selección de marcas premium y generalistas: Mercedes-Benz, BMW, Audi, Volkswagen, Jaguar, Land Rover y muchas más. Consulta el catálogo actualizado en nuestra web."],
+        ["¿Puedo reservar o ver un coche antes de comprarlo?", "Por supuesto. Puedes venir a verlo y probarlo a nuestras instalaciones de Oviedo, o contactarnos por teléfono y WhatsApp al 629 574 957 para resolver cualquier duda antes de decidirte."],
+      ].map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+    },
+  },
+  {
     path: "/politica-de-privacidad",
     priority: "0.3",
     changefreq: "yearly",
@@ -286,6 +307,7 @@ async function main() {
       url,
       image: DEFAULT_IMAGE,
       type: "website",
+      jsonLd: route.jsonLd,
     });
     await writeRoute(route.path, html);
     sitemapUrls.push({ loc: url, lastmod: TODAY, changefreq: route.changefreq, priority: route.priority });

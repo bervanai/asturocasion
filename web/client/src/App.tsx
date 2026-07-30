@@ -11,6 +11,7 @@ import TradeIn from "./pages/TradeIn";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import FAQ from "./pages/FAQ";
 import ChatBot from "./components/ChatBot";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/compramos-tu-coche"} component={TradeIn} />
       <Route path={"/contacto"} component={Contact} />
       <Route path={"/sobre-nosotros"} component={About} />
+      <Route path={"/preguntas-frecuentes"} component={FAQ} />
       <Route path={"/politica-de-privacidad"} component={PrivacyPolicy} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
