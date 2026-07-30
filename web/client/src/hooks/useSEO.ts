@@ -16,6 +16,8 @@ interface SEOOptions {
   jsonLd?: Record<string, unknown>;
   /** Append site name to title? Default true */
   appendSiteName?: boolean;
+  /** Tell crawlers not to index this page (e.g. 404). Default false */
+  noindex?: boolean;
 }
 
 function setMeta(selector: string, value: string, attr: "name" | "property" = "name") {
@@ -37,6 +39,7 @@ export function useSEO({
   type = "website",
   jsonLd,
   appendSiteName = true,
+  noindex = false,
 }: SEOOptions = {}) {
   useEffect(() => {
     const fullTitle = title
@@ -54,7 +57,11 @@ export function useSEO({
 
     // ── Standard meta
     setMeta('meta[name="description"]', description, "name");
-    setMeta('meta[name="robots"]', "index, follow, max-snippet:-1, max-image-preview:large", "name");
+    setMeta(
+      'meta[name="robots"]',
+      noindex ? "noindex, follow" : "index, follow, max-snippet:-1, max-image-preview:large",
+      "name",
+    );
 
     // ── Open Graph
     setMeta('meta[property="og:title"]',       fullTitle,    "property");
@@ -94,5 +101,5 @@ export function useSEO({
     } else if (script) {
       script.remove();
     }
-  }, [title, description, image, path, type, jsonLd, appendSiteName]);
+  }, [title, description, image, path, type, jsonLd, appendSiteName, noindex]);
 }
