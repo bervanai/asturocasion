@@ -1,8 +1,15 @@
 {
   "version": 2,
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "npx vite build",
+  "buildCommand": "npx vite build && node scripts/generate-seo.mjs",
   "outputDirectory": "dist/public",
+  "redirects": [
+    { "source": "/coches-de-segunda-mano-y-ocasion/:path*", "destination": "/catalogo", "permanent": true },
+    { "source": "/make/:path*", "destination": "/catalogo", "permanent": true },
+    { "source": "/model/:path*", "destination": "/catalogo", "permanent": true },
+    { "source": "/category/:path*", "destination": "/catalogo", "permanent": true },
+    { "source": "/tag/:path*", "destination": "/catalogo", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
