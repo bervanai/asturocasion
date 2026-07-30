@@ -12,10 +12,35 @@
   status = 200
   force = true
 
-# Legacy WordPress URLs (indexed by Google) → new catalogue, 301 so link
-# equity transfers and the old thin/duplicate pages drop out of the index.
+# Legacy WordPress URLs (still indexed by Google) → new catalogue, 301 so link
+# equity transfers to the live pages and the old thin/duplicate URLs drop out
+# of the index instead of turning into 404s/soft-404s.
 [[redirects]]
   from = "/coches-de-segunda-mano-y-ocasion/*"
+  to = "/catalogo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/make/*"
+  to = "/catalogo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/model/*"
+  to = "/catalogo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/category/*"
+  to = "/catalogo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tag/*"
   to = "/catalogo"
   status = 301
   force = true
