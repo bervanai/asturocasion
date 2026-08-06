@@ -107,6 +107,16 @@ function ImageUploader({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  // Reorder helper: move the photo at `from` to position `to`.
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= images.length || from === to) return;
+    const next = [...images];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  };
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -163,6 +173,18 @@ function ImageUploader({
           {images.map((url, i) => (
             <div
               key={url}
+              draggable
+              onDragStart={(e) => {
+                setDragIndex(i);
+                e.dataTransfer.effectAllowed = "move";
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragIndex !== null) move(dragIndex, i);
+                setDragIndex(null);
+              }}
+              onDragEnd={() => setDragIndex(null)}
               style={{
                 position: "relative",
                 borderRadius: "8px",
@@ -170,11 +192,16 @@ function ImageUploader({
                 aspectRatio: "4/3",
                 background: "#1a1a1e",
                 border: i === 0 ? "2px solid #e8a020" : "1px solid #1f1f23",
+                cursor: "grab",
+                opacity: dragIndex === i ? 0.4 : 1,
+                outline: dragIndex !== null && dragIndex !== i ? "2px dashed #e8a020" : "none",
+                outlineOffset: "-4px",
               }}
             >
               <img
                 src={url}
                 alt={`Foto ${i + 1}`}
+                draggable={false}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
               {/* Principal badge */}
@@ -208,6 +235,60 @@ function ImageUploader({
               >
                 <X style={{ width: "11px", height: "11px" }} />
               </button>
+              {/* Reorder arrows: move one position left / right */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "0.25rem",
+                  left: "0.25rem",
+                  display: "flex",
+                  gap: "0.2rem",
+                }}
+              >
+                <button
+                  type="button"
+                  title="Mover a la izquierda"
+                  disabled={i === 0}
+                  onClick={() => move(i, i - 1)}
+                  style={{
+                    width: "22px",
+                    height: "22px",
+                    borderRadius: "50%",
+                    background: "rgba(0,0,0,0.7)",
+                    border: "none",
+                    color: "#f0f0f0",
+                    cursor: i === 0 ? "not-allowed" : "pointer",
+                    opacity: i === 0 ? 0.35 : 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ChevronLeft style={{ width: "13px", height: "13px" }} />
+                </button>
+                <button
+                  type="button"
+                  title="Mover a la derecha"
+                  disabled={i === images.length - 1}
+                  onClick={() => move(i, i + 1)}
+                  style={{
+                    width: "22px",
+                    height: "22px",
+                    borderRadius: "50%",
+                    background: "rgba(0,0,0,0.7)",
+                    border: "none",
+                    color: "#f0f0f0",
+                    cursor: i === images.length - 1 ? "not-allowed" : "pointer",
+                    opacity: i === images.length - 1 ? 0.35 : 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ChevronRight style={{ width: "13px", height: "13px" }} />
+                </button>
+              </div>
+
               {/* Move to first (if not already) */}
               {i > 0 && (
                 <button
@@ -266,7 +347,7 @@ function ImageUploader({
       </button>
       {images.length > 0 && (
         <p style={{ fontSize: "0.6375rem", color: "#3f3f46", marginTop: "0.375rem" }}>
-          La primera foto es la imagen principal · {images.length} foto{images.length !== 1 ? "s" : ""}
+          La primera foto es la imagen principal · Arrastra o usa las flechas ‹ › para reordenar · {images.length} foto{images.length !== 1 ? "s" : ""}
         </p>
       )}
     </div>
