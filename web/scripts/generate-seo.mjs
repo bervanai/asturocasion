@@ -288,6 +288,60 @@ function buildSitemap(urls) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n${body}\n\n</urlset>\n`;
 }
 
+function fmtPrice(p) {
+  const n = Number(p);
+  return Number.isFinite(n) ? n.toLocaleString("es-ES") : String(p);
+}
+
+/** Crawl-visible list of every vehicle with a real <a href> to its page.
+ *  Static HTML links help Google discover and index all vehicle pages
+ *  without needing to run JS. */
+function vehicleListHtml(vehicles) {
+  return vehicles
+    .filter((v) => v && v.id)
+    .map((v) => {
+      const km = Number(v.km);
+      const kmStr = Number.isFinite(km) ? km.toLocaleString("es-ES") : v.km;
+      return `<li><a href="/vehiculo/${esc(v.id)}">${esc(v.brand)} ${esc(v.model)} ${esc(v.year)} — ${esc(fmtPrice(v.price))} € · ${esc(kmStr)} km · ${esc(v.fuel_type)}</a></li>`;
+    })
+    .join("");
+}
+
+function catalogBody(vehicles) {
+  return (
+    `<h1>Coches de segunda mano y ocasión en Oviedo, Asturias</h1>` +
+    `<p>Catálogo de ${vehicles.length} vehículos de ocasión revisados, con garantía y transferencia incluidas, en Astur Ocasión (Oviedo).</p>` +
+    `<ul>${vehicleListHtml(vehicles)}</ul>`
+  );
+}
+
+function homeBody(vehicles) {
+  const featured = vehicles.slice(0, 8);
+  return (
+    `<h1>Astur Ocasión — Coches de Ocasión y Segunda Mano en Oviedo</h1>` +
+    `<p>Concesionario de coches de segunda mano en Oviedo, Asturias. ${vehicles.length} vehículos disponibles ` +
+    `de marcas como Mercedes-Benz, BMW, Audi, Volkswagen, Porsche y más, todos con garantía y transferencia incluidas. ` +
+    `Teléfono: 629 574 957.</p>` +
+    `<p><a href="/catalogo">Ver todo el catálogo de vehículos</a></p>` +
+    `<ul>${vehicleListHtml(featured)}</ul>`
+  );
+}
+
+function catalogItemListLd(vehicles) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Catálogo de vehículos de ocasión — Astur Ocasión",
+    numberOfItems: vehicles.length,
+    itemListElement: vehicles.filter((v) => v && v.id).map((v, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${BASE_URL}/vehiculo/${v.id}`,
+      name: `${v.brand} ${v.model} ${v.year}`,
+    })),
+  };
+}
+
 async function main() {
   const indexPath = path.join(DIST, "index.html");
   if (!existsSync(indexPath)) {
@@ -298,24 +352,35 @@ async function main() {
 
   const sitemapUrls = [];
 
+  // Fetch vehicles first so the home and catalogue pages can list them as
+  // crawl-visible links (and the catalogue can carry an ItemList schema).
+  const vehicles = (await fetchVehicles()).filter((v) => v && v.id);
+
   // 1) Static routes
   for (const route of ROUTES) {
     const url = route.path === "/" ? `${BASE_URL}/` : `${BASE_URL}${route.path}`;
+    let bodyContent, jsonLd = route.jsonLd;
+    if (route.path === "/catalogo" && vehicles.length) {
+      bodyContent = catalogBody(vehicles);
+      jsonLd = catalogItemListLd(vehicles);
+    } else if (route.path === "/" && vehicles.length) {
+      bodyContent = homeBody(vehicles);
+    }
     const html = renderHead(template, {
       title: route.title,
       description: route.description,
       url,
       image: DEFAULT_IMAGE,
       type: "website",
-      jsonLd: route.jsonLd,
+      jsonLd,
+      bodyContent,
     });
     await writeRoute(route.path, html);
     sitemapUrls.push({ loc: url, lastmod: TODAY, changefreq: route.changefreq, priority: route.priority });
   }
-  console.log(`[seo] Wrote ${ROUTES.length} static route pages.`);
+  console.log(`[seo] Wrote ${ROUTES.length} static route pages (home + catálogo con ${vehicles.length} coches).`);
 
   // 2) Vehicle detail pages
-  const vehicles = await fetchVehicles();
   let vehicleCount = 0;
   for (const v of vehicles) {
     if (!v || !v.id) continue;
