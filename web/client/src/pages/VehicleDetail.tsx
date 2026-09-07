@@ -120,6 +120,8 @@ export default function VehicleDetail() {
             key={imgs[clampedIdx]}
             src={imgs[clampedIdx]}
             alt={`${vehicle.brand} ${vehicle.model}`}
+            decoding="async"
+            fetchPriority="high"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"; }}
           />
@@ -250,7 +252,7 @@ export default function VehicleDetail() {
                   opacity: i === clampedIdx ? 1 : 0.55, transition: "all 0.15s",
                 }}
               >
-                <img src={src} alt={`Vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                <img src={src} alt={`Vista ${i + 1}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=60"; }}
                 />
               </button>
