@@ -18,7 +18,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/catalogo"} component={Catalog} />
+      <Route path={"/catalogo"}>{() => <Catalog />}</Route>
+      <Route path={"/coches/:brand"}>{(params) => <Catalog brandSlug={params.brand} />}</Route>
       <Route path={"/vehiculo/:id"} component={VehicleDetail} />
       <Route path={"/compramos-tu-coche"} component={TradeIn} />
       <Route path={"/contacto"} component={Contact} />

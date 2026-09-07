@@ -9,6 +9,15 @@ import { useSEO } from "@/hooks/useSEO";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80";
 
+// slug de marca: "Mercedes-Benz" -> "mercedes-benz"
+function slugifyBrand(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+function prettyBrandFromSlug(slug: string): string {
+  return slug.split("-").map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join("-");
+}
+
 // Normaliza un vehículo de la base de datos al formato que usan las tarjetas
 function toCard(v: {
   id: string; brand: string; model: string; year: number; price: string;
@@ -126,12 +135,21 @@ function VehicleCard({ v }: { v: Vehicle }) {
   );
 }
 
-export default function Catalog() {
-  useSEO({
-    title: "Coches de Segunda Mano en Oviedo | Catálogo Astur Ocasión",
-    description: "Catálogo de coches de segunda mano en Oviedo y Asturias. Mercedes, BMW, Audi, Volkswagen, Jaguar y más. Todos revisados, con garantía y transferencia incluidas. Busca tu coche ideal en Astur Ocasión.",
-    path: "/catalogo",
-  });
+export default function Catalog({ brandSlug }: { brandSlug?: string } = {}) {
+  const brandName = brandSlug ? prettyBrandFromSlug(brandSlug) : "";
+  useSEO(
+    brandSlug
+      ? {
+          title: `Coches ${brandName} de Segunda Mano en Oviedo | Astur Ocasión`,
+          description: `Coches ${brandName} de ocasión y segunda mano en Oviedo, Asturias. Revisados, con garantía y transferencia incluidas. Financiación disponible en Astur Ocasión.`,
+          path: `/coches/${brandSlug}`,
+        }
+      : {
+          title: "Coches de Segunda Mano en Oviedo | Catálogo Astur Ocasión",
+          description: "Catálogo de coches de segunda mano en Oviedo y Asturias. Mercedes, BMW, Audi, Volkswagen, Jaguar y más. Todos revisados, con garantía y transferencia incluidas. Busca tu coche ideal en Astur Ocasión.",
+          path: "/catalogo",
+        },
+  );
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -161,6 +179,7 @@ export default function Catalog() {
   const transmissions = Array.from(new Set(vehicles.map((v) => v.transmission)));
 
   const filtered = vehicles.filter((v) => {
+    if (brandSlug && slugifyBrand(v.brand) !== brandSlug) return false;
     if (filters.brand && v.brand !== filters.brand) return false;
     if (Number(v.price) > filters.priceMax) return false;
     if (filters.fuel && v.fuelType !== filters.fuel) return false;
