@@ -239,7 +239,7 @@ function vehicleSeo(v) {
   const url = `${BASE_URL}/vehiculo/${v.id}`;
   const image = (v.images && v.images[0]) || DEFAULT_IMAGE;
 
-  const jsonLd = {
+  const carLd = {
     "@context": "https://schema.org",
     "@type": "Car",
     name: `${v.brand} ${v.model}`,
@@ -270,22 +270,37 @@ function vehicleSeo(v) {
     url,
   };
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+      { "@type": "ListItem", position: 2, name: "Catálogo", item: `${BASE_URL}/catalogo` },
+      { "@type": "ListItem", position: 3, name: `${v.brand} ${v.model}`, item: url },
+    ],
+  };
+
   const bodyContent =
+    `<nav aria-label="Ruta"><a href="/">Inicio</a> › <a href="/catalogo">Catálogo</a> › ${esc(v.brand)} ${esc(v.model)}</nav>` +
     `<h1>${esc(v.brand)} ${esc(v.model)} ${esc(v.year)}</h1>` +
     `<p>${esc(description)}</p>` +
     (v.description ? `<p>${esc(v.description)}</p>` : "");
 
-  return { title, description, url, image, type: "product", jsonLd, bodyContent };
+  const images = (v.images || []).filter(Boolean);
+  return { title, description, url, image, type: "product", jsonLd: [carLd, breadcrumbLd], bodyContent, images };
 }
 
 function buildSitemap(urls) {
   const body = urls
-    .map(
-      (u) =>
-        `  <url>\n    <loc>${esc(u.loc)}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`,
-    )
+    .map((u) => {
+      const imgs = (u.images || [])
+        .slice(0, 20)
+        .map((i) => `    <image:image><image:loc>${esc(i)}</image:loc></image:image>`)
+        .join("\n");
+      return `  <url>\n    <loc>${esc(u.loc)}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>${imgs ? "\n" + imgs : ""}\n  </url>`;
+    })
     .join("\n\n");
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n${body}\n\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n${body}\n\n</urlset>\n`;
 }
 
 function fmtPrice(p) {
@@ -388,7 +403,7 @@ async function main() {
     const html = renderHead(template, seo);
     await writeRoute(`/vehiculo/${v.id}`, html);
     const lastmod = (v.created_at || TODAY).slice(0, 10);
-    sitemapUrls.push({ loc: seo.url, lastmod, changefreq: "weekly", priority: "0.8" });
+    sitemapUrls.push({ loc: seo.url, lastmod, changefreq: "weekly", priority: "0.8", images: seo.images });
     vehicleCount++;
   }
   if (vehicleCount) console.log(`[seo] Pre-rendered ${vehicleCount} vehicle pages.`);
