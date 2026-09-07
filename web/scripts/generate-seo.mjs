@@ -32,6 +32,11 @@ const SITE_NAME = "Astur Ocasión";
 const DEFAULT_IMAGE = `${BASE_URL}/showroom.jpg`;
 const TODAY = new Date().toISOString().slice(0, 10);
 
+function slugifyBrand(s) {
+  return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 function esc(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -322,10 +327,23 @@ function vehicleListHtml(vehicles) {
     .join("");
 }
 
+function brandLinksHtml(vehicles) {
+  const brands = new Map();
+  for (const v of vehicles) {
+    const slug = slugifyBrand(v.brand);
+    if (slug && !brands.has(slug)) brands.set(slug, v.brand);
+  }
+  const items = [...brands.entries()]
+    .map(([slug, name]) => `<li><a href="/coches/${slug}">Coches ${esc(name)} en Oviedo</a></li>`)
+    .join("");
+  return items ? `<h2>Coches por marca</h2><ul>${items}</ul>` : "";
+}
+
 function catalogBody(vehicles) {
   return (
     `<h1>Coches de segunda mano y ocasión en Oviedo, Asturias</h1>` +
     `<p>Catálogo de ${vehicles.length} vehículos de ocasión revisados, con garantía y transferencia incluidas, en Astur Ocasión (Oviedo).</p>` +
+    brandLinksHtml(vehicles) +
     `<ul>${vehicleListHtml(vehicles)}</ul>`
   );
 }
@@ -407,6 +425,38 @@ async function main() {
     vehicleCount++;
   }
   if (vehicleCount) console.log(`[seo] Pre-rendered ${vehicleCount} vehicle pages.`);
+
+  // 2b) Brand landing pages: /coches/<marca> — target "<marca> segunda mano Oviedo"
+  const byBrand = new Map();
+  for (const v of vehicles) {
+    const slug = slugifyBrand(v.brand);
+    if (!slug) continue;
+    if (!byBrand.has(slug)) byBrand.set(slug, { name: v.brand, list: [] });
+    byBrand.get(slug).list.push(v);
+  }
+  let brandCount = 0;
+  for (const [slug, { name, list }] of byBrand) {
+    const url = `${BASE_URL}/coches/${slug}`;
+    const title = `Coches ${name} de Segunda Mano en Oviedo`;
+    const description = `Coches ${name} de ocasión y segunda mano en Oviedo, Asturias. ${list.length} ${name} revisados, con garantía y transferencia incluidas. Financiación disponible en Astur Ocasión.`;
+    const bodyContent =
+      `<h1>Coches ${esc(name)} de segunda mano y ocasión en Oviedo</h1>` +
+      `<p>${list.length} vehículos ${esc(name)} disponibles en Astur Ocasión (Oviedo, Asturias), revisados y con garantía y transferencia incluidas.</p>` +
+      `<ul>${vehicleListHtml(list)}</ul>` +
+      `<p><a href="/catalogo">Ver todo el catálogo</a></p>`;
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: `Coches ${name} de ocasión — Astur Ocasión`,
+      numberOfItems: list.length,
+      itemListElement: list.map((v, i) => ({ "@type": "ListItem", position: i + 1, url: `${BASE_URL}/vehiculo/${v.id}`, name: `${v.brand} ${v.model} ${v.year}` })),
+    };
+    const html = renderHead(template, { title, description, url, image: DEFAULT_IMAGE, type: "website", jsonLd, bodyContent });
+    await writeRoute(`/coches/${slug}`, html);
+    sitemapUrls.push({ loc: url, lastmod: TODAY, changefreq: "weekly", priority: "0.7" });
+    brandCount++;
+  }
+  if (brandCount) console.log(`[seo] Pre-rendered ${brandCount} brand landing pages.`);
 
   // 3) Sitemap
   await writeFile(path.join(DIST, "sitemap.xml"), buildSitemap(sitemapUrls), "utf8");
