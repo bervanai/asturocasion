@@ -222,8 +222,9 @@ export default function Home() {
         <div style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden" }}>
           <img
             className="lux-hero-pan"
-            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2000&q=90"
+            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=70"
             alt=""
+            fetchPriority="high"
             style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 42%" }}
           />
           {/* Layered cinematic gradients */}
@@ -402,7 +403,7 @@ export default function Home() {
                 <p style={{ fontSize: "1.1rem", fontWeight: "600" }}>Stock en actualización</p>
                 <p style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>Contacta con nosotros para conocer la disponibilidad actual.</p>
               </div>
-            ) : vehicles.map((v) => <VehicleCard key={v.id} v={v} />)}
+            ) : vehicles.slice(0, 9).map((v) => <VehicleCard key={v.id} v={v} />)}
           </div>
         </div>
       </section>
@@ -562,7 +563,7 @@ export default function Home() {
       {/* ── CTA SELL ────────────────────────────────────────────────────────────── */}
       <section className="reveal" style={{ position: "relative", overflow: "hidden", padding: "6rem 0" }}>
         <div style={{ position: "absolute", inset: 0 }}>
-          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1600&q=80" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=68" alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,50,120,0.92) 0%, rgba(0,100,220,0.75) 100%)" }} />
         </div>
         <div className="container" style={{ position: "relative", zIndex: 1 }}>
