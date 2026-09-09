@@ -23,10 +23,15 @@ function toCard(v: {
   id: string; brand: string; model: string; year: number; price: string;
   km: number; fuelType: string; transmission: string; images: string[] | null; status: string;
 }) {
+  const first = (v.images && v.images[0]) || FALLBACK_IMG;
+  const thumb = first.includes("/object/public/")
+    ? first.split("/object/public/")[0] + "/object/public/fotos/thumbs/" + v.id + ".jpg"
+    : first;
   return {
     id: v.id, brand: v.brand, model: v.model, year: v.year,
     price: v.price, km: v.km, fuelType: v.fuelType, transmission: v.transmission,
-    image: (v.images && v.images[0]) || FALLBACK_IMG,
+    image: first,
+    thumb,
     status: v.status,
   };
 }
@@ -41,6 +46,7 @@ type Vehicle = {
   fuelType: string;
   transmission: string;
   image: string;
+  thumb: string;
   status: string;
 };
 
@@ -70,7 +76,7 @@ function VehicleCard({ v }: { v: Vehicle }) {
         {/* Photo */}
         <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden", background: "#F0F0F5" }}>
           <img
-            src={v.image}
+            src={v.thumb}
             alt={`${v.brand} ${v.model}`}
             style={{
               width: "100%", height: "100%", objectFit: "cover",
@@ -78,7 +84,12 @@ function VehicleCard({ v }: { v: Vehicle }) {
               transform: hovered ? "scale(1.06)" : "scale(1)",
             }}
             loading="lazy"
-            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMG; }}
+            decoding="async"
+            onError={(e) => {
+              const el = e.target as HTMLImageElement;
+              if (el.src !== v.image) el.src = v.image;
+              else el.src = FALLBACK_IMG;
+            }}
           />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 100%)" }} />
           <div style={{
