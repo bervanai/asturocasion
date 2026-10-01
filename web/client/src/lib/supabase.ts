@@ -65,4 +65,15 @@ export async function insertLead(lead: {
     status: "new",
   });
   if (error) throw error;
+
+  // Reenvío automático del lead por email (no bloquea el formulario; errores silenciados).
+  try {
+    void fetch("/api/notify-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lead),
+    }).catch(() => {});
+  } catch {
+    /* noop */
+  }
 }
