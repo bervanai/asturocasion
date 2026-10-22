@@ -103,9 +103,9 @@ function VehicleCard({ v }: { v: Vehicle }) {
           {v.status !== "available" && (
             <div style={{
               position: "absolute", top: "12px", right: "12px",
-              background: v.status === "sold" ? "rgba(30,30,30,0.82)" : "rgba(200,120,0,0.88)",
+              background: v.status === "sold" ? "#FFD60A" : "rgba(200,120,0,0.88)",
               backdropFilter: "blur(8px)",
-              color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
+              color: v.status === "sold" ? "#1D1D1F" : "#FFFFFF", fontFamily: "'DM Sans', sans-serif",
               fontSize: "0.65rem", fontWeight: "800",
               padding: "4px 10px", borderRadius: "50px",
               letterSpacing: "0.06em", textTransform: "uppercase",
