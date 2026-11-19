@@ -1,9 +1,25 @@
-import { createClient } from "@supabase/supabase-js";
-
+// Acceso a Supabase con peticiones REST directas (PostgREST).
+// La web pública solo lee vehículos y guarda leads, así que no carga el cliente completo
+// de @supabase/supabase-js (auth, realtime, storage…), que pesaba cientos de KB.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const HEADERS = {
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+};
+
+async function rest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...init,
+    headers: { ...HEADERS, ...init.headers },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message || `Error ${res.status} al consultar la base de datos`);
+  }
+  return res.status === 201 || res.status === 204 ? (null as T) : res.json();
+}
 
 export type Vehicle = {
   id: string;
@@ -26,23 +42,17 @@ export type Vehicle = {
 };
 
 export async function fetchVehicles(status?: string): Promise<Vehicle[]> {
-  let query = supabase.from("vehicles").select("*").order("created_at", { ascending: false });
-  if (status && status !== "all") {
-    query = query.eq("status", status);
-  }
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data ?? []) as Vehicle[];
+  const filter = status && status !== "all" ? `&status=eq.${encodeURIComponent(status)}` : "";
+  return (await rest<Vehicle[]>(`vehicles?select=*&order=created_at.desc${filter}`)) ?? [];
 }
 
 export async function fetchVehicleById(id: string): Promise<Vehicle | null> {
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("*")
-    .eq("id", id)
-    .single();
-  if (error) return null;
-  return data as Vehicle;
+  try {
+    const rows = await rest<Vehicle[]>(`vehicles?select=*&id=eq.${encodeURIComponent(id)}&limit=1`);
+    return rows?.[0] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function insertLead(lead: {
@@ -54,17 +64,20 @@ export async function insertLead(lead: {
   vehicle_id?: string | null;
   vehicle_info?: Record<string, unknown> | null;
 }) {
-  const { error } = await supabase.from("leads").insert({
-    name: lead.name,
-    email: lead.email,
-    phone: lead.phone ?? null,
-    type: lead.type,
-    message: lead.message ?? null,
-    vehicle_id: lead.vehicle_id ?? null,
-    vehicle_info: lead.vehicle_info ?? null,
-    status: "new",
+  await rest("leads", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone ?? null,
+      type: lead.type,
+      message: lead.message ?? null,
+      vehicle_id: lead.vehicle_id ?? null,
+      vehicle_info: lead.vehicle_info ?? null,
+      status: "new",
+    }),
   });
-  if (error) throw error;
 
   // Reenvío automático del lead por email (no bloquea el formulario; errores silenciados).
   try {

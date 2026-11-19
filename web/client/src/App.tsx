@@ -1,21 +1,43 @@
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import Catalog from "./pages/Catalog";
-import VehicleDetail from "./pages/VehicleDetail";
-import TradeIn from "./pages/TradeIn";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import FAQ from "./pages/FAQ";
-import ChatBot from "./components/ChatBot";
+
+// El resto de páginas se descarga solo al visitarlas, para que la portada cargue más rápido.
+const Catalog = lazy(() => import("./pages/Catalog"));
+const VehicleDetail = lazy(() => import("./pages/VehicleDetail"));
+const TradeIn = lazy(() => import("./pages/TradeIn"));
+const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const ChatBot = lazy(() => import("./components/ChatBot"));
+
+// El chatbot no es necesario para pintar la página: se carga cuando el navegador queda libre.
+function DeferredChatBot() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const start = () => setReady(true);
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(start, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const t = setTimeout(start, 2000);
+    return () => clearTimeout(t);
+  }, []);
+  return ready ? (
+    <Suspense fallback={null}>
+      <ChatBot />
+    </Suspense>
+  ) : null;
+}
 
 function Router() {
   return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F5F5F7" }} />}>
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/catalogo"}>{() => <Catalog />}</Route>
@@ -30,6 +52,7 @@ function Router() {
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
@@ -42,11 +65,9 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <ChatBot />
-        </TooltipProvider>
+        <Toaster />
+        <Router />
+        <DeferredChatBot />
       </ThemeProvider>
     </ErrorBoundary>
   );
