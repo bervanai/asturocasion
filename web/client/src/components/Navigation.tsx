@@ -1,10 +1,7 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 
 export default function Navigation() {
-  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
@@ -81,21 +78,11 @@ export default function Navigation() {
 
           {/* Right side */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            {user ? (
-              <button
-                onClick={() => logout()}
-                className="hidden md:inline"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", color: "#86868B", background: "none", border: "none", cursor: "pointer" }}
-              >
-                Salir
-              </button>
-            ) : (
-              <Link href="/catalogo">
-                <a className="btn-primary hidden md:inline-flex" style={{ padding: "0.55rem 1.25rem", fontSize: "0.82rem" }}>
-                  Ver Catálogo
-                </a>
-              </Link>
-            )}
+            <Link href="/catalogo">
+              <a className="btn-primary hidden md:inline-flex" style={{ padding: "0.55rem 1.25rem", fontSize: "0.82rem" }}>
+                Ver Catálogo
+              </a>
+            </Link>
 
             {/* Hamburger button — mobile only */}
             <button
@@ -148,24 +135,6 @@ export default function Navigation() {
               </Link>
             ))}
           </nav>
-          {user && (
-            <button
-              onClick={() => { logout(); setMobileOpen(false); }}
-              style={{
-                marginTop: "1.5rem",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.95rem",
-                color: "#86868B",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left",
-                padding: "0.5rem 0",
-              }}
-            >
-              Salir
-            </button>
-          )}
         </div>
       )}
     </>

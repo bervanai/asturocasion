@@ -69,7 +69,7 @@ function db({ url, key }) {
     return r.status === 204 ? null : r.json().catch(() => null);
   };
   return {
-    list: () => call("/rest/v1/vehicles?select=id,brand,model,year,price,status,sold_at"),
+    list: () => call("/rest/v1/vehicles?select=id,brand,model,year,price,status,sold_at,images"),
     patch: (id, body) => call(`/rest/v1/vehicles?id=eq.${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify(body),
@@ -79,8 +79,9 @@ function db({ url, key }) {
       method: "POST", headers: { "Content-Type": "application/json", Prefer: "return=representation" },
       body: JSON.stringify(row),
     }))[0].id,
-    upload: async (bytes) => {
-      const objectKey = `vehicles/${randomUUID().replace(/-/g, "")}.jpg`;
+    hasObject: async (objectKey) =>
+      (await fetch(`${url}/storage/v1/object/public/fotos/${objectKey}`, { method: "HEAD" })).ok,
+    upload: async (bytes, objectKey = `vehicles/${randomUUID().replace(/-/g, "")}.jpg`) => {
       await call(`/storage/v1/object/fotos/${objectKey}`, {
         method: "POST", headers: { "Content-Type": "image/jpeg", "x-upsert": "true" }, body: bytes,
       });
@@ -146,6 +147,29 @@ async function openPage(page, url, attempts = 3) {
   throw new Error(`No se pudo leer ${url}: ${lastErr?.message}`);
 }
 
+// --- Miniaturas ------------------------------------------------------------
+// Las tarjetas del catálogo cargan fotos/thumbs/<id>.jpg; si falta, bajan la foto grande.
+const THUMB_WIDTH = 640;
+
+async function makeThumb(page, src) {
+  const res = await fetch(src, { headers: { "User-Agent": UA } });
+  if (!res.ok) throw new Error(`foto ${res.status}`);
+  const b64 = Buffer.from(await res.arrayBuffer()).toString("base64");
+  const out = await page.evaluate(async ({ b64, width }) => {
+    const img = new Image();
+    img.src = `data:image/jpeg;base64,${b64}`;
+    await img.decode();
+    const w = Math.min(width, img.naturalWidth);
+    const h = Math.round((img.naturalHeight * w) / img.naturalWidth);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL("image/jpeg", 0.72).split(",")[1];
+  }, { b64, width: THUMB_WIDTH });
+  return Buffer.from(out, "base64");
+}
+
 // --- Emparejado coches.net <-> base de datos -------------------------------
 function sameCar(cn, row) {
   if (row.brand !== brandOf(cn.make) || row.year !== cn.year) return false;
@@ -165,7 +189,7 @@ async function main() {
   const api = db(creds);
   const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const page = await (await browser.newContext({ userAgent: UA, locale: "es-ES" })).newPage();
-  const summary = { added: [], price: [], sold: [], reactivated: [], deleted: [], skipped: [] };
+  const summary = { added: [], price: [], sold: [], reactivated: [], deleted: [], skipped: [], thumbs: [] };
 
   try {
     let list = null;
@@ -252,6 +276,21 @@ async function main() {
     for (const r of sold.slice(KEEP_SOLD)) {
       summary.deleted.push(`${r.brand} ${r.model} ${r.year}`);
       if (!DRY_RUN) await api.remove(r.id);
+    }
+
+    // Miniaturas que falten (incluidos los coches recién añadidos).
+    await page.goto("about:blank");
+    for (const r of await api.list()) {
+      const first = r.images?.[0];
+      if (!first || (await api.hasObject(`thumbs/${r.id}.jpg`))) continue;
+      summary.thumbs.push(`${r.brand} ${r.model} ${r.year}`);
+      if (DRY_RUN) continue;
+      try {
+        await api.upload(await makeThumb(page, first), `thumbs/${r.id}.jpg`);
+      } catch (e) {
+        summary.thumbs.pop();
+        console.warn(`  miniatura fallida (${r.brand} ${r.model}): ${e.message}`);
+      }
     }
   } finally {
     await browser.close();

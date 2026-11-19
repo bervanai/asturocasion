@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Send, Car, Euro, Phone, ChevronRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { fetchVehicles } from "@/lib/supabase";
 import type { Vehicle } from "@/lib/supabase";
 
 type Message = {
@@ -179,14 +179,9 @@ export default function ChatBot() {
 
   // Load real vehicle data once
   useEffect(() => {
-    supabase
-      .from("vehicles")
-      .select("brand, model, year, price, fuel_type, status")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        if (data) setVehicles(data as Vehicle[]);
-      });
+    fetchVehicles("available")
+      .then(setVehicles)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
