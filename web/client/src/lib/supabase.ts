@@ -41,9 +41,23 @@ export type Vehicle = {
   created_at: string;
 };
 
+// Vendidos que se enseñan en el catálogo como prueba de ventas ("Vendido" en amarillo).
+// El resto de vendidos se conserva en la base de datos (y en el CRM), pero no se muestra.
+const VISIBLE_SOLD = 2;
+
 export async function fetchVehicles(status?: string): Promise<Vehicle[]> {
-  const filter = status && status !== "all" ? `&status=eq.${encodeURIComponent(status)}` : "";
-  return (await rest<Vehicle[]>(`vehicles?select=*&order=created_at.desc${filter}`)) ?? [];
+  if (status && status !== "all") {
+    return (await rest<Vehicle[]>(
+      `vehicles?select=*&order=created_at.desc&status=eq.${encodeURIComponent(status)}`,
+    )) ?? [];
+  }
+  const [available, sold] = await Promise.all([
+    rest<Vehicle[]>("vehicles?select=*&order=created_at.desc&status=neq.sold"),
+    rest<Vehicle[]>(
+      `vehicles?select=*&order=sold_at.desc.nullslast,created_at.desc&status=eq.sold&limit=${VISIBLE_SOLD}`,
+    ),
+  ]);
+  return [...(available ?? []), ...(sold ?? [])];
 }
 
 export async function fetchVehicleById(id: string): Promise<Vehicle | null> {

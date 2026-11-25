@@ -4,8 +4,10 @@
 //   - Coche nuevo en coches.net (con fotos)  -> se añade con fotos, descripción y datos.
 //   - Coche en ambos con precio distinto     -> se actualiza el precio.
 //   - Coche vendido que vuelve a coches.net  -> se reactiva como disponible.
-//   - Coche disponible que ya no está        -> se marca "sold" (etiqueta "Vendido").
-//   - Solo se conservan los KEEP_SOLD vendidos más recientes; los demás se borran.
+//   - Coche en stock que ya no está          -> se marca "sold" (etiqueta "Vendido").
+//   - "En stock" = disponible o reservado (los reservados en el CRM se respetan, no se tocan de estado).
+//   - Nunca se borra ningún coche: los vendidos se conservan en la base de datos y en el CRM;
+//     la web pública solo muestra los 2 vendidos más recientes (ver client/src/lib/supabase.ts).
 //
 // Seguridad: si la lectura de coches.net falla o parece incompleta, no se modifica nada.
 //
@@ -19,7 +21,6 @@ const { chromium } = require("playwright");
 
 const DEALER_URL = "https://www.coches.net/concesionario/asturocasiondelautomovil/";
 const SITE_URL = "https://www.asturocasion.es/";
-const KEEP_SOLD = 2;
 const MAX_PHOTOS = 30;
 const DRY_RUN = process.argv.includes("--dry-run");
 const UA =
@@ -74,7 +75,6 @@ function db({ url, key }) {
       method: "PATCH", headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify(body),
     }),
-    remove: (id) => call(`/rest/v1/vehicles?id=eq.${id}`, { method: "DELETE" }),
     insert: async (row) => (await call("/rest/v1/vehicles", {
       method: "POST", headers: { "Content-Type": "application/json", Prefer: "return=representation" },
       body: JSON.stringify(row),
@@ -189,7 +189,7 @@ async function main() {
   const api = db(creds);
   const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const page = await (await browser.newContext({ userAgent: UA, locale: "es-ES" })).newPage();
-  const summary = { added: [], price: [], sold: [], reactivated: [], deleted: [], skipped: [], thumbs: [] };
+  const summary = { added: [], price: [], sold: [], reactivated: [], skipped: [], thumbs: [] };
 
   try {
     let list = null;
@@ -198,7 +198,8 @@ async function main() {
     }
     const items = list?.items ?? [];
     const rows = await api.list();
-    const available = rows.filter((r) => r.status === "available");
+    // En stock = todo lo que no está vendido (disponible o reservado desde el CRM).
+    const available = rows.filter((r) => r.status !== "sold");
 
     // Seguridad: no seguir si la lectura parece rota.
     if (!items.length || list.totalResults !== items.length || (list.totalPages ?? 1) > 1) {
@@ -268,16 +269,6 @@ async function main() {
       if (!DRY_RUN) await api.patch(r.id, { status: "sold", sold_at: now });
     }
 
-    // Rotación: conservar solo los KEEP_SOLD vendidos más recientes (los recién vendidos primero).
-    const sold = [
-      ...newlySold.map((r) => ({ ...r, sold_at: now })),
-      ...rows.filter((r) => r.status === "sold" && !matched.has(r.id)),
-    ].sort((a, b) => String(b.sold_at ?? "").localeCompare(String(a.sold_at ?? "")));
-    for (const r of sold.slice(KEEP_SOLD)) {
-      summary.deleted.push(`${r.brand} ${r.model} ${r.year}`);
-      if (!DRY_RUN) await api.remove(r.id);
-    }
-
     // Miniaturas que falten (incluidos los coches recién añadidos).
     await page.goto("about:blank");
     for (const r of await api.list()) {
@@ -304,6 +295,7 @@ async function main() {
     ...summary,
     final: final && {
       available: final.filter((r) => r.status === "available").length,
+      reserved: final.filter((r) => r.status === "reserved").length,
       sold: final.filter((r) => r.status === "sold").length,
     },
   }, null, 2));
