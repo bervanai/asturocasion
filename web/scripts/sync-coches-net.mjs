@@ -299,6 +299,8 @@ async function main() {
   const final = DRY_RUN ? null : await api.list();
   console.log(JSON.stringify({
     dryRun: DRY_RUN,
+    // true si cambió algo que afecta al sitemap o a las páginas SEO: hay que volver a publicar la web.
+    needsRedeploy: ["added", "price", "sold", "reactivated"].some((k) => summary[k].length > 0),
     ...summary,
     final: final && {
       available: final.filter((r) => r.status === "available").length,

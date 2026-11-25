@@ -218,21 +218,29 @@ async function fetchVehicles() {
   const select =
     "id,brand,model,year,price,km,fuel_type,transmission,color,power_cv,description,images,status,created_at";
   const endpoint = `${url.replace(/\/$/, "")}/rest/v1/vehicles?select=${select}&status=eq.available&order=created_at.desc`;
-  try {
-    const res = await fetch(endpoint, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-    });
-    if (!res.ok) {
-      console.warn(`[seo] Supabase returned ${res.status} — skipping vehicle pre-render.`);
-      return [];
+  // Con credenciales (producción) un fallo aquí NO se ignora: publicar un sitemap sin coches
+  // haría perder las fichas en Google sin que nadie se entere. Se reintenta y, si sigue
+  // fallando, se corta el build: Vercel mantiene la versión anterior publicada.
+  let lastError = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(endpoint, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      });
+      if (!res.ok) throw new Error(`Supabase respondió ${res.status}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) return data;
+      throw new Error("Supabase no devolvió ningún vehículo disponible");
+    } catch (err) {
+      lastError = err.message;
+      console.warn(`[seo] Intento ${attempt}/3 de leer vehículos falló: ${lastError}`);
+      if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 3000));
     }
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.warn("[seo] Failed to fetch vehicles from Supabase:", err.message);
-    return [];
   }
+  throw new FatalSeoError(`No se pudieron leer los vehículos (${lastError})`);
 }
+
+class FatalSeoError extends Error {}
 
 function vehicleSeo(v) {
   const price = Number(v.price);
@@ -464,6 +472,11 @@ async function main() {
 }
 
 main().catch((err) => {
-  // Never fail the build over SEO generation.
+  if (err instanceof FatalSeoError) {
+    // Cortar el build: así Vercel no publica esta versión y deja la anterior en producción.
+    console.error(`[seo] ERROR: ${err.message}. Build cancelado para no publicar la web sin coches.`);
+    process.exit(1);
+  }
+  // Otros fallos del SEO no deben tumbar el build.
   console.warn("[seo] generate-seo failed (non-fatal):", err);
 });
